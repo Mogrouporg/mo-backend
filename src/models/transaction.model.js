@@ -26,5 +26,5 @@ const transactionSchema = new schema(
 const Transaction = mongoose.model("Transaction", transactionSchema);
 
 module.exports = {
-    Transaction: Transaction;
+    Transaction: Transaction
 }
