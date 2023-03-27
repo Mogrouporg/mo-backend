@@ -34,10 +34,6 @@ const UserSchema = new schema(
             type: String,
             required: false
         },
-        verifyUserToken:{
-            type: String,
-            required: false
-        },
         resetPasswordToken:{
             type: String
         },
@@ -60,7 +56,6 @@ const UserSchema = new schema(
         otpSecret:{
             type: String,
         }
-
     },{
         timestamps: true
     }
@@ -90,5 +85,5 @@ UserSchema.methods.comparePassword = function (password) {
 const User = mongoose.model("User", UserSchema);
 
 module.exports ={
-    User: User
+    User
 }
