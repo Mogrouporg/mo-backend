@@ -14,5 +14,6 @@ router.get('/render', (req, res)=>{
 router.post('/signup', register)
 router.post('/verify-otp', verifyToken, verifyUser);
 router.get('/request-otp', verifyToken, requestOtp);
+router.post('/login', loginUser);
 
 module.exports = router;

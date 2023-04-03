@@ -110,36 +110,70 @@ exports.requestOtp = async(req, res)=>{
     }
 }
 
+
 exports.loginUser = async(req, res)=>{
     try {
         const { email, password } = req.body;
-        const existingUser = await User.findOne({email: email});
-        if(!existingUser){
-            res.status(400).json({
-                success: false,
-                message: "User does not exist!"
-            })
+        if(!email || !password){
+         res.status(400).json({
+             success: false,
+             message: "All fields are required!"
+         })   ;
+        }else{
+            const existingUser = await User.findOne({email: email});
+            if (!existingUser) {
+                res.status(400).json({
+                    success: false,
+                    message: "User does not exist!"
+                })
+            }else{
+                if (!bcrypt.compareSync(password, existingUser.password)) {
+                    res.status(401).json({
+                        success: false,
+                        message: "Invalid password"
+                    });
+                }else{
+                    const token = await jwt.sign({email}, process.env.TOKEN_KEY, {
+                        expiresIn: '1d'
+                    });
+                    await updateToken(email, token);
+                    res.status(200).json({
+                        success: true,
+                        message: "logged In",
+                        data: token
+                    })
+                }
+            }
         }
-        if(!bcrypt.compareSync(password, existingUser.password)){
-            res.status(401).json({
-                success: false,
-                message: "Invalid password"
-            });
-        }
-        const token = await jwt.sign({email}, process.env.TOKEN_KEY, {
-            expiresIn: '1d'
-        });
-        await updateToken(email, token);
-
-        res.status(200).json({
-            success: true,
-            message: "logged In",
-            data: token
-        })
     }catch (e) {
         console.log(e)
         res.status(500).json({
             message: "Internal Server error"
+        })
+    }
+}
+
+exports.logout = async (req, res)=>{
+    try {
+        const user = req.user;
+        const token = req.user.token;
+        if(user.token === req.headers.authorization || user.token === req.params.token){
+            await User.findOneAndUpdate({email: user.email, token: token},{$set:{
+                token: null
+                }});
+            res.status(200).json({
+                success: true,
+                message: "Logged out"
+            })
+        }else{
+            res.status(400).json({
+                message: "You have logged out already!"
+            })
+        }
+    }catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal server error"
         })
     }
 }
