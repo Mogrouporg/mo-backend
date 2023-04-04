@@ -1,5 +1,5 @@
 const { User } = require('../models/users.model');
-const { genOtp, verifyOtp, saveOtp} = require('../utils/otp.util');
+const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../utils/otp.util');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {updateToken} = require("../utils/updateToken.utils");
@@ -91,6 +91,7 @@ exports.requestOtp = async(req, res)=>{
         const email = req.user.email;
         console.log(email)
         const otp = await genOtp();
+        await saveOtp(email, otp)
         await sendMail({
             email: email,
             subject: "Account Verification",
@@ -174,6 +175,83 @@ exports.logout = async (req, res)=>{
         console.log(e);
         res.status(500).json({
             message: "Internal server error"
+        })
+    }
+}
+
+exports.forgotPassword = async(req, res)=>{
+    try {
+        const { email } = req.body;
+        if(!email){
+            res.status(400).json({
+                success: false,
+                message: "Field is required"
+            })
+        }else{
+            const user = await User.findOne({email: email});
+            if(!user){
+                res.status(400).json({
+                    success: false,
+                    message: "Account with this email not found"
+                })
+            }else{
+                const token = await genForgotPasswordToken()
+                await saveOtp(email, token)
+                await User.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
+                const link = `http://localhost:3500/api/v1/reset-password/${token}`
+                await sendMail({
+                    email: email,
+                    subject: 'Forgot password',
+                    text: `To reset your password, click on this reset link ${link}`
+                })
+                res.status(200).json({
+                    resetToken: token,
+                    success: true,
+                    message: "Mail sent!"
+                })
+            }
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Internal Server error"
+        })
+    }
+}
+
+exports.verifyOtpForgotPassword = async(req, res)=>{
+    try {
+        const { token} = req.params;
+        if(!token){
+            res.status(401).json({
+                message: "Token not found"
+            })
+        }else{
+            const user = await User.findOne({ resetPasswordToken: token });
+            if(!await verifyOtp(user.email, token)){
+                res.status(401).json({
+                    message: "Not found"
+                });
+            }else{
+                const { password } = req.body;
+                await bcrypt.hashSync(password, 10);
+                await user.updateOne({ password: password})
+
+                await sendMail({
+                    email: user.email,
+                    subject: 'Password reset',
+                    text:  'Password reset successful'
+                })
+
+                res.status(200).json({
+                    data: user.password,
+                })
+            }
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Internal Server error"
         })
     }
 }

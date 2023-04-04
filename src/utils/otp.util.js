@@ -3,6 +3,7 @@ const {User} = require('../models/users.model')
 const redis = require('redis');
 require('dotenv').config();
 const {createClient} = require("redis");
+const crypto = require("crypto");
 const connection = async ()=>{
     try {
         const client = createClient()
@@ -66,5 +67,13 @@ exports.verifyOtp = async (email, body)=>{
         }
     }catch (e) {
         console.log(e);
+    }
+}
+
+exports.genForgotPasswordToken = async ()=>{
+    try {
+        return crypto.randomBytes(20)
+    }catch (e) {
+        console.log(e)
     }
 }
