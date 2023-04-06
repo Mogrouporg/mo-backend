@@ -234,8 +234,8 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
                 });
             }else{
                 const { password } = req.body;
-                await bcrypt.hashSync(password, 10);
-                await user.updateOne({ password: password})
+                const hashed = await bcrypt.hashSync(password, 10);
+                await user.updateOne({ password: hashed})
 
                 await sendMail({
                     email: user.email,
@@ -244,7 +244,8 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
                 })
 
                 res.status(200).json({
-                    data: user.password,
+                    success: true,
+                    data: hashed,
                 })
             }
         }

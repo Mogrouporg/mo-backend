@@ -72,7 +72,7 @@ exports.verifyOtp = async (email, body)=>{
 
 exports.genForgotPasswordToken = async ()=>{
     try {
-        return crypto.randomBytes(20)
+        return crypto.randomBytes(20).toString('hex')
     }catch (e) {
         console.log(e)
     }
