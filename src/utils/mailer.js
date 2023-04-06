@@ -1,11 +1,11 @@
 const nodemailer = require('nodemailer');
-
+require('dotenv').config()
 const sendMail =  async(options)=>{
     const  transporter = nodemailer.createTransport({
-        service: 'smtp.office365.com',
+        service: 'gmail',
         auth: {
-            user: 'info@mogroupltd.com',
-            pass: "Blackgold85?"
+            user: 'christopheregbaaibon@gmail.com',
+            pass: process.env.PASS_TEST
         }
     });
 
@@ -17,11 +17,12 @@ const sendMail =  async(options)=>{
         //html: options.html
     }
 
-    const info = await transporter.sendMail(message)
+     const info = await transporter.sendMail(message)
 }
 
+/*
 sendMail({
-    to: "christopheregbaaibon@gmail.com",
+    to: "oluafemi07@gmail.com",
     subject: "Testing",
     text: "Hello Chris"
 }).then(r => {
@@ -29,8 +30,9 @@ sendMail({
 }).catch(e=>{
     console.log(e)
 })
+*/
 
-/*
+
 module.exports = {
     sendMail
-}*/
+}

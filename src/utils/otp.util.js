@@ -1,30 +1,79 @@
-const speakeasy = require('speakeasy');
+const speakeasy  = require('speakeasy');
 const {User} = require('../models/users.model')
+const redis = require('redis');
+require('dotenv').config();
+const {createClient} = require("redis");
+const crypto = require("crypto");
+const connection = async ()=>{
+    try {
+        const client = createClient()
+        await client.connect();
 
-exports.genOtp = async (email) => {
-    const secret = speakeasy.generateSecret({length: 20});
-    const savedSecret = secret.base32;
-    const otp = speakeasy.totp({
-        secret: savedSecret,
-        encoding: 'base32'
-    });
-    await User.findOneAndUpdate({email: email}, {
-        otpSecret: savedSecret,
-    }, {new: true})
-    return otp;
+        client.on('error', (err) => console.log(err));
+        client.on('connect', () => console.log('connect'));
+        return client;
+    }catch (e) {
+        console.log(e)
+    }
 }
 
-exports.verifyOtp = async (user, body, next)=>{
-    const findUser = User.findOne({email: user});
-    const tokenSecret = findUser.otpSecret;
-    const isVerified = speakeasy.totp.verify({
-        secret: tokenSecret,
-        token: body,
-        encoding: 'base32',
-        window: 6
-    });
-    if(isVerified === true){
-        findUser.isVerified = true;
+const addToRedis = async (key, value, expiresIn) => {
+    const redisClient = await connection();
+    try {
+        return await redisClient.set(key, value, expiresIn);
+    } catch (error) {
+        console.log(error)
     }
-    next()
+};
+
+const deleteFromRedis = async (key) => {
+    const redisClient = await connection();
+    try {
+        return redisClient.del(key);
+    } catch (error) {
+        console.log(error)
+    }
+};
+
+const getValueFromRedis = async (key) => {
+    try {
+        const redisClient = await connection();
+        return redisClient.get(key);
+    } catch (error) {
+        console.log(error)
+    }
+};
+
+exports.genOtp = async () => {
+    return Math.floor(Math.random() * 1000000)
+}
+
+exports.saveOtp = async (email, otp)=>{
+    try {
+        await addToRedis(email, otp, 600)
+    }catch (e) {
+        console.log(e)
+    }
+}
+
+exports.verifyOtp = async (email, body)=>{
+    try {
+       const realOtp = await getValueFromRedis(email)
+        if(realOtp !== body){
+            return false;
+        }else{
+            await deleteFromRedis(email);
+            return true;
+        }
+    }catch (e) {
+        console.log(e);
+    }
+}
+
+exports.genForgotPasswordToken = async ()=>{
+    try {
+        return crypto.randomBytes(20).toString('hex')
+    }catch (e) {
+        console.log(e)
+    }
 }
