@@ -1,9 +1,9 @@
-const { User } = require('../models/users.model');
-const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../utils/otp.util');
+const { User } = require('../../models/users.model');
+const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../utils/otp.util');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const {updateToken} = require("../utils/updateToken.utils");
-const {sendMail} = require("../utils/mailer");
+const {updateToken} = require("../../utils/updateToken.utils");
+const {sendMail} = require("../../utils/mailer");
 
 exports.register = async (req, res)=>{
     try{
@@ -235,7 +235,7 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
             }else{
                 const { password } = req.body;
                 const hashed = await bcrypt.hashSync(password, 10);
-                await user.updateOne({ password: hashed})
+                await user.updateOne({ password: hashed, resetPasswordToken: null})
 
                 await sendMail({
                     email: user.email,

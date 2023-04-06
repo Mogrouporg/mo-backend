@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { register, loginUser, verifyUser, requestOtp, logout, forgotPassword, verifyOtpForgotPassword} = require('../services/auth.service');
-const {verifyToken} = require("../utils/updateToken.utils");
+const { register, loginUser, verifyUser, requestOtp, logout, forgotPassword, verifyOtpForgotPassword} = require('../../services/users/auth.service');
+const {verifyToken} = require("../../utils/updateToken.utils");
 
 
 
