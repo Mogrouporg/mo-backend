@@ -9,7 +9,7 @@ exports.deposit = async (req, res)=>{
     try {
         const email = req.user.email;
         const amount = req.body.amount *= 100;
-        const form = { amount, email};
+        const form = { amount, email };
         if(!amount || amount < 10000){
             res.status(400).json({
                 success: false,
@@ -52,23 +52,31 @@ exports.verifyDeposit = async(req, res)=>{
         await verifyPayment(reference, async (err, body)=>{
             console.log(body, user.balance);
             if(err){
-                await transaction.updateOne({ status: 'failed'}, {new : true});
+                await transaction.updateOne({ status: 'failed', balance: user.balance}, {new : true});
             }else{
                 let response = JSON.parse(body);
-                const { amount } = response.data;
-                const newBalance = user.balance + amount/100;
-                await transaction.updateOne({ status: 'success', balance: newBalance}, { new: true});
-                await pushNotification({
-                    email: email,
-                    message: `Deposited the amount of ${amount}`
-                })
-                await user.updateOne({
-                    balance: newBalance
-                })
-                res.status(200).json({
-                    success: false,
-                    message: "Deposited successfully"
-                })
+                if(response.data.status === 'failed'){
+                    await transaction.updateOne({ status: 'failed', balance: user.balance}, {new : true});
+                    res.status(400).json({
+                        success: false,
+                        message: "Error with the payment"
+                    })
+                }else{
+                    const { amount } = response.data;
+                    const newBalance = user.balance + amount/100;
+                    await transaction.updateOne({ status: 'success', balance: newBalance}, { new: true});
+                    await pushNotification({
+                        email: email,
+                        message: `Deposited the amount of ${newBalance}`
+                    })
+                    await user.updateOne({
+                        balance: newBalance
+                    })
+                    res.status(200).json({
+                        success: false,
+                        message: "Deposited successfully"
+                    })
+                }
             }
         })
     }catch (e) {
