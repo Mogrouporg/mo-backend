@@ -198,7 +198,7 @@ exports.forgotPassword = async(req, res)=>{
                 const token = await genForgotPasswordToken()
                 await saveOtp(email, token)
                 await User.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
-                const link = `http://localhost:3500/api/v1/reset-password/${token}`
+                const link = `https://mo-backend.onrender.com/api/v1/user/reset-password/${token}`
                 await sendMail({
                     email: email,
                     subject: 'Forgot password',
