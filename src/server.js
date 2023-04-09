@@ -1,8 +1,9 @@
 const express = require('express');
 const { config } = require('dotenv');
 const {db} = require("./config/db.config");
-const router = require("./controllers/auth.controller");
+const router = require("./controllers/user/auth.controller");
 const fileUpload = require('express-fileupload')
+const useRouter = require("./controllers/user/user.controller");
 
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: true}))
 app.use('/api/v1', router)
+app.use('/api/v1/user', useRouter)
 config();
 
 app.use((req, res, next) => {

@@ -4,6 +4,9 @@ const schema = mongoose.Schema;
 
 const transactionSchema = new schema(
     {
+        amount:{
+          type: String,
+        },
         user:{
             type: String,
             required: true
@@ -17,6 +20,10 @@ const transactionSchema = new schema(
         },
         reference: {
             type: String
+        },
+        type:{
+            type: String,
+            enum: ['deposit', 'loan', 'withdrawal']
         }
     },{
         timestamps: true
