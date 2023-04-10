@@ -51,7 +51,7 @@ const UserSchema = new Schema(
         },
         role:{
            type: String,
-           enum: ['USER', 'AGENT', 'ADMIN']
+           enum: ['USER', 'AGENT']
         },
         otpSecret:{
             type: String,

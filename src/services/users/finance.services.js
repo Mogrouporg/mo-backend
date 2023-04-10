@@ -73,7 +73,7 @@ exports.verifyDeposit = async(req, res)=>{
                         balance: newBalance
                     })
                     res.status(200).json({
-                        success: false,
+                        success: true,
                         message: "Deposited successfully"
                     })
                 }

@@ -1,5 +1,4 @@
 const speakeasy  = require('speakeasy');
-const {User} = require('../models/users.model')
 const redis = require('redis');
 require('dotenv').config();
 const {createClient} = require("redis");
