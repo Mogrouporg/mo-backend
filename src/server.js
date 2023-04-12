@@ -4,6 +4,7 @@ const {db} = require("./config/db.config");
 const router = require("./controllers/user/auth.controller");
 const fileUpload = require('express-fileupload')
 const useRouter = require("./controllers/user/user.controller");
+const routerAdmin = require("./controllers/admin/auth.controller");
 
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: true}))
 app.use('/api/v1', router)
 app.use('/api/v1/user', useRouter)
+app.use('/api/v1/admin', routerAdmin)
 config();
 
 app.use((req, res, next) => {

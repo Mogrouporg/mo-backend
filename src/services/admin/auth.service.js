@@ -38,8 +38,9 @@ exports.signupAdmin = async (req, res) => {
                     password
                 });
                 await newAdmin.save();
-                const _id = newAdmin._id;
-                const otp = genOtp();
+                const _id = newAdmin.id;
+                const otp = await genOtp();
+                console.log(otp, _id)
                 await saveOtp(_id, otp);
                 await sendMail({
                     email: email,
@@ -64,10 +65,34 @@ exports.signupAdmin = async (req, res) => {
     }
 }
 
+exports.requestOtpAdmin = async(req, res)=> {
+    try {
+        const email = req.admin.email;
+        console.log(email)
+        const otp = await genOtp();
+        await saveOtp(email, otp)
+        await sendMail({
+            email: email,
+            subject: "Account Verification",
+            text: `Your one time password is ${otp}, thanks`
+        })
+        console.log(otp)
+        res.status(200).json({
+            success: true,
+            message: "Otp sent!",
+            data: otp
+        })
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Internal Server error"
+        })
+    }
+}
 exports.verifyOtpAdmin = async (req, res)=>{
     try {
-        const _id = req.user._id;
-        const { otp } = req.body.body;
+        const _id = req.admin.id;
+        const { otp } = req.body;
         if(await verifyOtp(_id, otp) === true){
             await Admin.findByIdAndUpdate(_id, { isVerified: true}, { new: true});
             res.status(200).json({
@@ -124,5 +149,111 @@ exports.loginAdmin = async (req, res)=>{
         res.status(500).json({
             message: "Interval Server error"
         });
+    }
+}
+
+exports.logout = async(req, res)=>{
+    try {
+        const admin = req.admin;
+        const token = req.admin.token;
+        if(admin.token === req.headers.authorization || admin.token === req.params.token) {
+            await Admin.findOneAndUpdate({email: admin.email, token: token}, {
+                $set: {
+                    token: null
+                }
+            });
+            res.status(200).json({
+                success: true,
+                message: "Logged out"
+            })
+        }
+        else{
+            res.status(400).json({
+                message: "You have logged out already!"
+            })
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Interval server error"
+        })
+    }
+}
+
+exports.forgotPassword = async(req, res)=>{
+    try {
+        const { email } = req.body;
+        if(!email){
+            res.status(400).json({
+                success: false,
+                message: "Field is required"
+            })
+        }else{
+            const user = await Admin.findOne({email: email});
+            if(!user){
+                res.status(400).json({
+                    success: false,
+                    message: "Account with this email not found"
+                })
+            }else{
+                const token = await genForgotPasswordToken()
+                await saveOtp(email, token)
+                await Admin.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
+                const link = `https://mo-backend.onrender.com/api/v1/admin/reset-password/${token}`
+                await sendMail({
+                    email: email,
+                    subject: 'Forgot password',
+                    text: `To reset your password, click on this reset link ${link}`
+                })
+                res.status(200).json({
+                    resetToken: token,
+                    success: true,
+                    message: "Mail sent!"
+                })
+            }
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Internal Server error"
+        })
+    }
+}
+
+exports.resetPassword = async (req, res)=>{
+    try {
+        const { token} = req.params;
+        if(!token){
+            res.status(401).json({
+                message: "Token not found"
+            })
+        }else{
+            const user = await Admin.findOne({ resetPasswordToken: token });
+            if(!await verifyOtp(user.email, token)){
+                res.status(401).json({
+                    message: "Not found"
+                });
+            }else{
+                const { password } = req.body;
+                const hashed = await bcrypt.hashSync(password, 10);
+                await user.updateOne({ password: hashed, resetPasswordToken: null})
+
+                await sendMail({
+                    email: user.email,
+                    subject: 'Password reset',
+                    text:  'Password reset successful'
+                })
+
+                res.status(200).json({
+                    success: true,
+                    data: hashed,
+                })
+            }
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Internal server error"
+        })
     }
 }
