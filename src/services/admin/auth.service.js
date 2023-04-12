@@ -86,3 +86,43 @@ exports.verifyOtpAdmin = async (req, res)=>{
         })
     }
 }
+
+exports.loginAdmin = async (req, res)=>{
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        if(!email || !password){
+            res.status(400).json({
+                message: "All fields are required"
+            })
+        }else{
+            const admin = await Admin.findOne({email: email});
+            if(!admin){
+                res.status(400).json({
+                    message: "User does not exist"
+                })
+            }else{
+                if(!await bcrypt.compareSync(password, admin.password)){
+                    res.status(401).json({
+                        message: "Invalid Password"
+                    });
+                }else{
+                    const token = await jwt.sign({"_id": admin._id}, process.env.TOKEN_KEY_ADMIN, {
+                        expiresIn: '1h'
+                    })
+                    await updateTokenAdmin(admin._id, token);
+                    res.status(200).json({
+                        success: true,
+                        message: "logged In",
+                        data: token
+                    })
+                }
+            }
+        }
+    }catch (e) {
+        console.log(e)
+        res.status(500).json({
+            message: "Interval Server error"
+        });
+    }
+}
