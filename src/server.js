@@ -5,6 +5,7 @@ const router = require("./controllers/user/auth.controller");
 const fileUpload = require('express-fileupload')
 const useRouter = require("./controllers/user/user.controller");
 const routerAdmin = require("./controllers/admin/auth.controller");
+const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 
 
 const app = express();
@@ -15,6 +16,7 @@ app.use('/api/v1', router)
 app.use('/api/v1/user', useRouter)
 app.use('/api/v1/admin', routerAdmin)
 config();
+setUsersInactive()
 
 app.use((req, res, next) => {
     const error = new Error('Invalid endpoint, wetin you dey look for here?');
