@@ -44,7 +44,7 @@ exports.verifyTokenAdmin = async (req, res, next )=>{
                 const user = await Admin.findById(key);
                 if(!user) {
                     res.status(401).json({
-                        message: 'User not found'
+                        message: 'You are not allowed to perform this action!'
                     })
                 }
                 req.admin = user;
