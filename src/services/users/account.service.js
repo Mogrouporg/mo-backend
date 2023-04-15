@@ -2,6 +2,8 @@ const { User } = require('../../models/users.model');
 const { sendMail } = require('../../utils/mailer')
 const cronJob = require('cron')
 const {Transaction} = require("../../models/transaction.model");
+const {TransInvest} = require("../../models/transInvestments.model");
+const {RealEstateInvestment} = require("../../models/realEstateInvestments.model");
 exports.myProfile =async(req, res)=>{
     try {
         const user = req.user.select('firstName lastName ');
@@ -36,7 +38,7 @@ exports.editAccount = async (req, res)=>{
 exports.getMyTransactions = async(req, res)=>{
     try {
         const email = req.user.email;
-        const myTransactions = await Transaction.find({ email: email });
+        const myTransactions = await Transaction.find({ email: email }).select('amount status type');
         res.status(200).json({
             message: true,
             data: myTransactions
@@ -45,6 +47,21 @@ exports.getMyTransactions = async(req, res)=>{
         console.log(e)
         res.status(500).json({
             message:"Internal Server error"
+        })
+    }
+}
+exports.getMyInvestments = async(req, res)=>{
+    try {
+        const email = req.user.email;
+        const myInvestments = await TransInvest.find({ user: 'email'}).select('status').populate('transportId') && await RealEstateInvestment.find({ user: email}).select('select').populate('propertyId')
+        res.status(200).json({
+            success: true,
+            data: myInvestments
+        })
+    }catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal server error"
         })
     }
 }

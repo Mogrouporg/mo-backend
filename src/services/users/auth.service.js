@@ -134,6 +134,10 @@ exports.loginUser = async(req, res)=>{
                         message: "Invalid password"
                     });
                 }else{
+                    if(existingUser.status === 'inactive'){
+                        await existingUser.updateOne({ status : 'active'});
+
+                    }
                     const token = await jwt.sign({"email": email}, process.env.TOKEN_KEY, {
                         expiresIn: '1d'
                     });
