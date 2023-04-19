@@ -6,8 +6,8 @@ const { pushNotification } = require('../services/notif/notif.services')
 exports.setUsersInactive = async ()=>{
     cron.schedule('0 0 * * *', async ()=>{
         console.log('Cron started');
-        const sixMonthsAgo = new Date(Date.now()- (6 * 30 * 24 * 60 * 60 * 1000))
-        const inActiveUsers = User.find({ updatedAt: sixMonthsAgo, status: 'active' });
+        const sixMonthsAgo = new Date(Date.now()- (1.5 * 30 * 24 * 60 * 60 * 1000))
+        const inActiveUsers = User.find({ lastTransact: null, status: 'active', createdAt: sixMonthsAgo });
 
         if(inActiveUsers > 0){
             //await User.updateMany({ _id: { $in: inActiveUsers.map(user=> user._id)}}, { status: 'inactive'});

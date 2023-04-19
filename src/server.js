@@ -11,7 +11,7 @@ const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(fileUpload({ useTempFiles: true}))
+app.use(fileUpload({ useTempFiles: false}))
 app.use('/api/v1', router)
 app.use('/api/v1/user', useRouter)
 app.use('/api/v1/admin', routerAdmin)

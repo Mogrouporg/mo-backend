@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const fs = require('fs');
+require('dotenv').config()
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -7,23 +8,19 @@ AWS.config.update({
 });
 
 const s3 = new AWS.S3();
-exports.imageUpload = async (file, folder, options)=>{
+
+exports.imageUpload = async (file, folder)=>{
     try{
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key: `${folder}/${file}`,
-            Body: fs.readFileSync(file),
+            Key: `${folder}/${file.name}`,
+            Body: file.data,
+            ACL: 'public-read',
+            ContentType: 'image/jpeg'
         }
-        s3.upload(params, async(err, data)=>{
-            if(err){
-                console.log(err)
-                return false
-            }else{
-                console.log(data.location)
-                return data.location
-            }
-        })
 
+        const data = await s3.upload(params).promise()
+        return data.Location
     }catch (e) {
         console.log(e)
     }
