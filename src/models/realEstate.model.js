@@ -24,7 +24,7 @@ const realEstateSchema = new schema(
             required: true
         },
         image:{
-            type: String,
+            type: Array,
         },
         location:{
             type: String,

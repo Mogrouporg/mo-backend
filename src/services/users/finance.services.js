@@ -25,7 +25,7 @@ exports.deposit = async (req, res)=>{
                 }else{
                     const response = JSON.parse(body);
                     const newDeposit = new Transaction({
-                        amount:amount,
+                        amount:amount/100,
                         user: email,
                         reference: response.data.reference,
                         type: 'deposit'

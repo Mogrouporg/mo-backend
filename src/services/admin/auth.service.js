@@ -67,12 +67,11 @@ exports.signupAdmin = async (req, res) => {
 
 exports.requestOtpAdmin = async(req, res)=> {
     try {
-        const email = req.admin.email;
-        console.log(email)
+        const admin = req.admin;
         const otp = await genOtp();
-        await saveOtp(email, otp)
+        await saveOtp(admin.id, otp)
         await sendMail({
-            email: email,
+            email: admin.email,
             subject: "Account Verification",
             text: `Your one time password is ${otp}, thanks`
         })

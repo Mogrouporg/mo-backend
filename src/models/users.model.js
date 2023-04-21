@@ -53,9 +53,6 @@ const UserSchema = new Schema(
            type: String,
            enum: ['USER', 'AGENT']
         },
-        otpSecret:{
-            type: String,
-        },
         status: {
             type: String,
             enum: ['active', 'inactive'],

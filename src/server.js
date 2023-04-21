@@ -5,6 +5,7 @@ const router = require("./controllers/user/auth.controller");
 const fileUpload = require('express-fileupload')
 const useRouter = require("./controllers/user/user.controller");
 const routerAdmin = require("./controllers/admin/auth.controller");
+const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 
 
@@ -14,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: false}))
 app.use('/api/v1', router)
 app.use('/api/v1/user', useRouter)
-app.use('/api/v1/admin', routerAdmin)
+app.use('/api/v1/admin', routerAdmin, routerAdminTask)
 config();
 setUsersInactive()
 
