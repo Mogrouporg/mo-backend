@@ -1,12 +1,14 @@
 const speakeasy  = require('speakeasy');
-const {User} = require('../models/users.model')
 const redis = require('redis');
 require('dotenv').config();
 const {createClient} = require("redis");
 const crypto = require("crypto");
 const connection = async ()=>{
     try {
-        const client = createClient()
+        const client = createClient({
+            //url: process.env.REDIS_PUBLIC_URL,
+            //password: process.env.REDIS_PASSWORD
+        })
         await client.connect();
 
         client.on('error', (err) => console.log(err));

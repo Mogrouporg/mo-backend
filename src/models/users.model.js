@@ -42,7 +42,7 @@ const UserSchema = new Schema(
             required: false
         },
         profile_url:{
-            type: String,
+            type: Array,
             required: false
         },
         isVerified: {
@@ -51,10 +51,15 @@ const UserSchema = new Schema(
         },
         role:{
            type: String,
-           enum: ['USER', 'AGENT', 'ADMIN']
+           enum: ['USER', 'AGENT']
         },
-        otpSecret:{
+        status: {
             type: String,
+            enum: ['active', 'inactive'],
+            default: 'active'
+        },
+        lastTransact:{
+            type: Date
         }
     },{
         timestamps: true

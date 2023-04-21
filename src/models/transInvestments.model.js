@@ -12,6 +12,10 @@ const transInvestSchema = new schema(
             type: schema.Types.ObjectId,
             name: "Users",
             required: true
+        },
+        status:{
+            type: String,
+            enum: ['ongoing','paid']
         }
     }, {
         timestamps: true
