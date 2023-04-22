@@ -7,10 +7,21 @@ const useRouter = require("./controllers/user/user.controller");
 const routerAdmin = require("./controllers/admin/auth.controller");
 const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
+const cors = require('cors');
 
 
 const app = express();
 app.use(express.json());
+const allowedOrigins = ['https://mo-website-c20ooye8m-mogroup.vercel.app/', 'http://localhost:3000', '*'];
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
+}));
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: false}))
 app.use('/api/v1', router)
