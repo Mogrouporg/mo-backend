@@ -7,7 +7,7 @@ const {RealEstateInvestment} = require("../../models/realEstateInvestments.model
 const {imageUpload} = require("../../utils/imageUpload.util");
 exports.myProfile =async(req, res)=>{
     try {
-        const user = req.user.select('firstName lastName ');
+        const user = req.user.select('firstName lastName balance profile_url isVerified status email phoneNumber');
         res.status(200).json({
             success: true,
             data: user
