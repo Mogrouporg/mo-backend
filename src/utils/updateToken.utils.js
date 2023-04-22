@@ -11,7 +11,7 @@ exports.verifyToken = async (req, res, next )=>{
     try {
         const token = req.headers.authorization || req.body.token || req.params.token
         if(!token){
-            res.status(401).redirect('https://join-monie.vercel.app/login')
+            res.status(401).redirect('https://mo-website-c20ooye8m-mogroup.vercel.app/login')
         }else{
             await jwt.verify(token, process.env.TOKEN_KEY, async function (err, decoded){
                 const key = decoded.email;
