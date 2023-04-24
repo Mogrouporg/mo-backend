@@ -12,7 +12,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['*'];
+const allowedOrigins = ['https://mo-website-5715.vercel.app'];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
