@@ -62,27 +62,26 @@ exports.createLandInvestment = async (req, res)=>{
     try {
         const email = req.admin.email
         const { name, amount, size, address, location } = req.body;
-        const { images } = req.files;
-        console.log(images.length)
-        if(!name || !amount || !size || !address || !location || !images){
+        //const { images } = req.files;
+        if(!name || !amount || !size || !address || !location){
             res.status(400).json({
                 message: "All fields are required!"
             })
         }else{
             const urls = [];
-            for(let i=0; i < images.length; i++){
-                let url = await imageUpload(req.files.images[i], 'realEstate')
-                urls.push(url)
-            }
-            const user = await User.find();
-            console.log(user.email)
+            //for(let i=0; i < images.length; i++){
+              //  let url = await imageUpload(req.files.images[i], 'realEstate')
+               // urls.push(url)
+            //}
+            const user = await User.find().select('email -_id');
+            //console.log(user.email)
             const newRealEstate = new RealEstate({
                 user: email,
                 propertyName: name,
                 amount: amount,
                 sizeInSqm: size,
                 address: address,
-                image: urls,
+                //image: urls,
                 location: location
             })
             await newRealEstate.save();
