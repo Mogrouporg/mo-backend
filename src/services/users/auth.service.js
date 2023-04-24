@@ -51,7 +51,7 @@ exports.register = async (req, res)=>{
                     res.status(201).json({
                         success: true,
                         data: token,
-                        user: User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
+                        user: await User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
                     })
                 }
             }
