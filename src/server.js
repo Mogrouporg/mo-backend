@@ -12,7 +12,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['https://mo-website-c20ooye8m-mogroup.vercel.app/', 'http://localhost:3000', 'http://localhost:3001', '*'];
+const allowedOrigins = ['*'];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -22,6 +22,10 @@ app.use(cors({
         }
     }
 }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: false}))
 app.use('/api/v1', router)
