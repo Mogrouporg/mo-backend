@@ -5,19 +5,17 @@ const {sendMail} = require("./mailer");
 
 exports.notifyAllUsers = async(users,subject, body)=>{
     try {
-        let user
-        for ( user.email in users) {
+        for (let i = 0; i < users.length; i++) {
             await pushNotification({
                 message: body,
-                email: user.email
+                email: users[i].email
             });
             await sendMail({
-                to: user.email,
+                email: users[i].email,
                 subject: subject,
                 text: body
             });
         }
-        console.log('Done')
     }catch (e) {
         console.log(e)
     }
