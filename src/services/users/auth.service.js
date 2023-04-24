@@ -51,7 +51,7 @@ exports.register = async (req, res)=>{
                     res.status(201).json({
                         success: true,
                         data: token,
-                        user: User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isActive status')
+                        user: User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
                     })
                 }
             }
@@ -147,7 +147,7 @@ exports.loginUser = async(req, res)=>{
                         success: true,
                         message: "logged In",
                         data: token,
-                        user: await User.findById(existingUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isActive status')
+                        user: await User.findById(existingUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
                     })
                 }
             }
