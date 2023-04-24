@@ -26,6 +26,18 @@ const UserSchema = new Schema(
             type: Number,
             default: 0
         },
+        totalInvestments:{
+            type: Number,
+            default:  0
+        },
+        totalRoi:{
+            type: Number,
+            default: 0
+        },
+        totalLoan: {
+            type: Number,
+            default: 0
+        },
         password: {
             type: String,
             required: false

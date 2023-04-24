@@ -50,7 +50,8 @@ exports.register = async (req, res)=>{
                     await updateToken(email, token)
                     res.status(201).json({
                         success: true,
-                        data: token
+                        data: token,
+                        user: User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isActive')
                     })
                 }
             }
@@ -134,10 +135,10 @@ exports.loginUser = async(req, res)=>{
                         message: "Invalid password"
                     });
                 }else{
-                    if(existingUser.status === 'inactive'){
-                        await existingUser.updateOne({ status : 'active'});
+                    //if(existingUser.status === 'inactive'){
+                      //  await existingUser.updateOne({ status : 'active'});
 
-                    }
+                    //}
                     const token = await jwt.sign({"email": email}, process.env.TOKEN_KEY, {
                         expiresIn: '1d'
                     });
@@ -145,7 +146,8 @@ exports.loginUser = async(req, res)=>{
                     res.status(200).json({
                         success: true,
                         message: "logged In",
-                        data: token
+                        data: token,
+                        user: existingUser.select('firstName lastName balance totalInvestment totalRoi totalLoan isActive')
                     })
                 }
             }
