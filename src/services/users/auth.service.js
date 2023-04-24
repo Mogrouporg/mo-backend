@@ -135,10 +135,10 @@ exports.loginUser = async(req, res)=>{
                         message: "Invalid password"
                     });
                 }else{
-                    if(existingUser.status === 'inactive'){
-                        await existingUser.updateOne({ status : 'active'});
+                    //if(existingUser.status === 'inactive'){
+                      //  await existingUser.updateOne({ status : 'active'});
 
-                    }
+                    //}
                     const token = await jwt.sign({"email": email}, process.env.TOKEN_KEY, {
                         expiresIn: '1d'
                     });
@@ -146,7 +146,8 @@ exports.loginUser = async(req, res)=>{
                     res.status(200).json({
                         success: true,
                         message: "logged In",
-                        data: token
+                        data: token,
+                        user: existingUser.select('firstName lastName balance totalInvestment totalRoi totalLoan isActive')
                     })
                 }
             }
