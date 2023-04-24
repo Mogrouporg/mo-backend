@@ -147,7 +147,7 @@ exports.loginUser = async(req, res)=>{
                         success: true,
                         message: "logged In",
                         data: token,
-                        user: User.findById(existingUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isActive')
+                        user: await User.findById(existingUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isActive')
                     })
                 }
             }
