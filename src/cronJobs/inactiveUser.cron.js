@@ -7,7 +7,7 @@ exports.setUsersInactive = async () => {
   cron.schedule('0 0 * * *', async () => {
     console.log('Cron started');
     const sixMonthsAgo = new Date(Date.now() - (1.5 * 30 * 24 * 60 * 60 * 1000));
-    const inActiveUsers = await User.find({ lastTransact: null, status: 'active', createdAt: sixMonthsAgo }).lean();
+    const inActiveUsers = await User.find({ realEstateInvestment: null, createdAt: sixMonthsAgo }).lean();
 
     if (inActiveUsers.length > 0) {
       const userEmails = inActiveUsers.map(user => user.email);

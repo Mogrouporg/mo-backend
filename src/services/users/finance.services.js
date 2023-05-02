@@ -126,7 +126,18 @@ exports.investInRealEstate =async (req, res)=>{
                 }else{
                     const investment = await RealEstateInvestment.create(newInvestment);
                     const newBalance = parseInt(balance) - realEstate.amountInUsd;
-                    
+                    await User.findByIdAndUpdate(user.id, {
+                        realEstateInvestment: investment,
+                        balance: newBalance,
+                        lastTransact: new Date(Date.now())
+                    });
+                    await realEstate.updateOne({
+                        $inc: {
+                            numberOfBuyers: 1
+                        }
+                    }, {
+                        new: true
+                    })
                 }   
             }else{
                 const newInvestment = {
@@ -144,7 +155,19 @@ exports.investInRealEstate =async (req, res)=>{
                     })
                 }else{
                     const investment = await RealEstateInvestment.create(newInvestment);
-                    const newBalance = parseInt(balance) - realEstate.amount
+                    const newBalance = parseInt(balance) - realEstate.amount;
+                    await User.findByIdAndUpdate(user.id, {
+                        realEstateInvestment: investment,
+                        balance: newBalance,
+                        lastTransact: new Date(Date.now())
+                    });
+                    await realEstate.updateOne({
+                        $inc: {
+                            numberOfBuyers: 1
+                        }
+                    }, {
+                        new: true
+                    })
                 }
             }
         }
@@ -152,5 +175,14 @@ exports.investInRealEstate =async (req, res)=>{
         res.status(500).json({
             message: "Internal Server error"
         })
+    }
+};
+
+
+exports.sellRealEstateInvestment = async(req, res)=>{
+    try {
+        const id = req.params.id
+    } catch (error) {
+        console.log(error);
     }
 }

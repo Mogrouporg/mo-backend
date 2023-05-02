@@ -25,6 +25,10 @@ const RealEstateInvestmentSchema = new schema(
         currency: {
             type: String,
             enum: ['USD', 'NGN']
+        },
+        currentRoi:{
+            type: Number,
+            default: 0
         }
     },{
         timestamps: true

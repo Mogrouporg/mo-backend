@@ -8,6 +8,7 @@ const routerAdmin = require("./controllers/admin/auth.controller");
 const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 const cors = require('cors');
+const { updateRoi } = require('./cronJobs/roiUpdate');
 
 
 const app = express();
@@ -32,7 +33,8 @@ app.use('/api/v1', router)
 app.use('/api/v1/user', useRouter)
 app.use('/api/v1/admin', routerAdmin, routerAdminTask)
 config();
-setUsersInactive()
+setUsersInactive();
+updateRoi();
 
 app.use((req, res, next) => {
     const error = new Error('Invalid endpoint, wetin you dey look for here?');

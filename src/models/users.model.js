@@ -181,6 +181,10 @@ const UserSchema = new Schema(
                 currency: {
                     type: String,
                     enum: ['USD', 'NGN']
+                },
+                currentRoi:{
+                    type: Number,
+                    default: 0
                 }
             }
         ],
