@@ -16,6 +16,9 @@ const loanRequestSchema = new schema(
         },
         bankName:{
             type: String
+        },
+        loanDesc:{
+            type: String
         }
     },
     {

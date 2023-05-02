@@ -72,7 +72,144 @@ const UserSchema = new Schema(
         },
         lastTransact:{
             type: Date
+        },
+        currency: {
+            type: String,
+            enum: ['NGN', 'USD']
+        },
+        transactions: [{
+            amount:{
+                type: String,
+            },
+            user:{
+                type: String,
+                required: true
+            },
+            status: {
+                type: String,
+                enum: ["success", "failed"]
+            },
+            balance: {
+                type: String
+            },
+            reference: {
+                type: String
+            },
+            type:{
+                type: String,
+                enum: ['deposit', 'loan', 'withdrawal', 'invest']
+            },
+            currency: {
+                type: String,
+                enum: ['USD', 'NGN']
+            },
+            createdAt:{
+                type: Date,
+                default: new Date(Date.now())
+            }
+
+        }],
+        notifications:[{
+            message: {
+                type: String,
+                required: true
+            },
+            email: {
+                type: String,
+                ref: 'User',
+                required: true
+            },
+            read: {
+                type: Boolean,
+                default: false
+            },
+            createdAt:{
+                type: Date,
+                default: new Date(Date.now())
+            }
         }
+        ],
+        loanRequests:[{
+            user:{
+                type: String,
+                required: true
+            },
+            loanAmount:{
+                type: String,
+            },
+            loanPeriod: {
+                type: Number,
+                max: 3,
+            },
+            bankName:{
+                type: String
+            },
+            loanDesc:{
+                type: String
+            },
+            createdAt:{
+                type: Date,
+                default: new Date(Date.now())
+            }
+        }
+        ],
+        realEstateInvestment: [
+            {
+                user: {
+                    type: String,
+                    required: true
+                },
+                propertyId: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'RealEstate',
+                    required: true
+                },
+                roi: {
+                    type: Number,
+                },
+                invPeriod: {
+                    type: String
+                },
+                status:{
+                    type: String,
+                    enum: ['ongoing','paid']
+                },
+                createdAt:{
+                    type: Date,
+                    default: new Date(Date.now())
+                },
+                currency: {
+                    type: String,
+                    enum: ['USD', 'NGN']
+                }
+            }
+        ],
+        transportInvestment: [
+            {
+                transportId: {
+                    type: Schema.Types.ObjectId,
+                    name: "transports",
+                    required: true
+                },
+                userId: {
+                    type: Schema.Types.ObjectId,
+                    name: "Users",
+                    required: true
+                },
+                status:{
+                    type: String,
+                    enum: ['ongoing','paid']
+                },
+                currency: {
+                    type: String,
+                    enum: ['USD', 'NGN']
+                },
+                createdAt:{
+                    type: Date,
+                    default: new Date(Date.now())
+                }
+            }
+        ]
     },{
         timestamps: true
     }
@@ -95,12 +232,27 @@ UserSchema.pre("save", function (next) {
     });
 });
 
+UserSchema.pre("save", async function (next) {
+    const user = this;
+
+    if (!user.isModified("password")) return next();
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(user.password, salt);
+        user.password = hash;
+        next();
+    } catch (err) {
+        return next(err);
+    }
+});
+
 UserSchema.methods.comparePassword = function (password) {
     return bcrypt.compareSync(password, this.password);
 };
 
 const User = mongoose.model("User", UserSchema);
 
-module.exports ={
-    User: User
-}
+module.exports = {
+    User,
+};

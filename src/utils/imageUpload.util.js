@@ -9,19 +9,25 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-exports.imageUpload = async (file, folder)=>{
-    try{
-        const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: `${folder}/${file.name}`,
-            Body: file.data,
-            ACL: 'public-read',
-            ContentType: 'image/jpeg'
-        }
+exports.imageUpload = async (files, folder) => {
+    try {
+        const uploadPromises = files.map(async (file) => {
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `${folder}/${file.name}`,
+                Body: file.data,
+                ACL: 'public-read',
+                ContentType: 'image/jpeg'
+            };
 
-        const data = await s3.upload(params).promise()
-        return data.Location
-    }catch (e) {
-        console.log(e)
+            const data = await s3.upload(params).promise();
+            return data.Location;
+        });
+
+        const urls = await Promise.all(uploadPromises);
+
+        return urls;
+    } catch (e) {
+        console.log(e);
     }
-}
+};

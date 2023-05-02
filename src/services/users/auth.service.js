@@ -12,7 +12,8 @@ exports.register = async (req, res)=>{
             const  email = req.body.email
             const  phoneNumber = req.body.phoneNumber;
             const password = req.body.password;
-            const  role = req.body.role
+            const  role = req.body.role;
+            const currency = req.body.currency;
             if(!firstName || !lastName || !email || !phoneNumber || !password || !role){
                 res.status(400).json({
                     message: "All fields required"
@@ -129,7 +130,7 @@ exports.loginUser = async(req, res)=>{
                     message: "User does not exist!"
                 })
             }else{
-                if (!bcrypt.compareSync(password, existingUser.password)) {
+                if (!existingUser.comparePassword(password)) {
                     res.status(401).json({
                         success: false,
                         message: "Invalid password"
