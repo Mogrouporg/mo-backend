@@ -35,6 +35,7 @@ exports.editAccount = async (req, res) => {
         } else {
             const file = req.files.file;
             const folder = 'avatars';
+            console.log(file);
             const url = await imageUpload(file, folder);
             console.log(url);
             const updatedUser = await User.findByIdAndUpdate(id, { profile_url: url }, { new: true });
