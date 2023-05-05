@@ -13,7 +13,7 @@ const { updateRoi } = require('./cronJobs/roiUpdate');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['https://mo-website-5715.vercel.app'];
+const allowedOrigins = ['https://mo-website-5715.vercel.app', 'http://localhost:3000'];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {

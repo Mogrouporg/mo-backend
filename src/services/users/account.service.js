@@ -9,7 +9,7 @@ const { imageUpload } = require("../../utils/imageUpload.util");
 exports.myProfile = async (req, res) => {
     try {
         const id = req.user.id;
-        const user = await User.findById(id, 'firstName lastName balance profile_url isVerified status email phoneNumber');
+        const user = await User.findById(id, '-password -refreshTokenHash');
         res.status(200).json({
             success: true,
             data: user

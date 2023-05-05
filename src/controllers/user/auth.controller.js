@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { register, loginUser, verifyUser, requestOtp, logout, forgotPassword, verifyOtpForgotPassword} = require('../../services/users/auth.service');
+const { register, loginUser, verifyUser, requestOtp, logout, forgotPassword, verifyOtpForgotPassword, refresh} = require('../../services/users/auth.service');
 const {verifyToken} = require("../../utils/updateToken.utils");
 const {editAccount} = require("../../services/users/account.service");
 //const {upload} = require("../../utils/imageUpload.util");
@@ -21,5 +21,6 @@ router.post('/logout', verifyToken, logout);
 router.post('/user/forgot-password', forgotPassword)
 router.post('/user/reset-password/:token', verifyOtpForgotPassword);
 router.post('/user/edit-account', verifyToken, editAccount);
+router.post('/refresh', verifyToken, refresh);
 
 module.exports = router;

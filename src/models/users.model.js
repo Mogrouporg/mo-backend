@@ -42,7 +42,7 @@ const UserSchema = new Schema(
             type: String,
             required: false
         },
-        token:{
+        refreshTokenHash:{
             type: String,
             required: false
         },

@@ -2,7 +2,7 @@ const { User } = require('../../models/users.model');
 const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../utils/otp.util');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const {updateToken} = require("../../utils/updateToken.utils");
+const {updateToken, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
 
 exports.register = async (req, res)=>{
@@ -45,14 +45,18 @@ exports.register = async (req, res)=>{
                         subject: "Account Verification",
                         text: `Your one time password is ${otp}, thanks`,
                     })
-                    const token = jwt.sign({"email": email}, process.env.TOKEN_KEY, {
-                        expiresIn: '1d'
-                    });
-                    await updateToken(email, token)
+                    const token = await generateAccessToken({email: newUser.email});
+                    const refreshToken = await generateRefreshToken({id: newUser.id});
+                    //console.log(token, refreshToken);
+                    const hash = bcrypt.hashSync(refreshToken, 10);
+                    await updateToken(email, hash)
                     res.status(201).json({
                         success: true,
-                        data: token,
-                        user: await User.findById(newUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
+                        tokens: {
+                            accessToken: token,
+                            refreshToken: refreshToken
+                        },
+                        user: await User.findById(newUser.id).select('isVerified status') 
                     })
                 }
             }
@@ -140,15 +144,18 @@ exports.loginUser = async(req, res)=>{
                       //  await existingUser.updateOne({ status : 'active'});
 
                     //}
-                    const token = await jwt.sign({"email": email}, process.env.TOKEN_KEY, {
-                        expiresIn: '1d'
-                    });
-                    await updateToken(email, token);
+                    const token = generateAccessToken({email: existingUser.email })
+                    const refreshToken = generateRefreshToken({id: existingUser.id});
+                    const hash = bcrypt.hashSync(refreshToken, 10)
+                    await updateToken(email, hash);
                     res.status(200).json({
                         success: true,
                         message: "logged In",
-                        data: token,
-                        user: await User.findById(existingUser.id).select('firstName lastName balance totalInvestment totalRoi totalLoan isVerified status')
+                        tokens:{
+                            accessToken: token,
+                            refreshToken: refreshToken
+                        },
+                        user: await User.findById(existingUser.id).select('isVerified status')
                     })
                 }
             }
@@ -182,6 +189,37 @@ exports.logout = async (req, res)=>{
         console.log(e);
         res.status(500).json({
             message: "Internal server error"
+        })
+    }
+}
+
+exports.refresh = async(req, res)=>{
+    try {
+        const {id} = req.user;
+        const { refreshToken } = req.body;
+        const user = await User.findById(id);
+        const isMatch =  bcrypt.compareSync(refreshToken, user.refreshTokenHash);
+        if(!isMatch){
+            res.status(401).json({
+                message: "Not authorized"
+            })
+        }else{
+            const accessToken = await generateAccessToken({email: user.email});
+            const refreshTokenNew = await generateRefreshToken({id: user.id});
+            const hash = bcrypt.hashSync(refreshTokenNew, 10)
+            await updateToken(user.email, hash)
+            res.status(200).json({
+                success: true,
+                tokens:{
+                    accessToken,
+                    refreshToken: refreshTokenNew
+                }
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal Server error"
         })
     }
 }
