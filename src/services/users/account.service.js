@@ -1,81 +1,91 @@
 const { User } = require('../../models/users.model');
 const { sendMail } = require('../../utils/mailer')
 const cronJob = require('cron')
-const {Transaction} = require("../../models/transaction.model");
-const {TransInvest} = require("../../models/transInvestments.model");
-const {RealEstateInvestment} = require("../../models/realEstateInvestments.model");
-const {imageUpload} = require("../../utils/imageUpload.util");
-exports.myProfile =async(req, res)=>{
+const { Transaction } = require("../../models/transaction.model");
+const { TransInvest } = require("../../models/transInvestments.model");
+const { RealEstateInvestment } = require("../../models/realEstateInvestments.model");
+const { imageUpload } = require("../../utils/imageUpload.util");
+
+exports.myProfile = async (req, res) => {
     try {
         const id = req.user.id;
-        const user = await User.findById(id).select('firstName lastName balance profile_url isVerified status email phoneNumber');
+        const user = await User.findById(id, '-password -refreshTokenHash');
         res.status(200).json({
             success: true,
             data: user
         });
-    }catch (e) {
-        console.log(e);
+    } catch (error) {
+        console.error(error);
         res.status(500).json({
-            message: "Interval Server error"
-        })
-    }
-}
-
-exports.editAccount = async (req, res)=>{
-    try {
-        const id = req.user.id;
-        if(!req.files){
-            const body = req.body;
-            await User.findByIdAndUpdate(id, {body}, { new: true });
-            res.status(200).json({
-                message: "User updated successfully!"
-            });
-        }else{
-            const file = req.files.file;
-            const folder = 'avatars'
-            const url = await imageUpload(file, folder);
-            console.log(url);
-            await User.findByIdAndUpdate(id, { profile_url: url}, { new: true });
-            res.status(200).json({
-                success: true,
-                data: url
-            })
-        }
-    }catch (e) {
-        console.log(e);
-        res.status(500).json({
-            message: "Internal server error"
+            message: "Internal Server Error"
         });
     }
-}
+};
 
-exports.getMyTransactions = async(req, res)=>{
+exports.editAccount = async (req, res) => {
     try {
-        const email = req.user.email;
-        const myTransactions = await Transaction.find({ email: email }).select('amount status type');
-        res.status(200).json({
-            message: true,
-            data: myTransactions
-        })
-    }catch (e) {
-        console.log(e)
+        const id = req.user.id;
+        if (!req.files) {
+            const body = req.body;
+            const updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
+            res.status(200).json({
+                message: "User updated successfully!",
+                data: updatedUser
+            });
+        } else {
+            const file = req.files.file;
+            const folder = 'avatars';
+            console.log(file);
+            const url = await imageUpload(file, folder);
+            console.log(url);
+            const updatedUser = await User.findByIdAndUpdate(id, { profile_url: url }, { new: true });
+            res.status(200).json({
+                success: true,
+                data: updatedUser
+            });
+        }
+    } catch (error) {
+        console.error(error);
         res.status(500).json({
-            message:"Internal Server error"
-        })
+            message: "Internal Server Error"
+        });
     }
-}
-exports.getMyInvestments = async(req, res)=>{
+};
+
+exports.getMyTransactions = async (req, res) => {
     try {
         const email = req.user.email;
-        const myInvestments = await TransInvest.find({ user: 'email'}).select('status').populate('transportId') && await RealEstateInvestment.find({ user: email}).select('select').populate('propertyId')
+        const myTransactions = await Transaction.find({ email }).select('-_id');
         res.status(200).json({
             success: true,
-            data: myInvestments
-        })
-    }catch (e) {
-        console.log(e);
+            data: myTransactions
+        });
+    } catch (error) {
+        console.error(error);
         res.status(500).json({
-            message: "Internal server error"
-        })
+            message: "Internal Server Error"
+        });
     }
-}
+};
+
+exports.getMyInvestments = async (req, res) => {
+    try {
+        const email = req.user.email;
+        const myInvestments = await Promise.all([
+            TransInvest.find({ email }).select("-_id"),
+            RealEstateInvestment.find({ email }).select("-_id")
+        ]);
+        res.status(200).json({
+            success: true,
+            data: {
+                transportInvestment: myInvestments[0],
+                realEstateInvestment: myInvestments[1]
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+};

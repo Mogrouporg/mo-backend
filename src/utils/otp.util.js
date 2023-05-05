@@ -6,8 +6,8 @@ const crypto = require("crypto");
 const connection = async ()=>{
     try {
         const client = createClient({
-            url: process.env.REDIS_PUBLIC_URL,
-            password: process.env.REDIS_PASSWORD
+            //url: process.env.REDIS_PUBLIC_URL,
+            //password: process.env.REDIS_PASSWORD
         })
         await client.connect();
 

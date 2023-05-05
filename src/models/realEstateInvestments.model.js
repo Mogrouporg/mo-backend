@@ -20,7 +20,15 @@ const RealEstateInvestmentSchema = new schema(
         },
         status:{
           type: String,
-          enum: ['ongoing','paid']
+          enum: ['owned', 'onSale', 'sold']
+        },
+        currency: {
+            type: String,
+            enum: ['USD', 'NGN']
+        },
+        currentRoi:{
+            type: Number,
+            default: 0
         }
     },{
         timestamps: true

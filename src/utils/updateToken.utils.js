@@ -1,10 +1,20 @@
 const { User } = require('../models/users.model');
 const jwt = require('jsonwebtoken');
 const {Admin} = require("../models/admins.model");
+const { compareSync } = require('bcrypt')
 require('dotenv').config()
 
+
+exports.generateAccessToken = async (user)=>{
+    return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1d'})
+};
+
+exports.generateRefreshToken = async (user)=>{
+    return jwt.sign(user, process.env.REFRESH_TOKEN)
+}
+
 exports.updateToken = async (email, token)=>{
-    return User.findOneAndUpdate({email: email}, {token: token}, { new: true});
+    return User.findOneAndUpdate({email: email}, {refreshTokenHash: token}, { new: true});
 }
 
 exports.verifyToken = async (req, res, next )=>{
@@ -13,7 +23,7 @@ exports.verifyToken = async (req, res, next )=>{
         if(!token){
             res.status(401).redirect('https://mo-website-c20ooye8m-mogroup.vercel.app/login')
         }else{
-            await jwt.verify(token, process.env.TOKEN_KEY, async function (err, decoded){
+            await jwt.verify(token, process.env.ACCESS_TOKEN, async function (err, decoded){
                 const key = decoded.email;
                 const user = await User.findOne({email: key});
                 if(!user) {
