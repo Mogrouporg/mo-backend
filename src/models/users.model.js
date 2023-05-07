@@ -219,22 +219,7 @@ const UserSchema = new Schema(
     }
 );
 
-UserSchema.pre("save", function (next) {
-    const user = this;
-
-    if (!user.isModified("password")) return next();
-
-    bcrypt.genSalt(10, function (err, salt) {
-        if (err) return next(err);
-
-        bcrypt.hash(user.password, salt, function (err, hash) {
-            if (err) return next(err);
-
-            user.password = hash;
-            next();
-        });
-    });
-});
+const argon2 = require('argon2');
 
 UserSchema.pre("save", async function (next) {
     const user = this;
@@ -242,15 +227,32 @@ UserSchema.pre("save", async function (next) {
     if (!user.isModified("password")) return next();
 
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(user.password, salt);
+        //const salt = await argon2.
+        const hash = await argon2.hash(user.password);
+
         user.password = hash;
         next();
     } catch (err) {
-        return next(err);
+        next(err);
     }
 });
 
+// UserSchema.pre("save", function (next) {
+//     const user = this;
+
+//     if (!user.isModified("password")) return next();
+
+//     bcrypt.genSalt(10, function (err, salt) {
+//         if (err) return next(err);
+
+//         bcrypt.hash(user.password, salt, function (err, hash) {
+//             if (err) return next(err);
+
+//             user.password = hash;
+//             next();
+//         });
+//     });
+// });
 UserSchema.methods.comparePassword = function (password) {
     return bcrypt.compareSync(password, this.password);
 };
