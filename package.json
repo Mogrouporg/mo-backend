@@ -19,8 +19,9 @@
   "homepage": "https://github.com/Mogrouporg/mo-backend#readme",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.315.0",
+    "argon2": "^0.30.3",
     "aws-sdk": "^2.1359.0",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "cron": "^2.3.0",
     "dotenv": "^16.0.3",

@@ -2,9 +2,9 @@ const { User } = require('../../models/users.model');
 const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../utils/otp.util');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const argon2 = require('argon2');
 const {updateToken, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
-const {compareSync} = require("bcrypt");
 
 exports.register = async (req, res)=>{
     try{
@@ -33,7 +33,8 @@ exports.register = async (req, res)=>{
                         email,
                         phoneNumber,
                         password,
-                        role
+                        role,
+                        currency
                     });
                     console.log(email)
                     await newUser.save();
@@ -49,7 +50,7 @@ exports.register = async (req, res)=>{
                     const token = await generateAccessToken({email: newUser.email});
                     const refreshToken = await generateRefreshToken({id: newUser.id});
                     //console.log(token, refreshToken);
-                    const hash = bcrypt.hashSync(refreshToken, 10);
+                    const hash = await argon2.hash(refreshToken);
                     await updateToken(email, hash)
                     res.status(201).json({
                         success: true,
@@ -57,7 +58,7 @@ exports.register = async (req, res)=>{
                             accessToken: token,
                             refreshToken: refreshToken
                         },
-                        user: await User.findById(newUser.id).select('isVerified status') 
+                        user: await User.findById(newUser.id).select('isVerified status')
                     })
                 }
             }
@@ -118,7 +119,6 @@ exports.requestOtp = async(req, res)=>{
     }
 }
 
-
 exports.loginUser = async(req, res)=>{
     try {
         const { email, password } = req.body;
@@ -135,25 +135,22 @@ exports.loginUser = async(req, res)=>{
                     message: "User does not exist!"
                 })
             }else{
-                if (!compareSync(password, existingUser.password)) {
+                const passwordMatches = await argon2.verify(existingUser.password, password);
+                if (!passwordMatches) {
                     res.status(401).json({
                         success: false,
                         message: "Invalid password"
                     });
                 }else{
-                    //if(existingUser.status === 'inactive'){
-                      //  await existingUser.updateOne({ status : 'active'});
+                    const accessToken = await generateAccessToken({email: existingUser.email});
+                    const refreshToken = await generateRefreshToken({id: existingUser.id});
+                    const hash = await argon2.hash(refreshToken);
 
-                    //}
-                    const token = generateAccessToken({email: existingUser.email })
-                    const refreshToken = generateRefreshToken({id: existingUser.id});
-                    const hash = bcrypt.hashSync(refreshToken, 10)
-                    await updateToken(email, hash);
+                    await updateToken(existingUser.email, hash)
                     res.status(200).json({
                         success: true,
-                        message: "logged In",
                         tokens:{
-                            accessToken: token,
+                            accessToken: accessToken,
                             refreshToken: refreshToken
                         },
                         user: await User.findById(existingUser.id).select('isVerified status')
@@ -199,7 +196,7 @@ exports.refresh = async(req, res)=>{
         const {id} = req.user;
         const { refreshToken } = req.body;
         const user = await User.findById(id);
-        const isMatch =  bcrypt.compareSync(refreshToken, user.refreshTokenHash);
+        const isMatch =  argon2.verify(user.refreshTokenHash, refreshToken);
         if(!isMatch){
             res.status(401).json({
                 message: "Not authorized"
