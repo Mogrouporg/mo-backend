@@ -5,6 +5,7 @@ const { pushNotification } = require('../notif/notif.services');
 const { Transaction } = require('../../models/transaction.model');
 const { RealEstate } = require('../../models/realEstate.model');
 const { RealEstateInvestment } = require('../../models/realEstateInvestments.model');
+const {sendMail} = require("../../utils/mailer");
 
 exports.deposit = async (req, res) => {
     try {
@@ -138,6 +139,15 @@ exports.investInRealEstate =async (req, res)=>{
                     }, {
                         new: true
                     })
+                    await sendMail({
+                        email: user.email,
+                        subject: "Acquired a portion!",
+                        text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amountInUsd}`
+                    })
+                    res.status(200).json({
+                        success: true,
+                        data: investment
+                    })
                 }   
             }else{
                 const newInvestment = {
@@ -167,6 +177,15 @@ exports.investInRealEstate =async (req, res)=>{
                         }
                     }, {
                         new: true
+                    })
+                    await sendMail({
+                        email: user.email,
+                        subject: "Acquired a portion!",
+                        text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`
+                    })
+                    res.status(200).json({
+                        success: true,
+                        data: investment
                     })
                 }
             }

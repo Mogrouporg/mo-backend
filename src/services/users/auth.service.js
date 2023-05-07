@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {updateToken, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
+const {compareSync} = require("bcrypt");
 
 exports.register = async (req, res)=>{
     try{
@@ -134,7 +135,7 @@ exports.loginUser = async(req, res)=>{
                     message: "User does not exist!"
                 })
             }else{
-                if (!existingUser.comparePassword(password)) {
+                if (!compareSync(password, existingUser.password)) {
                     res.status(401).json({
                         success: false,
                         message: "Invalid password"
