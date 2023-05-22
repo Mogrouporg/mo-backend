@@ -1,4 +1,3 @@
-const request = require('request');
 const { initializePayment, verifyPayment } = require('../../utils/payment.utils');
 const { User } = require('../../models/users.model');
 const { pushNotification } = require('../notif/notif.services');
@@ -106,7 +105,6 @@ exports.investInRealEstate =async (req, res)=>{
     try {
         const user = req.user;
         const id = req.params.id;
-        const currency = user.currency;
         const {invPeriod}  = req.body
         const realEstate = await RealEstate.findById(id);
         const balance = user.balance;
@@ -185,7 +183,6 @@ exports.investInTransport =async (req, res)=>{
     try {
         const user = req.user;
         const id = req.params.id;
-        const currency = user.currency;
         const {invPeriod}  = req.body
         const transport = await Transportation.findById(id);
         const balance = user.balance;
