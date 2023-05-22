@@ -1,7 +1,6 @@
 const { User } = require('../models/users.model');
 const jwt = require('jsonwebtoken');
 const {Admin} = require("../models/admins.model");
-const { compareSync } = require('bcrypt')
 require('dotenv').config()
 
 

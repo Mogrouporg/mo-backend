@@ -277,7 +277,7 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
                 });
             }else{
                 const { password } = req.body;
-                const hashed = await bcrypt.hashSync(password, 10);
+                const hashed = await argon2.hash(password);
                 await user.updateOne({ password: hashed, resetPasswordToken: null})
 
                 await sendMail({

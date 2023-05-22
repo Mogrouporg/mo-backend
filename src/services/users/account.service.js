@@ -54,8 +54,12 @@ exports.editAccount = async (req, res) => {
 
 exports.getMyTransactions = async (req, res) => {
     try {
-        const email = req.user.email;
-        const myTransactions = await Transaction.find({ email }).select('-_id');
+        const _id = req.user._id;
+        const myTransactions = await User.findById(_id).select('transactions')
+            .populate({
+                path: 'transactions',
+                match: { status: 'success' }
+            });
         res.status(200).json({
             success: true,
             data: myTransactions
