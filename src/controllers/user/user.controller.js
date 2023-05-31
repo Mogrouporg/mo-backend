@@ -1,7 +1,7 @@
 const useRouter = require('express').Router();
 const {verifyToken} = require("../../utils/updateToken.utils");
 const { findNotifById } = require('../../services/notif/notif.services');
-const {deposit, verifyDeposit} = require("../../services/users/finance.services");
+const {deposit, verifyDeposit, investInRealEstate, sellRealEstateInvestment, investInTransport, sellTransportInvestment, withdrawFunds} = require("../../services/users/finance.services");
 const {myProfile, getMyTransactions} = require("../../services/users/account.service");
 
 useRouter.get('/user/notifications', verifyToken, findNotifById);
@@ -10,4 +10,9 @@ useRouter.post('/account/deposit', verifyToken, deposit);
 useRouter.get('/profile', verifyToken, myProfile)
 useRouter.get('/paystack/callback', verifyDeposit);
 useRouter.get('/account/transactions', verifyToken, getMyTransactions);
+useRouter.post('/real-estate/:id/invest', verifyToken, investInRealEstate );
+useRouter.post('/real-estate/:id/sell', verifyToken, sellRealEstateInvestment);
+useRouter.post('/transport/:id/invest', verifyToken, investInTransport);
+useRouter.post('/transport/:id/sell', verifyToken, sellTransportInvestment);
+useRouter.post('/account/withdraw', verifyToken, withdrawFunds);
 module.exports = useRouter;

@@ -7,7 +7,7 @@ const {editAccount} = require("../../services/users/account.service");
 
 
 router.get('/render', (req, res)=>{
-    res.json({
+    return res.json({
         isOperational: true,
         message: "Hello"
     })

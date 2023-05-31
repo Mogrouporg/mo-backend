@@ -9,9 +9,9 @@ const connection = async ()=>{
             url: process.env.REDIS_PUBLIC_URL,
             password: process.env.REDIS_PASSWORD
         });
-        // await client.connect()
-        //client.on('error', (err) => console.log(err));
-        //client.on('connect', () => console.log('connect'));
+        await client.connect()
+        client.on('error', (err) => console.log(err));
+        client.on('connect', () => console.log('connect'));
         return client;
     }catch (e) {
         console.log(e)

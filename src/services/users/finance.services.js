@@ -14,7 +14,7 @@ exports.deposit = async (req, res) => {
     let { amount } = req.body;
     amount *= 100;
     if (!amount || amount < 10000) {
-      return res.status(400).json({
+      return  res.status(400).json({
         success: false,
         message: "Can't make a deposit less than NGN 1000",
       });
@@ -32,10 +32,10 @@ exports.deposit = async (req, res) => {
     });
     await newDeposit.save();
 
-    res.json({ success: true, data: newDeposit });
+    return res.json({ success: true, data: newDeposit });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: 'Internal Server error' });
+    return res.status(500).json({ message: 'Internal Server error' });
   }
 };
 
@@ -55,7 +55,7 @@ exports.verifyDeposit = async (req, res) => {
         { $set: { status: 'failed', balance: user.balance } },
         { new: true }
       );
-      return res.status(400).json({
+      return  res.status(400).json({
         success: false,
         message: 'Error with the payment',
       });
@@ -91,13 +91,13 @@ exports.verifyDeposit = async (req, res) => {
       ),
     ]);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Deposited successfully',
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -109,7 +109,7 @@ exports.investInRealEstate =async (req, res)=>{
         const realEstate = await RealEstate.findById(id);
         const balance = user.balance;
         if(user.isVerified === false){
-            res.status(403).json({
+            return res.status(403).json({
                 message: "Not allowed",
                 status: "forbidden"
             })
@@ -123,7 +123,7 @@ exports.investInRealEstate =async (req, res)=>{
                     currency: 'NGN'
                 }
                 if(!(balance >= realEstate.amount)){
-                    res.status(403).json({
+                    return res.status(403).json({
                         message: "Account Balance is low!",
                         success: false,
                     })
@@ -131,7 +131,9 @@ exports.investInRealEstate =async (req, res)=>{
                     const investment = await RealEstateInvestment.create(newInvestment);
                     const newBalance = parseInt(balance) - realEstate.amount;
                     await User.findByIdAndUpdate(user.id, {
-                        realEstateInvestment: investment,
+                        $push: {
+                            realEstateInvestment: investment
+                        },
                         balance: newBalance,
                         lastTransact: new Date(Date.now())
                     });
@@ -147,14 +149,14 @@ exports.investInRealEstate =async (req, res)=>{
                         subject: "Acquired a portion!",
                         text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`
                     })
-                    res.status(200).json({
+                    return res.status(200).json({
                         success: true,
                         data: investment
                     })
                 }
         }
         } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -170,7 +172,7 @@ exports.sellRealEstateInvestment = async(req, res)=>{
             message: "Your investment is now on sale.  We will get you notified when it has been sold!😀",
             email: req.user.email
         })
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: investment
         })
@@ -187,11 +189,11 @@ exports.investInTransport =async (req, res)=>{
         const transport = await Transportation.findById(id);
         const balance = user.balance;
         if(user.isVerified === false){
-            res.status(403).json({
+            return res.status(403).json({
                 message: "Not allowed",
                 status: "forbidden"
             })
-        }else{
+        }
             const newInvestment = {
                 user: req.user.id,
                 propertyId: id,
@@ -201,7 +203,7 @@ exports.investInTransport =async (req, res)=>{
                 currency: 'NGN'
             }
             if(!(balance >= transport.amount)){
-                res.status(403).json({
+                return res.status(403).json({
                     message: "Account Balance is low!",
                     success: false,
                 })
@@ -209,7 +211,9 @@ exports.investInTransport =async (req, res)=>{
                 const investment = await TransInvest.create(newInvestment);
                 const newBalance = parseInt(balance) - transport.amount;
                 await User.findByIdAndUpdate(user.id, {
-                    transportInvestment: investment,
+                    $push: {
+                        transportInvestment: investment
+                    },
                     balance: newBalance,
                     lastTransact: new Date(Date.now())
                 });
@@ -225,14 +229,13 @@ exports.investInTransport =async (req, res)=>{
                     subject: "Acquired a portion!",
                     text: `You have successfully acquired ${transport.transportType} of ${transport.transportName} at the rate of ${transport.amount}`
                 })
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     data: investment
                 })
             }
-        }
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -247,12 +250,77 @@ exports.sellTransportInvestment = async(req, res)=>{
             message: "Your investment is now on sale.  We will get you notified when it has been sold!😀",
             email: req.user.email
         })
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: investment
         })
     } catch (error) {
         console.log(error);
+    }
+}
+
+exports.withdrawFunds = async (req, res) => {
+    try {
+        const user = req.user;
+        const { amount } = req.body;
+        const client = await User.findById(user._id)
+        const reference = Math.random().toString().slice(2)
+        if (parseInt(amount) < 1000 || parseInt(amount) > 5000000) {
+            return  res.status(400).json({
+                success: false,
+                data: "Cannot withdraw less than NGN1000"
+            })
+        }
+        if (parseInt(amount) > user.balance) {
+            return  res.status(400).json({
+                success: false,
+                data: "Insufficient Balance"
+            })
+        }
+        if ((parseInt(amount) + 500) >= user.balance) {
+            return  res.status(400).json({
+                success: false,
+                data: "Cannot leave less than 500 in the account"
+            })
+        } else {
+            const withdraw = {
+                amount: amount,
+                status: "pending",
+                user: user._id,
+                reference: reference,
+                type: 'withdrawal',
+                balance: parseInt(user.balance) - parseInt(amount)
+            }
+            const notification = {
+                message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
+                email: user.email
+            }
+            const newWithdrawal = new Transaction(withdraw)
+            await newWithdrawal.save();
+            const notifications = await pushNotification(notification);
+            await client.updateOne({
+                balance: parseInt(user.balance) - parseInt(amount),
+                $push: {
+                    transactions: newWithdrawal,
+                    notifications: notifications
+                }
+            });
+            await sendMail({
+                email: user.email,
+                subject: "Withdrawal Request",
+                text: `You have successfully placed a withdrawal request of ${amount} to your bank account.`
+            });
+            return  res.status(200).json({
+                success: true,
+                data: "Your withdrawal request has been placed."
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        return  res.status(500).json({
+            success: false,
+            data: "Internal Server Error"
+        });
     }
 }
 

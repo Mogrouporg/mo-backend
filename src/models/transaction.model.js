@@ -13,7 +13,7 @@ const transactionSchema = new schema(
         },
         status: {
             type: String,
-            enum: ["success", "failed", "abandoned"]
+            enum: ["success", "failed", "abandoned", "pending"]
         },
         balance: {
             type: String
