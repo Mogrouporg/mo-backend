@@ -32,7 +32,7 @@ exports.deposit = async (req, res) => {
     });
     await newDeposit.save();
 
-    return res.json({ success: true, data: newDeposit });
+    return res.json({ success: true, data: newDeposit, link: response.data.data.authorization_url });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: 'Internal Server error' });

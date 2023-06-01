@@ -9,6 +9,7 @@ const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 const cors = require('cors');
 const { updateRoi } = require('./cronJobs/roiUpdate');
+const path = require('path');
 
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(cors({
         }
     }
 }));
+app.use(express.static(path.join(__dirname, '../docs')));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
