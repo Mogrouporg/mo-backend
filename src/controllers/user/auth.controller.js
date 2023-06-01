@@ -4,15 +4,6 @@ const {verifyToken} = require("../../utils/updateToken.utils");
 const {editAccount} = require("../../services/users/account.service");
 //const {upload} = require("../../utils/imageUpload.util");
 
-
-
-router.get('/render', (req, res)=>{
-    return res.json({
-        isOperational: true,
-        message: "Hello"
-    })
-})
-
 router.post('/signup', register)
 router.post('/verify-otp', verifyToken, verifyUser);
 router.get('/request-otp', verifyToken, requestOtp);

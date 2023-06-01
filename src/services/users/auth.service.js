@@ -34,7 +34,6 @@ exports.register = async (req, res)=>{
                         phoneNumber,
                         password,
                         role,
-                        currency
                     });
                     console.log(email)
                     await newUser.save();
