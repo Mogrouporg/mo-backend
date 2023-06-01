@@ -14,19 +14,19 @@ exports.signupAdmin = async (req, res) => {
         const phoneNumber = req.body.phoneNumber;
         const password = req.body.password;
         if (!name || !email || !phoneNumber || !password) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "All fields required"
             })
         } else {
             const oldEmail = await User.findOne({email: email}) || await Admin.findOne({email: email});
             const oldPhoneNumber = await User.findOne({phoneNumber: phoneNumber}) || await Admin.findOne({phoneNumber: phoneNumber});
             if (oldEmail) {
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "Email has been taken"
                 })
             } else if (oldPhoneNumber) {
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "Phone Number has been taken"
                 })
@@ -51,7 +51,7 @@ exports.signupAdmin = async (req, res) => {
                     expiresIn: '1d'
                 });
                 await updateTokenAdmin(_id, token);
-                res.status(201).json({
+                return res.status(201).json({
                     success: true,
                     data: token
                 })
@@ -59,7 +59,7 @@ exports.signupAdmin = async (req, res) => {
         }
     } catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -76,14 +76,14 @@ exports.requestOtpAdmin = async(req, res)=> {
             text: `Your one time password is ${otp}, thanks`
         })
         console.log(otp)
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Otp sent!",
             data: otp
         })
     } catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -94,18 +94,18 @@ exports.verifyOtpAdmin = async (req, res)=>{
         const { otp } = req.body;
         if(await verifyOtp(_id, otp) === true){
             await Admin.findByIdAndUpdate(_id, { isVerified: true}, { new: true});
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "User verified successfully"
             });
         }else{
-            res.status(401).json({
+            return res.status(401).json({
                 message: "Invalid otp"
             })
         }
     }catch (e) {
         console.log(e);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Interval Error"
         })
     }
@@ -116,18 +116,18 @@ exports.loginAdmin = async (req, res)=>{
         const email = req.body.email;
         const password = req.body.password;
         if(!email || !password){
-            res.status(400).json({
+            return res.status(400).json({
                 message: "All fields are required"
             })
         }else{
             const admin = await Admin.findOne({email: email});
             if(!admin){
-                res.status(400).json({
+                return res.status(400).json({
                     message: "User does not exist"
                 })
             }else{
                 if(!await bcrypt.compareSync(password, admin.password)){
-                    res.status(401).json({
+                    return res.status(401).json({
                         message: "Invalid Password"
                     });
                 }else{
@@ -135,7 +135,7 @@ exports.loginAdmin = async (req, res)=>{
                         expiresIn: '1h'
                     })
                     await updateTokenAdmin(admin._id, token);
-                    res.status(200).json({
+                    return res.status(200).json({
                         success: true,
                         message: "logged In",
                         data: token
@@ -145,7 +145,7 @@ exports.loginAdmin = async (req, res)=>{
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Interval Server error"
         });
     }
@@ -161,19 +161,19 @@ exports.logout = async(req, res)=>{
                     token: null
                 }
             });
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Logged out"
             })
         }
         else{
-            res.status(400).json({
+            return res.status(400).json({
                 message: "You have logged out already!"
             })
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Interval server error"
         })
     }
@@ -183,14 +183,14 @@ exports.forgotPassword = async(req, res)=>{
     try {
         const { email } = req.body;
         if(!email){
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Field is required"
             })
         }else{
             const user = await Admin.findOne({email: email});
             if(!user){
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "Account with this email not found"
                 })
@@ -204,7 +204,7 @@ exports.forgotPassword = async(req, res)=>{
                     subject: 'Forgot password',
                     text: `To reset your password, click on this reset link ${link}`
                 })
-                res.status(200).json({
+                return res.status(200).json({
                     resetToken: token,
                     success: true,
                     message: "Mail sent!"
@@ -213,7 +213,7 @@ exports.forgotPassword = async(req, res)=>{
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -223,13 +223,13 @@ exports.resetPassword = async (req, res)=>{
     try {
         const { token} = req.params;
         if(!token){
-            res.status(401).json({
+            return res.status(401).json({
                 message: "Token not found"
             })
         }else{
             const user = await Admin.findOne({ resetPasswordToken: token });
             if(!await verifyOtp(user.email, token)){
-                res.status(401).json({
+                return res.status(401).json({
                     message: "Not found"
                 });
             }else{
@@ -243,7 +243,7 @@ exports.resetPassword = async (req, res)=>{
                     text:  'Password reset successful'
                 })
 
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     data: hashed,
                 })
@@ -251,7 +251,7 @@ exports.resetPassword = async (req, res)=>{
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error"
         })
     }

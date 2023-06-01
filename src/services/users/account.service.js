@@ -10,13 +10,13 @@ exports.myProfile = async (req, res) => {
     try {
         const id = req.user.id;
         const user = await User.findById(id, '-password -refreshTokenHash');
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: user
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         });
     }
@@ -28,7 +28,7 @@ exports.editAccount = async (req, res) => {
         if (!req.files) {
             const body = req.body;
             const updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
-            res.status(200).json({
+            return res.status(200).json({
                 message: "User updated successfully!",
                 data: updatedUser
             });
@@ -39,14 +39,14 @@ exports.editAccount = async (req, res) => {
             const url = await imageUpload(file, folder);
             console.log(url);
             const updatedUser = await User.findByIdAndUpdate(id, { profile_url: url }, { new: true });
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 data: updatedUser
             });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         });
     }
@@ -54,15 +54,19 @@ exports.editAccount = async (req, res) => {
 
 exports.getMyTransactions = async (req, res) => {
     try {
-        const email = req.user.email;
-        const myTransactions = await Transaction.find({ email }).select('-_id');
-        res.status(200).json({
+        const _id = req.user._id;
+        const myTransactions = await User.findById(_id).select('transactions')
+            .populate({
+                path: 'transactions',
+                match: { status: 'success' }
+            });
+        return res.status(200).json({
             success: true,
             data: myTransactions
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         });
     }
@@ -75,7 +79,7 @@ exports.getMyInvestments = async (req, res) => {
             TransInvest.find({ email }).select("-_id"),
             RealEstateInvestment.find({ email }).select("-_id")
         ]);
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: {
                 transportInvestment: myInvestments[0],
@@ -84,7 +88,7 @@ exports.getMyInvestments = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         });
     }

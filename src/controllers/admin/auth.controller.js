@@ -4,7 +4,7 @@ const {verifyTokenAdmin} = require("../../utils/updateToken.utils");
 
 
 routerAdmin.get('/render', (req, res)=>{
-    res.json({
+    return res.json({
         isOperational: true,
         message: "Hello, Admin"
     })

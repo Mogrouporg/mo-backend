@@ -22,10 +22,6 @@ const RealEstateInvestmentSchema = new schema(
           type: String,
           enum: ['owned', 'onSale', 'sold']
         },
-        currency: {
-            type: String,
-            enum: ['USD', 'NGN']
-        },
         currentRoi:{
             type: Number,
             default: 0

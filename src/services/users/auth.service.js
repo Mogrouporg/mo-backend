@@ -16,13 +16,13 @@ exports.register = async (req, res)=>{
             const  role = req.body.role;
             const currency = req.body.currency;
             if(!firstName || !lastName || !email || !phoneNumber || !password || !role){
-                res.status(400).json({
+                return res.status(400).json({
                     message: "All fields required"
                 })
             }else{
                 const oldUser = await User.findOne({email: email});
                 if(oldUser) {
-                    res.status(401).json({
+                    return res.status(401).json({
                         message: "User already exists"
                     })
                     console.log(oldUser.email, email)
@@ -52,7 +52,7 @@ exports.register = async (req, res)=>{
                     //console.log(token, refreshToken);
                     const hash = await argon2.hash(refreshToken);
                     await updateToken(email, hash)
-                    res.status(201).json({
+                    return res.status(201).json({
                         success: true,
                         tokens: {
                             accessToken: token,
@@ -64,7 +64,7 @@ exports.register = async (req, res)=>{
             }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error"
         })
     }
@@ -77,18 +77,18 @@ exports.verifyUser = async(req, res)=>{
         const {otp} = req.body;
         if(await verifyOtp(email, otp) === true){
             await User.findOneAndUpdate({ email: email}, { isVerified: true}, { new: true});
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "User verified successfully"
             });
         }else{
-            res.status(401).json({
+            return res.status(401).json({
                 message: "Invalid otp"
             })
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error"
         })
     }
@@ -106,14 +106,14 @@ exports.requestOtp = async(req, res)=>{
             text: `Your one time password is ${otp}, thanks`
         })
         console.log(otp)
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Otp sent!",
             data: otp
         })
     }catch (e){
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -123,21 +123,21 @@ exports.loginUser = async(req, res)=>{
     try {
         const { email, password } = req.body;
         if(!email || !password){
-         res.status(400).json({
+         return res.status(400).json({
              success: false,
              message: "All fields are required!"
          })   ;
         }else{
             const existingUser = await User.findOne({email: email});
             if (!existingUser) {
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "User does not exist!"
                 })
             }else{
                 const passwordMatches = await argon2.verify(existingUser.password, password);
                 if (!passwordMatches) {
-                    res.status(401).json({
+                    return res.status(401).json({
                         success: false,
                         message: "Invalid password"
                     });
@@ -147,7 +147,7 @@ exports.loginUser = async(req, res)=>{
                     const hash = await argon2.hash(refreshToken);
 
                     await updateToken(existingUser.email, hash)
-                    res.status(200).json({
+                    return res.status(200).json({
                         success: true,
                         tokens:{
                             accessToken: accessToken,
@@ -160,7 +160,7 @@ exports.loginUser = async(req, res)=>{
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -174,18 +174,18 @@ exports.logout = async (req, res)=>{
             await User.findOneAndUpdate({email: user.email, token: token},{$set:{
                 token: null
                 }});
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "Logged out"
             })
         }else{
-            res.status(400).json({
+            return res.status(400).json({
                 message: "You have logged out already!"
             })
         }
     }catch (e) {
         console.log(e);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error"
         })
     }
@@ -198,7 +198,7 @@ exports.refresh = async(req, res)=>{
         const user = await User.findById(id);
         const isMatch =  argon2.verify(user.refreshTokenHash, refreshToken);
         if(!isMatch){
-            res.status(401).json({
+            return res.status(401).json({
                 message: "Not authorized"
             })
         }else{
@@ -206,7 +206,7 @@ exports.refresh = async(req, res)=>{
             const refreshTokenNew = await generateRefreshToken({id: user.id});
             const hash = bcrypt.hashSync(refreshTokenNew, 10)
             await updateToken(user.email, hash)
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 tokens:{
                     accessToken,
@@ -216,7 +216,7 @@ exports.refresh = async(req, res)=>{
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -226,14 +226,14 @@ exports.forgotPassword = async(req, res)=>{
     try {
         const { email } = req.body;
         if(!email){
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Field is required"
             })
         }else{
             const user = await User.findOne({email: email});
             if(!user){
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "Account with this email not found"
                 })
@@ -247,7 +247,7 @@ exports.forgotPassword = async(req, res)=>{
                     subject: 'Forgot password',
                     text: `To reset your password, click on this reset link ${link}`
                 })
-                res.status(200).json({
+                return res.status(200).json({
                     resetToken: token,
                     success: true,
                     message: "Mail sent!"
@@ -256,7 +256,7 @@ exports.forgotPassword = async(req, res)=>{
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }
@@ -266,18 +266,18 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
     try {
         const { token} = req.params;
         if(!token){
-            res.status(401).json({
+            return res.status(401).json({
                 message: "Token not found"
             })
         }else{
             const user = await User.findOne({ resetPasswordToken: token });
             if(!await verifyOtp(user.email, token)){
-                res.status(401).json({
+                return res.status(401).json({
                     message: "Not found"
                 });
             }else{
                 const { password } = req.body;
-                const hashed = await bcrypt.hashSync(password, 10);
+                const hashed = await argon2.hash(password);
                 await user.updateOne({ password: hashed, resetPasswordToken: null})
 
                 await sendMail({
@@ -286,14 +286,14 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
                     text:  'Password reset successful'
                 })
 
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                 })
             }
         }
     }catch (e) {
         console.log(e)
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server error"
         })
     }

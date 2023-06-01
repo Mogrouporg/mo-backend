@@ -73,10 +73,6 @@ const UserSchema = new Schema(
         lastTransact:{
             type: Date
         },
-        currency: {
-            type: String,
-            enum: ['NGN', 'USD']
-        },
         transactions: [{
             amount:{
                 type: String,
@@ -98,10 +94,6 @@ const UserSchema = new Schema(
             type:{
                 type: String,
                 enum: ['deposit', 'loan', 'withdrawal', 'invest']
-            },
-            currency: {
-                type: String,
-                enum: ['USD', 'NGN']
             },
             createdAt:{
                 type: Date,
@@ -178,10 +170,6 @@ const UserSchema = new Schema(
                     type: Date,
                     default: new Date(Date.now())
                 },
-                currency: {
-                    type: String,
-                    enum: ['USD', 'NGN']
-                },
                 currentRoi:{
                     type: Number,
                     default: 0
@@ -203,10 +191,6 @@ const UserSchema = new Schema(
                 status:{
                     type: String,
                     enum: ['ongoing','paid']
-                },
-                currency: {
-                    type: String,
-                    enum: ['USD', 'NGN']
                 },
                 createdAt:{
                     type: Date,
@@ -253,9 +237,9 @@ UserSchema.pre("save", async function (next) {
 //         });
 //     });
 // });
-UserSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.password);
-};
+// UserSchema.methods.comparePassword = function (password) {
+//     return bcrypt.compareSync(password, this.password);
+// };
 
 const User = mongoose.model("User", UserSchema);
 

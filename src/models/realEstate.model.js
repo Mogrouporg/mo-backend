@@ -14,13 +14,6 @@ const realEstateSchema = new schema(
         amount: {
             type: Number,
         },
-        amountInUsd:{
-            type: Number
-        },
-        currency: {
-            type: String,
-            enum: ['USD', 'NGN']
-        },
         sizeInSqm:{
             type: String,
             required: true
