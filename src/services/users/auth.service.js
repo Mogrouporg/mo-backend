@@ -22,10 +22,10 @@ exports.register = async (req, res)=>{
             }else{
                 const oldUser = await User.findOne({email: email});
                 if(oldUser) {
+                    console.log(oldUser.email, email)
                     return res.status(401).json({
                         message: "User already exists"
                     })
-                    console.log(oldUser.email, email)
                 }else{
                     const newUser = new User({
                         firstName,
@@ -37,7 +37,7 @@ exports.register = async (req, res)=>{
                     });
                     console.log(email)
                     await newUser.save();
-                    const otp = await genOtp();
+                    const otp = genOtp();
                     await saveOtp(email, otp)
                     console.log(otp)
                     // sends a mail

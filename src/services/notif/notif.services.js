@@ -1,4 +1,5 @@
 const {Notification} = require('../../models/notif.model');
+const { User } = require('../../models/users.model');
 
 exports.pushNotification = async (options)=>{
     try {
@@ -7,6 +8,8 @@ exports.pushNotification = async (options)=>{
             email: options.email,
         })
         await newNotif.save()
+        const user = await User.findOne({email: options.email})
+        user.notifications.push(newNotif.id)
         return newNotif.toObject()
     }catch (e) {
         console.log(e)
