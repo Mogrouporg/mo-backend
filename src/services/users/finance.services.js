@@ -7,6 +7,7 @@ const { RealEstateInvestment } = require('../../models/realEstateInvestments.mod
 const {sendMail} = require("../../utils/mailer");
 const {Transportation} = require("../../models/transportations.model");
 const {TransInvest} = require("../../models/transInvestments.model");
+const { loanRequest } = require('../../models/loanRequests.model');
 
 exports.deposit = async (req, res) => {
   try {
@@ -32,7 +33,7 @@ exports.deposit = async (req, res) => {
     });
     await newDeposit.save();
 
-    return res.json({ success: true, data: newDeposit });
+    return res.json({ success: true, data: newDeposit, link: response.data.data.authorization_url });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: 'Internal Server error' });
@@ -324,3 +325,60 @@ exports.withdrawFunds = async (req, res) => {
     }
 }
 
+exports.requestLoan = async (req, res)=>{
+    const { id } = req.user;
+    try {
+        if(req.user.status === 'inactive'){
+            return res.status(403).json({
+                success: false,
+                message: "Not allowed request for loan as you are inactive"
+            })
+        }
+        const loanExist = await loanRequest.findOne({user: id, paid: false})
+        if(loanExist){
+            return res.status(403).json({
+                success: false,
+                message: "You have an unpaid loan"
+            })
+        }
+
+        const balance = req.user.balance;
+        const { amount } = req.body;
+        if(parseInt(amount) > (0.3 * balance)){
+            return res.status(403).json({
+                success: false,
+                message: "You cannot request for more than 30% of your balance"
+            })
+        }
+
+        const newLoan = {
+            user: id,
+            loanAmount: amount,
+            loanPeriod: req.body.loanPeriod,
+            bankName: req.body.bankName,
+            accountNumber: req.body.accountNumber,
+            accountName: req.body.accountName,
+            loanDesc: req.body.loanDesc
+        }
+
+        const loan = new loanRequest(newLoan);
+        await loan.save();
+        const user = await User.findById(id);
+        const newNotif = {
+            email: user.email,
+            message: `You have successfully requested for a loan of ${amount}`
+        }
+        await pushNotification(newNotif);
+        await user.updateOne({
+            $push: {
+                loanRequests: loan.id,
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}

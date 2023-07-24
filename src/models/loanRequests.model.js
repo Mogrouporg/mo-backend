@@ -17,8 +17,23 @@ const loanRequestSchema = new schema(
         bankName:{
             type: String
         },
+        accountNumber:{
+            type: String
+        },
+        accountName:{
+            type: String
+        },
         loanDesc:{
             type: String
+        },
+        status:{
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        paid:{
+            type: Boolean,
+            default: false
         }
     },
     {
