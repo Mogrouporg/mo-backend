@@ -238,17 +238,16 @@ exports.forgotPassword = async(req, res)=>{
                     message: "Account with this email not found"
                 })
             }else{
-                const token = await genForgotPasswordToken()
-                await saveOtp(email, token)
-                await User.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
-                const link = `https://mo-backend.onrender.com/api/v1/user/reset-password/${token}`
+                const otp =  genOtp()
+                await saveOtp(email, otp)
+                await User.findOneAndUpdate({ email: email}, { resetPasswordStatus: true }, { new: true});
                 await sendMail({
                     email: email,
                     subject: 'Forgot password',
-                    text: `To reset your password, click on this reset link ${link}`
+                    text: `Your one time password is ${otp}, thanks`
                 })
                 return res.status(200).json({
-                    resetToken: token,
+                    otp: otp,
                     success: true,
                     message: "Mail sent!"
                 })
@@ -264,21 +263,21 @@ exports.forgotPassword = async(req, res)=>{
 
 exports.verifyOtpForgotPassword = async(req, res)=>{
     try {
-        const { token} = req.params;
-        if(!token){
+        const { otp, email } = req.body;
+        if(!otp || !email){
             return res.status(401).json({
-                message: "Token not found"
+                message: "All fields are required"
             })
         }else{
-            const user = await User.findOne({ resetPasswordToken: token });
-            if(!await verifyOtp(user.email, token)){
+            const user = await User.findOne({ email: email});
+            if(!await verifyOtp(email, otp)){
                 return res.status(401).json({
                     message: "Not found"
                 });
             }else{
                 const { password } = req.body;
                 const hashed = await argon2.hash(password);
-                await user.updateOne({ password: hashed, resetPasswordToken: null})
+                await user.updateOne({ password: hashed, resetPasswordStatus: false})
 
                 await sendMail({
                     email: user.email,

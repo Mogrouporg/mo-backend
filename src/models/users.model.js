@@ -46,8 +46,9 @@ const UserSchema = new Schema(
             type: String,
             required: false
         },
-        resetPasswordToken:{
-            type: String
+        resetPasswordStatus:{
+            type: Boolean,
+            default: false
         },
         resetPasswordExp:{
             type: Date,
