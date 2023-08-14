@@ -3,8 +3,9 @@ const { Admin } = require("../../models/admins.model");
 const { Transaction } = require("../../models/transaction.model");
 const { imageUpload } = require("../../utils/imageUpload.util");
 const { RealEstate } = require("../../models/realEstate.model");
-const { notifyAllUsers } = require("../../utils/notifyAllUsers.util");
+const { notifyAllUsers, startProcessing, stopProcessing } = require("../../utils/notifyAllUsers.util");
 const { loanRequest } = require("../../models/loanRequests.model");
+const { realEstateSchema } = require("../../models/validations/data");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -66,41 +67,62 @@ exports.getSingleUser = async (req, res) => {
 
 exports.createLandInvestment = async (req, res) => {
   try {
-    const email = req.admin.email;
-    const { name, amount, size, address, location } = req.body;
-    const { images } = req.files;
-    if (!name || !amount || !size || !address || !location) {
-      return res.status(400).json({
-        message: "All fields are required!",
-      });
-    } else {
-      const urls = await imageUpload(images, "realEstate");
-      const users = await User.find({}, "email");
-      const newRealEstate = new RealEstate({
-        user: email,
-        propertyName: name,
-        amount: amount,
-        sizeInSqm: size,
-        address: address,
-        image: urls,
-        location: location,
-      });
-      await newRealEstate.save();
-      const emails = users.map((user) => user.email);
-      await notifyAllUsers(
-        emails,
-        "New Set of Real Estate Available!",
-        `Get a portion of land for as low as ${amount} with the size of ${size} now!`
-      );
-      return res.status(201).json({
-        success: true,
-        data: newRealEstate,
-      });
+    // Input validation
+    const { error, value } = realEstateSchema.validate({
+      ...req.body,
+      images: req.files.images,
+    });
+    if (error) {
+      return res.status(400).json({ message: 'All fields are required!' });
     }
+
+    // Check authorization (example, you may have a different authorization logic)
+    if (!req.admin || !req.admin.email) {
+      return res.status(403).json({ message: 'Permission denied!' });
+    }
+
+    const email = req.admin.email;
+    const { name, amount, size, address, location, images, state } = value;
+
+    // Image upload
+    const urls = await imageUpload(images, 'realEstate');
+
+    // Fetch users
+    const users = await User.find({}, 'email');
+
+    // Create real estate object
+    const newRealEstate = new RealEstate({
+      user: email,
+      propertyName: name,
+      amount: amount,
+      sizeInSqm: size,
+      address: address,
+      image: urls,
+      location: location,
+      state: state,
+    });
+
+    // Save real estate object
+    await newRealEstate.save();
+
+    // Notify users
+    const emails = users.map((user) => user.email);
+    await notifyAllUsers(
+      emails,
+      'New Set of Real Estate Available!',
+      `Get a portion of land for as low as ${amount} with the size of ${size} now!`,
+      startProcessing,
+      stopProcessing
+    );
+
+    return res.status(201).json({
+      success: true,
+      data: newRealEstate,
+    });
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-      message: "Internal server error",
+      message: 'Internal server error',
     });
   }
 };

@@ -29,9 +29,14 @@ const AdminSchema = new Schema(
             type: Boolean,
             default: true
         },
-        token: {
+        role: {
+        type: String,
+        enum: ["ADMIN"]
+        },
+        refreshTokenHash:{
             type: String
         }
+
 
     },
     {
@@ -39,26 +44,21 @@ const AdminSchema = new Schema(
     }
 );
 
-AdminSchema.pre("save", function (next) {
+AdminSchema.pre("save", async function (next) {
     const admin = this;
 
     if (!admin.isModified("password")) return next();
 
-    bcrypt.genSalt(10, function (err, salt) {
-        if (err) return next(err);
+    try {
+        //const salt = await argon2.
+        const hash = await argon2.hash(admin.password);
 
-        bcrypt.hash(admin.password, salt, function (err, hash) {
-            if (err) return next(err);
-
-            admin.password = hash;
-            next();
-        });
-    });
+        admin.password = hash;
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
-
-AdminSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.password);
-};
 
 const Admin = mongoose.model("Admin", AdminSchema);
 
