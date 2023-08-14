@@ -29,6 +29,9 @@ const realEstateSchema = new schema(
             type: String,
             required: true
         },
+        state:{
+            type: String,
+        },
         numberOfBuyers:{
             type: Number,
             default: 0

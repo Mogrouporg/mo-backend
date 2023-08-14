@@ -33,8 +33,7 @@ exports.register = async (req, res)=>{
                         lastName,
                         email,
                         phoneNumber,
-                        password,
-                        role,
+                        password
                     });
                     console.log(email)
                     await newUser.save();
@@ -57,8 +56,7 @@ exports.register = async (req, res)=>{
                         tokens: {
                             accessToken: token,
                             refreshToken: refreshToken
-                        },
-                        user: await User.findById(newUser.id).select('isVerified status')
+                        }
                     })
                 }
             }
@@ -98,19 +96,19 @@ exports.requestOtp = async(req, res)=>{
     try {
         const email = req.user.email;
         console.log(email)
-        const otp = await genOtp();
-        await saveOtp(email, otp)
+        const otp = genOtp();
+        await saveOtp(email, otp);
         await sendMail({
             email: email,
             subject: "Account Verification",
             text: `Your one time password is ${otp}, thanks`
-        })
+        });
         console.log(otp)
         return res.status(200).json({
             success: true,
             message: "Otp sent!",
             data: otp
-        })
+        });
     }catch (e){
         console.log(e)
         return res.status(500).json({
@@ -152,8 +150,7 @@ exports.loginUser = async(req, res)=>{
                         tokens:{
                             accessToken: accessToken,
                             refreshToken: refreshToken
-                        },
-                        user: await User.findById(existingUser.id).select('isVerified status')
+                        }
                     })
                 }
             }

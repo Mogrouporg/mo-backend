@@ -60,7 +60,7 @@ exports.verifyTokenAdmin = async (req, res, next )=>{
             })
             next()
         }
-    }catch (e) {
+    }catch (e) { 
         console.log(e)
         return res.status(500).json({
             message: "Please login again"
@@ -69,5 +69,8 @@ exports.verifyTokenAdmin = async (req, res, next )=>{
 }
 
 exports.updateTokenAdmin = async(_id, token)=>{
-    return Admin.findByIdAndUpdate(_id, { token: token }, { new: true });
+    return Admin.findByIdAndUpdate(_id, { refreshTokenHash: token }, { new: true });
 }
+
+e
+

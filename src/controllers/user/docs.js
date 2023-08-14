@@ -342,3 +342,47 @@
  * }
  *
  */
+
+/**
+ * @api {post} /admin/signup Sign Up Admin
+ * @apiName SignupAdmin
+ * @apiGroup Admin
+ *
+ * @apiParam {String} lastName Admin's Last Name.
+ * @apiParam {String} email Admin's Email.
+ * @apiParam {String} phoneNumber Admin's Phone Number.
+ * @apiParam {String} password Admin's Password.
+ *
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {String} data Token for the new admin.
+ *
+ * @apiError {String} message Error message.
+ */
+
+/**
+ * @api {get} /admin/request-otp Request OTP for Admin
+ * @apiName RequestOtpAdmin
+ * @apiGroup Admin
+ *
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {String} message Success message.
+ * @apiSuccess {String} data Generated OTP.
+ *
+ * @apiError {String} message Error message.
+ */
+
+/**
+ * @api {post} /admin/verify-otp Verify OTP for Admin
+ * @apiName VerifyOtpAdmin
+ * @apiGroup Admin
+ *
+ * @apiParam {String} otp One Time Password.
+ *
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {String} message Verification success message.
+ *
+ * @apiError {String} message Error message.
+ */
+
+
+
