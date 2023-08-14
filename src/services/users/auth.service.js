@@ -6,67 +6,61 @@ const argon2 = require('argon2');
 const {updateToken, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
 
-exports.register = async (req, res)=>{
-    try{
-            const firstName = req.body.firstName;
-            const  lastName = req.body.lastName;
-            const  email = req.body.email
-            const  phoneNumber = req.body.phoneNumber;
-            const password = req.body.password;
-            const  role = req.body.role;
-            const currency = req.body.currency;
-            if(!firstName || !lastName || !email || !phoneNumber || !password){
-                console.log(firstName, lastName, email, phoneNumber, password);
-                return res.status(400).json({
-                    message: "All fields required"
-                })
-            }else{
-                const oldUser = await User.findOne({email: email});
-                if(oldUser) {
-                    console.log(oldUser.email, email)
-                    return res.status(401).json({
-                        message: "User already exists"
-                    })
-                }else{
-                    const newUser = new User({
-                        firstName,
-                        lastName,
-                        email,
-                        phoneNumber,
-                        password
-                    });
-                    console.log(email)
-                    await newUser.save();
-                    const otp = genOtp();
-                    await saveOtp(email, otp)
-                    console.log(otp)
-                    // sends a mail
-                    await sendMail({
-                        email: email,
-                        subject: "Account Verification",
-                        text: `Your one time password is ${otp}, thanks`,
-                    })
-                    const token = await generateAccessToken({email: newUser.email});
-                    const refreshToken = await generateRefreshToken({id: newUser.id});
-                    //console.log(token, refreshToken);
-                    const hash = await argon2.hash(refreshToken);
-                    await updateToken(email, hash)
-                    return res.status(201).json({
-                        success: true,
-                        tokens: {
-                            accessToken: token,
-                            refreshToken: refreshToken
-                        }
-                    })
-                }
-            }
-    }catch (e) {
-        console.log(e)
-        return res.status(500).json({
-            message: "Internal server error"
-        })
+exports.register = async (req, res) => {
+    try {
+      const { firstName, lastName, email, phoneNumber, password, role, currency } = req.body;
+  
+      if (!firstName || !lastName || !email || !phoneNumber || !password) {
+        return res.status(400).json({
+          message: "All fields required"
+        });
+      }
+  
+      const oldUser = await User.findOne({ email: email });
+      if (oldUser) {
+        return res.status(401).json({
+          message: "User already exists"
+        });
+      }
+      const oldPhoneNumber = await User.findOne({ phoneNumber: phoneNumber });
+        if (oldPhoneNumber) {
+            return res.status(401).json({
+                message: "Phone number already exists"
+            });
+        }
+  
+      const newUser = new User({ firstName, lastName, email, phoneNumber, password });
+      await newUser.save();
+  
+      const otp = genOtp();
+      await saveOtp(email, otp);
+  
+      // sends a mail
+      await sendMail({
+        email: email,
+        subject: "Account Verification",
+        text: `Your one time password is ${otp}, thanks`,
+      });
+  
+      const token = await generateAccessToken({ email: newUser.email });
+      const refreshToken = await generateRefreshToken({ id: newUser.id });
+      const hash = await argon2.hash(refreshToken);
+      await updateToken(email, hash);
+  
+      return res.status(201).json({
+        success: true,
+        tokens: {
+          accessToken: token,
+          refreshToken: refreshToken
+        }
+      });
+    } catch (e) {
+      return res.status(500).json({
+        message: `Internal server error: ${e.message}`
+      });
     }
-}
+  };
+  
 
 exports.verifyUser = async(req, res)=>{
     try {
