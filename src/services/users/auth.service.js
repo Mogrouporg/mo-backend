@@ -62,6 +62,7 @@ exports.register = async (req, res) => {
   };
   
 
+
 exports.verifyUser = async(req, res)=>{
     try {
         const email = req.user.email;
