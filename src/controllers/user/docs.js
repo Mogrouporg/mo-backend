@@ -1,6 +1,6 @@
 // Auth
 /**
- * @api {post} /api/v1/auth/signup Register a new user
+ * @api {post} /api/v1/signup Register a new user
  * @apiName Register
  * @apiGroup Auth
  * @apiVersion  1.0.0
@@ -27,7 +27,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/login Login a user
+ * @api {post} /api/v1/login Login a user
  * @apiName Login
  * @apiGroup Auth
  * @apiVersion  1.0.0
@@ -61,7 +61,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/verify-otp Verify a user
+ * @api {post} /api/v1/verify-otp Verify a user
  * @apiName Verify
  * @apiGroup Auth
  * @apiVersion  1.0.0
@@ -82,7 +82,7 @@
  */
 
 /**
- * @api {get} /api/v1/auth/request-otp Request OTP
+ * @api {get} /api/v1/request-otp Request OTP
  * @apiName Request OTP
  * @apiGroup Auth
  * @apiVersion  1.0.0
@@ -102,7 +102,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/logout Logout a user
+ * @api {post} /api/v1/logout Logout a user
  *  @apiName Logout
  * @apiGroup Auth
  * @apiVersion  1.0.0
@@ -116,7 +116,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/user/forgot-password Forgot password
+ * @api {post} /api/v1//user/forgot-password Forgot password
  * @apiName Forgot password
  * @apiGroup Auth
  *  @apiVersion  1.0.0
@@ -136,7 +136,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/user/reset-password/:token Reset password
+ * @api {post} /api/v1/user/reset-password/:token Reset password
  * @apiName Reset password
  * @apiGroup Auth
  *  @apiVersion  1.0.0
@@ -157,7 +157,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/user/edit-account Edit account
+ * @api {post} /api/v1/user/edit-account Edit account
  * @apiName Edit account
  * @apiGroup Auth
  *  @apiVersion  1.0.0
@@ -182,7 +182,7 @@
  */
 
 /**
- * @api {post} /api/v1/auth/refresh Refresh token
+ * @api {post} /api/v1/refresh Refresh token
  * @apiName Refresh token
  *  @apiGroup Auth
  * @apiVersion  1.0.0
@@ -207,7 +207,7 @@
 
 // User
 /**
- * @api {get} /user/notifications Get User Notifications
+ * @api {get} /api/v1/user/notifications Get User Notifications
  * @apiName Get User Notifications
  * @apiGroup User
  * @apiVersion  1.0.0
@@ -235,7 +235,7 @@
  */
 
 /**
- * @api {post} /user/account/deposit Deposit Funds
+ * @api {post} /api/v1/user/account/deposit Deposit Funds
  * @apiName Deposit Funds
  * @apiGroup User
  * @apiVersion  1.0.0
@@ -262,7 +262,7 @@
  */
 
 /**
- * @api {get} /user/profile Get User Profile
+ * @api {get} /api/v1/user/profile Get User Profile
  * @apiName Get User Profile
  * @apiGroup User
  *  @apiHeader {String} Authorization Bearer token
@@ -298,7 +298,7 @@
  */
 
 /**
- * @api {get} /user/paystack/callback Paystack Callback
+ * @api {get} /api/v1/user/paystack/callback Paystack Callback
  * @apiName Paystack Callback
  * @apiGroup User
  * @apiVersion  1.0.0
@@ -319,7 +319,7 @@
  */
 
 /**
- * @api {get} /user/account/transactions Get User Transactions
+ * @api {get} /api/v1/user/account/transactions Get User Transactions
  * @apiName Get User Transactions
  * @apiGroup User
  * @apiVersion  1.0.0
@@ -344,7 +344,7 @@
  */
 
 /**
- * @api {post} /admin/signup Sign Up Admin
+ * @api {post} /api/v1/admin/signup Sign Up Admin
  * @apiName SignupAdmin
  * @apiGroup Admin
  *
@@ -360,7 +360,7 @@
  */
 
 /**
- * @api {get} /admin/request-otp Request OTP for Admin
+ * @api {get} /api/v1/admin/request-otp Request OTP for Admin
  * @apiName RequestOtpAdmin
  * @apiGroup Admin
  *
@@ -372,7 +372,7 @@
  */
 
 /**
- * @api {post} /admin/verify-otp Verify OTP for Admin
+ * @api {post} /api/v1/admin/verify-otp Verify OTP for Admin
  * @apiName VerifyOtpAdmin
  * @apiGroup Admin
  *
