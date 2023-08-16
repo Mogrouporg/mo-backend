@@ -300,7 +300,7 @@ exports.resetPassword = async(req, res)=>{
             })
         }
         const newPassword = req.body.password
-        const hash = argon2.hash(newPassword);
+        const hash = await argon2.hash(newPassword);
         await user.updateOne({
             password: hash,
             resetPasswordToken: null
