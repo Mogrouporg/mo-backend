@@ -47,7 +47,7 @@ const UserSchema = new Schema(
             required: false
         },
         resetPasswordToken:{
-            type: string,
+            type: String,
             default: false
         },
         resetPasswordExp:{
