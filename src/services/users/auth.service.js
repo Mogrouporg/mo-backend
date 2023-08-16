@@ -267,24 +267,46 @@ exports.verifyOtpForgotPassword = async(req, res)=>{
                     message: "Not found"
                 });
             }else{
-                const { password } = req.body;
-                const hashed = await argon2.hash(password);
-                await user.updateOne({ password: hashed, resetPasswordStatus: false})
-
-                await sendMail({
-                    email: user.email,
-                    subject: 'Password reset',
-                    text:  'Password reset successful'
-                })
-
+                const token = await crypto.randomBytes(20).toString('hex');
+                await User.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
                 return res.status(200).json({
                     success: true,
+                    token: token,
                 })
             }
         }
     }catch (e) {
         console.log(e)
         return res.status(500).json({
+            message: "Internal Server error"
+        })
+    }
+}
+
+
+exports.resetPassword = async(req, res)=>{
+    try {
+        const {token} = req.params;
+        if(!token){
+            return res.status(400).json({
+                message: "Bad request"
+            })
+        }
+        const user = await User.findOne({resetPasswordToken: token })
+        if(!user){
+            return res.status(400).json({
+                message: "User not found."
+            })
+        }
+        const newPassword = req.body.password
+        const hash = argon2.hash(newPassword);
+        await user.updateOne({
+            password: hash,
+            resetPasswordToken: null
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
             message: "Internal Server error"
         })
     }
