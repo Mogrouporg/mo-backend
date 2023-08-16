@@ -140,21 +140,38 @@
  * @apiName Reset password
  * @apiGroup Auth
  *  @apiVersion  1.0.0
- *  @apiParam {String} token User's token
- * @apiBody {String} password User's password
+ *  @apiBody {otp} token User's token
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
  *    "success": "true",
- *    "message": "Password reset successfully"
+ *    "message": "You can reset your password now"
  *  }
  * @apiErrorExample {json} Error-Response:
  *  HTTP/1.1 401 UNAUTHORIZED
  * {
  *    "success": "false",
- *    "message": "link expired"
+ *    "message": "otp expired"
  * }
  */
+/**
+ * @api {post} /api/v1/user/update-password update password
+ * @apiName Update Password
+ * @apiGroup Auth
+ * @apiVersion 1.0.0
+ * @apiParam {String} token User's token
+ * @apiBody {String} new Password 
+ * HTTP/1.1 200 OK
+ * {
+ *    "success": "true",
+ *    "message": "password reset successful"
+ *  }
+ * @apiErrorExample {json} Error-Response:
+ *  HTTP/1.1 401 UNAUTHORIZED
+ * {
+ *    success: false,
+ * }
+ * /
 
 /**
  * @api {post} /api/v1/user/edit-account Edit account
