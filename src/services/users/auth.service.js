@@ -3,6 +3,7 @@ const { genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../uti
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const argon2 = require('argon2');
+const crypto = require('crypto');
 const {updateToken, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
 
