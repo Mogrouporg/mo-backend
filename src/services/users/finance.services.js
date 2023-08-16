@@ -14,10 +14,10 @@ exports.deposit = async (req, res) => {
     const { email } = req.user;
     let { amount } = req.body;
     amount *= 100;
-    if (!amount || amount < 10000) {
+    if (!amount || amount < 3950) {
       return  res.status(400).json({
         success: false,
-        message: "Can't make a deposit less than NGN 1000",
+        message: "Can't make a deposit less than NGN 3950",
       });
     }
     const form = { amount, email };

@@ -136,7 +136,7 @@
  */
 
 /**
- * @api {post} /api/v1/user/reset-password/:token Reset password
+ * @api {post} /api/v1/user/reset-password Reset password
  * @apiName Reset password
  * @apiGroup Auth
  *  @apiVersion  1.0.0
