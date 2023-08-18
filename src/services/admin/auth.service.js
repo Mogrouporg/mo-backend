@@ -70,29 +70,27 @@ exports.signupAdmin = async (req, res) => {
     }
 }
 
-exports.requestOtpAdmin = async(req, res)=> {
+exports.requestOtpAdmin = async(req, res) => {
     try {
         const admin = req.admin;
         const otp = genOtp();
-        await saveOtp(admin.id, otp)
+        await saveOtp(admin.id, otp);
         await sendMail({
             email: admin.email,
             subject: "Account Verification",
             text: `Your one time password is ${otp}, thanks`
-        })
-        console.log(otp)
+        });
         return res.status(200).json({
             success: true,
             message: "Otp sent!",
-            data: otp
-        })
+        });
     } catch (e) {
-        console.log(e)
+        console.error(e);
         return res.status(500).json({
             message: "Internal Server error"
-        })
+        });
     }
-}
+};
 exports.verifyOtpAdmin = async (req, res)=>{
     try {
         const _id = req.admin.id;
