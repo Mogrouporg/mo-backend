@@ -131,7 +131,8 @@ exports.loginAdmin = async (req, res)=>{
                     message: "User does not exist"
                 })
             }else{
-                if(!await bcrypt.compareSync(password, admin.password)){
+                const isMatch = await argon2.verify(admin.password, password)
+                if(!isMatch){
                     return res.status(401).json({
                         message: "Invalid Password"
                     });

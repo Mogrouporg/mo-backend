@@ -13,7 +13,7 @@ const AdminSchema = new Schema(
             required: true,
             unique: true
         },
-        phoneNumber: {
+        phoneNumber: {  
             type: String,
             required: true,
             unique: true
