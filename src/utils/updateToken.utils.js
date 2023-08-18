@@ -49,15 +49,15 @@ exports.verifyTokenAdmin = async (req, res, next )=>{
             return res.status(401).redirect('https://join-monie.vercel.app/login')
         }else{
             jwt.verify(token, process.env.TOKEN_KEY_ADMIN, async function (err, decoded){
-                const key = decoded.id;
+                const key = decoded._id;
                 console.log(decoded);
-                const user = await Admin.findById(key);
-                if(!user) {
+                const admin = await Admin.findById(key);
+                if(!admin) {
                     return res.status(401).json({
                         message: 'You are not allowed to perform this action!'
                     })
                 }
-                req.admin = user;
+                req.admin = admin;
             })
             next()
         }
