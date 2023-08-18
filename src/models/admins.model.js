@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt');
+const argon2 = require("argon2");
 const Schema = mongoose.Schema;
 
 const AdminSchema = new Schema(
