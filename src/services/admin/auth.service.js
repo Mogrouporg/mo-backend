@@ -1,6 +1,6 @@
 const {genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../utils/otp.util');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const argon2 = require('argon2');
 const {updateTokenAdmin, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
 const {Admin} = require('../../models/admins.model');
