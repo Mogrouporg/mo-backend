@@ -48,9 +48,8 @@ exports.verifyTokenAdmin = async (req, res, next )=>{
         if(!token){
             return res.status(401).redirect('https://join-monie.vercel.app/login')
         }else{
-            jwt.verify(token, process.env.TOKEN_KEY_ADMIN, async function (err, decoded){
+            jwt.verify(token, process.env.ACCESS_TOKEN, async function (err, decoded){
                 const key = decoded._id;
-                console.log(decoded);
                 const admin = await Admin.findById(key);
                 if(!admin) {
                     return res.status(401).json({
