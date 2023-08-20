@@ -55,11 +55,7 @@ exports.editAccount = async (req, res) => {
 exports.getMyTransactions = async (req, res) => {
     try {
         const _id = req.user._id;
-        const myTransactions = await User.findById(_id).select('transactions')
-            .populate({
-                path: 'transactions',
-                match: { status: 'success' }
-            });
+        const myTransactions = await User.findById(_id).select('transactions').populate('transactions')
         return res.status(200).json({
             success: true,
             data: myTransactions
@@ -72,27 +68,27 @@ exports.getMyTransactions = async (req, res) => {
     }
 };
 
-exports.getMyTransactions = async (req, res) => {
-    try {
-        const email = req.user.email;
-        const myInvestments = await Promise.all([
-            TransInvest.find({ email }).select("-_id"),
-            RealEstateInvestment.find({ email }).select("-_id")
-        ]);
-        return res.status(200).json({
-            success: true,
-            data: {
-                transportInvestment: myInvestments[0],
-                realEstateInvestment: myInvestments[1]
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
-    }
-};
+// exports.getMyTransactions = async (req, res) => {
+//     try {
+//         const email = req.user.email;
+//         const myInvestments = await Promise.all([
+//             TransInvest.find({ email }).select("-_id"),
+//             RealEstateInvestment.find({ email }).select("-_id")
+//         ]);
+//         return res.status(200).json({
+//             success: true,
+//             data: {
+//                 transportInvestment: myInvestments[0],
+//                 realEstateInvestment: myInvestments[1]
+//             }
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({
+//             message: "Internal Server Error"
+//         });
+//     }
+// };
 
 exports.getSingleRealEstateInvestment = async (req, res) => {
     try {
