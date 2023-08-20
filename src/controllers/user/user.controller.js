@@ -18,6 +18,6 @@ useRouter.post('/transport/:id/sell', verifyToken, sellTransportInvestment);
 useRouter.post('/account/withdraw', verifyToken, withdrawFunds);
 useRouter.get('/real-estate/:id', verifyToken, getSingleRealEstateInvestment);
 useRouter.get('/transport/:id', verifyToken, getSingleTransInvestment);
-useRouter.get('/real-estate', verifyToken, getAllRealInvestments);
-useRouter.get('/transport', verifyToken, getAllTransInvestments);
+useRouter.get('/real-estates', verifyToken, getAllRealInvestments);
+useRouter.get('/transports', verifyToken, getAllTransInvestments);
 module.exports = useRouter;
