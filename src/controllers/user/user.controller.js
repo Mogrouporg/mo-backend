@@ -2,7 +2,7 @@ const useRouter = require('express').Router();
 const {verifyToken} = require("../../utils/updateToken.utils");
 const { findNotifById } = require('../../services/notif/notif.services');
 const {deposit, verifyDeposit, investInRealEstate, sellRealEstateInvestment, investInTransport, sellTransportInvestment, withdrawFunds} = require("../../services/users/finance.services");
-const {myProfile, getMyTransactions} = require("../../services/users/account.service");
+const {myProfile, getMyTransactions, getSingleRealEstateInvestment, getSingleTransInvestment} = require("../../services/users/account.service");
 
 useRouter.get('/user/notifications', verifyToken, findNotifById);
 //Payments && Balance
@@ -15,4 +15,6 @@ useRouter.post('/real-estate/:id/sell', verifyToken, sellRealEstateInvestment);
 useRouter.post('/transport/:id/invest', verifyToken, investInTransport);
 useRouter.post('/transport/:id/sell', verifyToken, sellTransportInvestment);
 useRouter.post('/account/withdraw', verifyToken, withdrawFunds);
+useRouter.get('/real-estate/:id', verifyToken, getSingleRealEstateInvestment);
+useRouter.get('/transport/:id', verifyToken, getSingleTransInvestment);
 module.exports = useRouter;
