@@ -47,14 +47,13 @@ exports.register = async (req, res) => {
       const refreshToken = await generateRefreshToken({ id: newUser.id });
       const hash = await argon2.hash(refreshToken);
       await updateToken(email, hash);
-      const user =await User.findById(newUser.id).select('isVerified');
       return res.status(201).json({
         success: true,
         tokens: {
           accessToken: token,
           refreshToken: refreshToken
         },
-        user
+        isVerified: newUser.isVerified,
       });
     } catch (e) {
       return res.status(500).json({
@@ -140,8 +139,6 @@ exports.loginUser = async(req, res)=>{
                     const accessToken = await generateAccessToken({email: existingUser.email});
                     const refreshToken = await generateRefreshToken({id: existingUser.id});
                     const hash = await argon2.hash(refreshToken);
-                    const user = await User.findById(existingUser.id).select('isVerified');
-
                     await updateToken(existingUser.email, hash)
                     return res.status(200).json({
                         success: true,
@@ -149,7 +146,7 @@ exports.loginUser = async(req, res)=>{
                             accessToken: accessToken,
                             refreshToken: refreshToken
                         },
-                        user
+                        isVerified: existingUser.isVerified,
                     })
                 }
             }
