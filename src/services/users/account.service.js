@@ -72,7 +72,7 @@ exports.getMyTransactions = async (req, res) => {
     }
 };
 
-exports.getMyInvestments = async (req, res) => {
+exports.getMyTransactions = async (req, res) => {
     try {
         const email = req.user.email;
         const myInvestments = await Promise.all([
@@ -93,3 +93,35 @@ exports.getMyInvestments = async (req, res) => {
         });
     }
 };
+
+exports.getSingleRealEstateInvestment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const investment = await TransInvest.findById(id);
+        return res.status(200).json({
+            success: true,
+            data: investment
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+};
+
+exports.getSingleTransInvestment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const investment = await TransInvest.findById(id);
+        return res.status(200).json({
+            success: true,
+            data: investment
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
