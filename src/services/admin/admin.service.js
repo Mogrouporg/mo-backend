@@ -88,7 +88,7 @@ exports.createLandInvestment = async (req, res) => {
     const urls = await imageUpload(images, 'realEstate');
 
     // Fetch users
-    const users = await User.find({}, 'email');
+    const users = await User.find({status: "active"}, 'email');
 
     // Create real estate object
     const newRealEstate = new RealEstate({
