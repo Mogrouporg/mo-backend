@@ -381,3 +381,21 @@ exports.requestLoan = async (req, res)=>{
         })
     }
 }
+
+exports.fetchLoanHistory = async (req, res)=>{
+    try {
+        const id = req.user.id;
+        const transactions = await User.findById(id).select('transactions').populate('transactions');
+        const loan = transactions.transactions.filter((transaction)=> transaction.type === 'loan');
+        return res.status(200).json({
+            success: true,
+            data: loan
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
