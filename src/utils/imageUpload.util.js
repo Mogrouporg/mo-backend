@@ -33,7 +33,6 @@ exports.imageUpload = async (files, folder) => {
                 };
     
                 const data = await s3.upload(params).promise();
-                console.log(data, params)
                 return data.Location;
             });
     

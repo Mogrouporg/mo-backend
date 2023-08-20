@@ -23,7 +23,6 @@ const sendSQSMessage = async (message) => {
 exports.notifyAllUsers = async(users,subject, body, onStart, onComplete)=>{
     try {
         onStart && onStart(); // Call onStart if provided
-
         for (let i = 0; i < users.length; i++) {
             const message = {
                 email: users[i].email,
@@ -32,7 +31,6 @@ exports.notifyAllUsers = async(users,subject, body, onStart, onComplete)=>{
             }
             await sendSQSMessage(message)
         }
-
         onComplete && onComplete(); // Call onComplete if provided
     }catch (e) {
         console.log(e)
@@ -54,6 +52,7 @@ const processMessages = async () => {
   if (!shouldProcessMessages) return;
 
   try {
+    console.log('Processing messages...');
     const params = {
       QueueUrl: process.env.AWS_SQS_URL,
       MaxNumberOfMessages: 10,

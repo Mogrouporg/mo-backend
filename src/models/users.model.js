@@ -34,6 +34,10 @@ const UserSchema = new Schema(
             type: Number,
             default: 0
         },
+        dailyRoi:{
+            type: Number,
+            default: 0
+        },
         totalLoan: {
             type: Number,
             default: 0
