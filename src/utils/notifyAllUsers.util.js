@@ -66,8 +66,33 @@ const processMessages = async () => {
       if (!data.Messages) {
         return;
       }
-      // ... rest of the code ...
-
+      console.log('Messages received: ', data.Messages.length, data.Messages);
+      const messages = data.Messages;
+      for (let i = 0; i < messages.length; i++) {
+        const message = JSON.parse(messages[i].Body);
+        // Send email
+        await sendMail({
+          to: message.email,
+          subject: message.subject,
+          html: message.body,
+        });
+        // Send push notification
+        await pushNotification({
+          email: message.email,
+          message: message.subject,
+        });
+        // Delete message from queue
+        const deleteParams = {
+          QueueUrl: process.env.AWS_SQS_URL,
+          ReceiptHandle: messages[i].ReceiptHandle,
+        };
+        sqs.deleteMessage(deleteParams, (err, data) => {
+          if (err) {
+            console.log(err, err.stack);
+            return;
+          }
+        });
+      }
       // Recursive call to keep processing if the condition is still met
       processMessages();
     });

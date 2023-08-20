@@ -108,6 +108,7 @@ exports.createLandInvestment = async (req, res) => {
 
     // Notify users
     const emails = users.map((user) => user.email);
+    console.log(emails);
     await notifyAllUsers(
       emails,
       'New Set of Real Estate Available!',

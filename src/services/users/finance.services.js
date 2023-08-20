@@ -49,7 +49,6 @@ exports.verifyDeposit = async (req, res) => {
     //console.log(user, email, reference, transaction);
 
     const response = await verifyPayment(reference);
-    console.log(response.data.data);
 
     if (response.data.data.status === 'failed') {
       await transaction.updateOne(
@@ -88,7 +87,7 @@ exports.verifyDeposit = async (req, res) => {
       pushNotification(newNotif),
       User.findOneAndUpdate(
         { email: email },
-        { balance: newBalance, $push: { transactions: transaction, notifications: newNotif } }
+        { balance: newBalance, $push: { transactions: transaction.id} }
       ),
     ]);
 
