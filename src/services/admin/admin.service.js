@@ -6,6 +6,7 @@ const { RealEstate } = require("../../models/realEstate.model");
 const { notifyAllUsers, startProcessing, stopProcessing } = require("../../utils/notifyAllUsers.util");
 const { loanRequest } = require("../../models/loanRequests.model");
 const { realEstateSchema } = require("../../models/validations/data");
+const { Transportation } = require("../../models/transportations.model");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -144,11 +145,28 @@ exports.getAllRealInvestments = async (req, res) => {
   }
 };
 
+exports.getAllTransInvestments = async (req, res) => {
+  try {
+    const investments = await Transportation.find().select(
+      "transportName image _id amount"
+    );
+    return res.status({
+      success: true,
+      data: investments,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(200).json({
+      message: "Internal Server error",
+    });
+  }
+};
+
 exports.getSingleRealEstate = async (req, res) => {
   try {
     const _id = req.params.id;
     const investment = await RealEstate.findById(_id).select(
-      "propertyName image -_id sizeInSqm"
+      "propertyName image _id sizeInSqm"
     );
     return res.status({
       success: true,
@@ -158,6 +176,21 @@ exports.getSingleRealEstate = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getSingleTransInvestment = async (req, res) => {
+    try {
+      const _id = req.params.id;
+      const investment = await Transportation.findById(_id).select(
+        "transportName image _id amount"
+      );
+      return res.status({
+        success: true,
+        data: investment,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+}
 
 exports.approveLoan = async (req, res) => {
   try {
