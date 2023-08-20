@@ -1,7 +1,7 @@
 const {genOtp, verifyOtp, saveOtp, genForgotPasswordToken} = require('../../utils/otp.util');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const {updateTokenAdmin} = require("../../utils/updateToken.utils");
+const argon2 = require('argon2');
+const {updateTokenAdmin, generateAccessToken, generateRefreshToken} = require("../../utils/updateToken.utils");
 const {sendMail} = require("../../utils/mailer");
 const {Admin} = require('../../models/admins.model');
 const {User} = require("../../models/users.model");
@@ -39,21 +39,26 @@ exports.signupAdmin = async (req, res) => {
                 });
                 await newAdmin.save();
                 const _id = newAdmin.id;
-                const otp = await genOtp();
-                console.log(otp, _id)
+                const otp = genOtp();
                 await saveOtp(_id, otp);
                 await sendMail({
                     email: email,
                     subject: "Account Verification",
                     text: `Your one time password is ${otp}, thanks`,
                 });
-                const token = await jwt.sign({"_id": _id}, process.env.TOKEN_KEY_ADMIN, {
-                    expiresIn: '1d'
-                });
-                await updateTokenAdmin(_id, token);
+                const tokens = {
+                    accessToken: await generateAccessToken({_id: _id}),
+                    refreshToken: await generateRefreshToken({_id: _id})
+                
+                } 
                 return res.status(201).json({
                     success: true,
-                    data: token
+                    data:{
+                        tokens: tokens,
+                        isActive: newAdmin.isActive,
+                        isVerified: newAdmin.isVerified
+
+                    }
                 })
             }
         }
@@ -65,29 +70,27 @@ exports.signupAdmin = async (req, res) => {
     }
 }
 
-exports.requestOtpAdmin = async(req, res)=> {
+exports.requestOtpAdmin = async(req, res) => {
     try {
         const admin = req.admin;
-        const otp = await genOtp();
-        await saveOtp(admin.id, otp)
+        const otp = genOtp();
+        await saveOtp(admin.id, otp);
         await sendMail({
             email: admin.email,
             subject: "Account Verification",
             text: `Your one time password is ${otp}, thanks`
-        })
-        console.log(otp)
+        });
         return res.status(200).json({
             success: true,
             message: "Otp sent!",
-            data: otp
-        })
+        });
     } catch (e) {
-        console.log(e)
+        console.error(e);
         return res.status(500).json({
             message: "Internal Server error"
-        })
+        });
     }
-}
+};
 exports.verifyOtpAdmin = async (req, res)=>{
     try {
         const _id = req.admin.id;
@@ -126,19 +129,24 @@ exports.loginAdmin = async (req, res)=>{
                     message: "User does not exist"
                 })
             }else{
-                if(!await bcrypt.compareSync(password, admin.password)){
+                const isMatch = await argon2.verify(admin.password, password)
+                if(!isMatch){
                     return res.status(401).json({
                         message: "Invalid Password"
                     });
                 }else{
-                    const token = await jwt.sign({"_id": admin._id}, process.env.TOKEN_KEY_ADMIN, {
-                        expiresIn: '1h'
-                    })
-                    await updateTokenAdmin(admin._id, token);
+                    const tokens = {
+                        accessToken: await generateAccessToken({_id: admin.id}),
+                        refreshToken: await generateRefreshToken({_id: admin.id})
+                    }
                     return res.status(200).json({
                         success: true,
                         message: "logged In",
-                        data: token
+                        data:{
+                            tokens: tokens,
+                            admin: admin.isActive, 
+                            isVerified: admin.isVerified
+                        }
                     })
                 }
             }
@@ -153,24 +161,7 @@ exports.loginAdmin = async (req, res)=>{
 
 exports.logout = async(req, res)=>{
     try {
-        const admin = req.admin;
-        const token = req.admin.token;
-        if(admin.token === req.headers.authorization || admin.token === req.params.token) {
-            await Admin.findOneAndUpdate({email: admin.email, token: token}, {
-                $set: {
-                    token: null
-                }
-            });
-            return res.status(200).json({
-                success: true,
-                message: "Logged out"
-            })
-        }
-        else{
-            return res.status(400).json({
-                message: "You have logged out already!"
-            })
-        }
+        req.logout();
     }catch (e) {
         console.log(e)
         return res.status(500).json({
@@ -195,9 +186,9 @@ exports.forgotPassword = async(req, res)=>{
                     message: "Account with this email not found"
                 })
             }else{
-                const token = await genForgotPasswordToken()
-                await saveOtp(email, token)
-                await Admin.findOneAndUpdate({ email: email}, { resetPasswordToken: token }, { new: true});
+                const otp = await genOtp();
+                await saveOtp(email, otp)
+                await Admin.findOneAndUpdate({ email: email}, { resetPasswordToken: token, resetPasswordStatus }, { new: true});
                 const link = `https://mo-backend.onrender.com/api/v1/admin/reset-password/${token}`
                 await sendMail({
                     email: email,

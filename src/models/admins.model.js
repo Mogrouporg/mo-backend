@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt');
+const argon2 = require("argon2");
 const Schema = mongoose.Schema;
 
 const AdminSchema = new Schema(
@@ -13,7 +13,7 @@ const AdminSchema = new Schema(
             required: true,
             unique: true
         },
-        phoneNumber: {
+        phoneNumber: {  
             type: String,
             required: true,
             unique: true
@@ -35,6 +35,9 @@ const AdminSchema = new Schema(
         },
         refreshTokenHash:{
             type: String
+        },
+        resetPasswordStatus:{
+            type: Boolean,
         }
 
 

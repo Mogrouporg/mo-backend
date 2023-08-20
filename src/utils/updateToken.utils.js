@@ -42,31 +42,38 @@ exports.verifyToken = async (req, res, next )=>{
     }
 }
 
-exports.verifyTokenAdmin = async (req, res, next )=>{
+exports.verifyTokenAdmin = async (req, res, next) => {
     try {
-        const token = req.headers.authorization || req.body.token || req.params.token
-        if(!token){
-            return res.status(401).redirect('https://join-monie.vercel.app/login')
-        }else{
-            await jwt.verify(token, process.env.TOKEN_KEY_ADMIN, async function (err, decoded){
-                const key = decoded._id;
-                const user = await Admin.findById(key);
-                if(!user) {
-                    return res.status(401).json({
-                        message: 'You are not allowed to perform this action!'
-                    })
-                }
-                req.admin = user;
-            })
-            next()
+        const token = req.headers.authorization || req.body.token || req.params.token;
+        if (!token) {
+            return res.status(401).redirect('https://join-monie.vercel.app/login');
         }
-    }catch (e) { 
-        console.log(e)
+
+        jwt.verify(token, process.env.ACCESS_TOKEN, async function(err, decoded) {
+            if (err) {
+                console.error(err);
+                return res.status(401).json({
+                    message: 'Invalid token!'
+                });
+            }
+
+            const key = decoded._id;
+            const admin = await Admin.findById(key);
+            if (!admin) {
+                return res.status(401).json({
+                    message: 'You are not allowed to perform this action!'
+                });
+            }
+            req.admin = admin;
+            next();
+        });
+    } catch (e) {
+        console.error(e);
         return res.status(500).json({
             message: "Please login again"
-        })
+        });
     }
-}
+};
 
 exports.updateTokenAdmin = async(_id, token)=>{
     return Admin.findByIdAndUpdate(_id, { refreshTokenHash: token }, { new: true });
