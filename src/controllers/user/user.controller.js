@@ -22,4 +22,4 @@ useRouter.get('/real-estates', verifyToken, getAllRealInvestments);
 useRouter.get('/transports', verifyToken, getAllTransInvestments);
 useRouter.get('/loan-history', verifyToken, fetchLoanHistory);
 useRouter.post('/loan/apply', verifyToken, requestLoan);
-module.exports = useRouter;
+module.exports = useRouter; 
