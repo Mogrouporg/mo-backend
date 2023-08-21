@@ -18,65 +18,55 @@ const { sendMail } = require("../../utils/mailer");
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, phoneNumber, password } =
-      req.body;
+    const { firstName, lastName, email, phoneNumber, password } = req.body;
 
     if (!firstName || !lastName || !email || !phoneNumber || !password) {
-      return res.status(400).json({
-        message: "All fields required",
-      });
+      return res.status(400).json({ message: "All fields required" });
     }
 
-    const oldUser = await User.findOne({ email: email });
+    // Check for existing user and phone number concurrently
+    const [oldUser, oldPhoneNumber] = await Promise.all([
+      User.findOne({ email }),
+      User.findOne({ phoneNumber })
+    ]);
+
     if (oldUser) {
-      return res.status(401).json({
-        message: "User already exists",
-      });
+      return res.status(401).json({ message: "User already exists" });
     }
-    const oldPhoneNumber = await User.findOne({ phoneNumber: phoneNumber });
     if (oldPhoneNumber) {
-      return res.status(401).json({
-        message: "Phone number already exists",
-      });
+      return res.status(401).json({ message: "Phone number already exists" });
     }
 
-    const newUser = new User({
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password,
-    });
+    const newUser = new User({ firstName, lastName, email, phoneNumber, password });
     await newUser.save();
 
     const otp = genOtp();
-    await saveOtp(email, otp);
 
-    // sends a mail
+    // Perform these operations concurrently since they don't depend on each other
+    const [token, refreshToken, hash] = await Promise.all([
+      generateAccessToken({ email: newUser.email }),
+      generateRefreshToken({ id: newUser.id }).then(argon2.hash),  // hash the refreshToken immediately after generating it
+      saveOtp(email, otp)
+    ]);
+
     await sendMail({
-      email: email,
+      email,
       subject: "Account Verification",
-      text: `Your one time password is ${otp}, thanks`,
+      text: `Your one time password is ${otp}, thanks`
     });
 
-    const token = await generateAccessToken({ email: newUser.email });
-    const refreshToken = await generateRefreshToken({ id: newUser.id });
-    const hash = await argon2.hash(refreshToken);
     await updateToken(email, hash);
+
     return res.status(201).json({
       success: true,
-      tokens: {
-        accessToken: token,
-        refreshToken: refreshToken,
-      },
-      isVerified: newUser.isVerified,
+      tokens: { accessToken: token, refreshToken },
+      isVerified: newUser.isVerified
     });
   } catch (e) {
-    return res.status(500).json({
-      message: `Internal server error: ${e.message}`,
-    });
+    return res.status(500).json({ message: `Internal server error: ${e.message}` });
   }
 };
+
 
 exports.verifyUser = async (req, res) => {
   try {
@@ -140,37 +130,37 @@ exports.loginUser = async (req, res) => {
         message: "All fields are required!",
       });
     }
-    const existingUser = await User.findOne({ email: email });
+
+    const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return res.status(200).json({
         success: false,
         message: "User does not exist!",
       });
     }
-    const passwordMatches = await argon2.verify(
-      existingUser.password,
-      password
-    );
+
+    const passwordMatches = await argon2.verify(existingUser.password, password);
     if (!passwordMatches) {
       return res.status(200).json({
         success: false,
         message: "Invalid password",
       });
     }
-    const accessToken = await generateAccessToken({
-      email: existingUser.email,
-    });
-    const refreshToken = await generateRefreshToken({ id: existingUser.id });
-    const hash = await argon2.hash(refreshToken);
+
+    // Perform these operations concurrently since they don't depend on each other
+    const [accessToken, refreshToken, hash] = await Promise.all([
+      generateAccessToken({ email: existingUser.email }),
+      generateRefreshToken({ id: existingUser.id }).then(argon2.hash), // hash the refreshToken immediately after generating it
+    ]);
+
     await updateToken(existingUser.email, hash);
+
     return res.status(200).json({
       success: true,
-      tokens: {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      },
+      tokens: { accessToken, refreshToken },
       isVerified: existingUser.isVerified,
     });
+
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -178,6 +168,7 @@ exports.loginUser = async (req, res) => {
     });
   }
 };
+
 
 exports.logout = async (req, res) => {
   try {
