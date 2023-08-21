@@ -56,12 +56,12 @@ exports.getMyTransactions = async (req, res) => {
     try {
         const _id = req.user._id;
         const myTransactions = await User.findById(_id)
-        .select('transactions')
-        .populate({
-            path: 'transactions',
-            match: { status: { $ne: 'abandoned' } },
-            options: { sort: { 'createdAt': -1 } }
-        });
+    .select('transactions')
+    .populate({
+        path: 'transactions',
+        match: { status: { $nin: ['abandoned', 'pending'] } },
+        options: { sort: { 'createdAt': -1 } }
+    });
         return res.status(200).json({
             success: true,
             data: myTransactions
