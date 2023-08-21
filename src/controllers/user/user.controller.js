@@ -9,7 +9,7 @@ useRouter.get('/user/notifications', verifyToken, findNotifById);
 //Payments && Balance
 useRouter.post('/account/deposit', verifyToken, deposit);
 useRouter.get('/profile', verifyToken, myProfile)
-useRouter.get('/paystack/callback', verifyDeposit);
+useRouter.get('/paystack/callback', verifyToken, verifyDeposit);
 useRouter.get('/account/transactions', verifyToken, getMyTransactions);
 useRouter.post('/real-estate/:id/invest', verifyToken, investInRealEstate );
 useRouter.post('/real-estate/:id/sell', verifyToken, sellRealEstateInvestment);
