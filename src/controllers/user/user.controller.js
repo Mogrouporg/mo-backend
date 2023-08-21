@@ -1,7 +1,7 @@
 const useRouter = require('express').Router();
 const {verifyToken} = require("../../utils/updateToken.utils");
 const { findNotifById } = require('../../services/notif/notif.services');
-const {deposit, verifyDeposit, investInRealEstate, sellRealEstateInvestment, investInTransport, sellTransportInvestment, withdrawFunds, fetchLoanHistory} = require("../../services/users/finance.services");
+const {deposit, verifyDeposit, investInRealEstate, sellRealEstateInvestment, investInTransport, sellTransportInvestment, withdrawFunds, fetchLoanHistory, requestLoan} = require("../../services/users/finance.services");
 const {myProfile, getMyTransactions, getSingleRealEstateInvestment, getSingleTransInvestment} = require("../../services/users/account.service");
 const { getAllRealInvestments, getAllTransInvestments } = require('../../services/admin/admin.service');
 
@@ -21,4 +21,5 @@ useRouter.get('/transport/:id', verifyToken, getSingleTransInvestment);
 useRouter.get('/real-estates', verifyToken, getAllRealInvestments);
 useRouter.get('/transports', verifyToken, getAllTransInvestments);
 useRouter.get('/loan-history', verifyToken, fetchLoanHistory);
+useRouter.post('/loan/apply', verifyToken, requestLoan);
 module.exports = useRouter;
