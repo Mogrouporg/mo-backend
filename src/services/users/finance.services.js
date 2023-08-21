@@ -46,7 +46,7 @@ exports.verifyDeposit = async (req, res) => {
     const transaction = await Transaction.findOne({ reference });
     const email = transaction.user;
     const user = await User.findOne({ email });
-    //console.log(user, email, reference, transaction);
+    console.log(user, email, reference, transaction);
 
     const response = await verifyPayment(reference);
 
