@@ -18,7 +18,7 @@ const { sendMail } = require("../../utils/mailer");
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, phoneNumber, password, role } =
+    const { firstName, lastName, email, phoneNumber, password } =
       req.body;
 
     if (!firstName || !lastName || !email || !phoneNumber || !password) {
@@ -135,43 +135,42 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: "All fields are required!",
       });
-    } else {
-      const existingUser = await User.findOne({ email: email });
-      if (!existingUser) {
-        return res.status(200).json({
-          success: false,
-          message: "User does not exist!"
-        });
-      }
-      const passwordMatches = await argon2.verify(
-        existingUser.password,
-        password
-      );
-      if (!passwordMatches) {
-        return res.status(200).json({
-          success: false,
-          message: "Invalid password",
-        });
-      }
-      const accessToken = await generateAccessToken({
-        email: existingUser.email,
-      });
-      const refreshToken = await generateRefreshToken({ id: existingUser.id });
-      const hash = await argon2.hash(refreshToken);
-      await updateToken(existingUser.email, hash);
+    }
+    const existingUser = await User.findOne({ email: email });
+    if (!existingUser) {
       return res.status(200).json({
-        success: true,
-        tokens: {
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-        },
-        isVerified: existingUser.isVerified,
+        success: false,
+        message: "User does not exist!",
       });
     }
+    const passwordMatches = await argon2.verify(
+      existingUser.password,
+      password
+    );
+    if (!passwordMatches) {
+      return res.status(200).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+    const accessToken = await generateAccessToken({
+      email: existingUser.email,
+    });
+    const refreshToken = await generateRefreshToken({ id: existingUser.id });
+    const hash = await argon2.hash(refreshToken);
+    await updateToken(existingUser.email, hash);
+    return res.status(200).json({
+      success: true,
+      tokens: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      isVerified: existingUser.isVerified,
+    });
   } catch (e) {
     console.log(e);
     return res.status(500).json({
