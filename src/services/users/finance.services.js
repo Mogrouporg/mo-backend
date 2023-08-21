@@ -46,7 +46,6 @@ exports.verifyDeposit = async (req, res) => {
     const transaction = await Transaction.findOne({ reference });
     const email = transaction.user;
     const user = await User.findOne({ email });
-    console.log(user, email, reference, transaction);
 
     const response = await verifyPayment(reference);
 
@@ -97,7 +96,7 @@ exports.verifyDeposit = async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error', e });
   }
 };
 
