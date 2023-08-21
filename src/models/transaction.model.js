@@ -13,7 +13,7 @@ const transactionSchema = new schema(
         },
         status: {
             type: String,
-            enum: ["success", "failed", "abandoned", "pending"]
+            enum: ["Success", "Failed", "Abandoned", "Pending"]
         },
         balance: {
             type: String
@@ -23,7 +23,7 @@ const transactionSchema = new schema(
         },
         type:{
             type: String,
-            enum: ['deposit', 'loan', 'withdrawal', 'invest']
+            enum: ['Deposit', 'Loan', 'Withdrawal', 'Invest']
         }
     },{
         timestamps: true

@@ -29,7 +29,7 @@ exports.deposit = async (req, res) => {
       amount: amount / 100,
       user: email,
       reference: response.data.data.reference,
-      type: 'deposit',
+      type: 'Deposit',
     });
     await newDeposit.save();
 
@@ -50,9 +50,9 @@ exports.verifyDeposit = async (req, res) => {
 
     const response = await verifyPayment(reference);
 
-    if (response.data.data.status === 'failed') {
+    if (response.data.data.status === 'Failed') {
       await transaction.updateOne(
-        { $set: { status: 'failed', balance: user.balance } },
+        { $set: { status: 'Failed', balance: user.balance } },
         { new: true }
       );
       return  res.status(400).json({
@@ -61,7 +61,7 @@ exports.verifyDeposit = async (req, res) => {
       });
     }
 
-    if(response.data.data.status === 'abandoned'){
+    if(response.data.data.status === 'Abandoned'){
         await transaction.updateOne(
             { $set: { status: 'abandoned', balance: user.balance } },
             { new: true }
@@ -386,7 +386,7 @@ exports.fetchLoanHistory = async (req, res)=>{
     try {
         const id = req.user.id;
         const transactions = await User.findById(id).select('transactions').populate('transactions');
-        const loan = transactions.transactions.filter((transaction)=> transaction.type === 'loan');
+        const loan = transactions.transactions.filter((transaction)=> transaction.type === 'Loan');
         return res.status(200).json({
             success: true,
             data: loan
