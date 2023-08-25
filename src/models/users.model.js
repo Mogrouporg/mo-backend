@@ -79,6 +79,11 @@ const UserSchema = new Schema(
         lastTransact:{
             type: Date
         },
+        bankDetails:[{
+            bankName: String,
+            accountName: String,
+            accountNumber: String,
+        }],
         transactions: [{ type: Schema.Types.ObjectId, ref: 'Transaction' }],
         notifications:[{ type: Schema.Types.ObjectId, ref: 'Notification' }],
         loanRequests:[{ type: Schema.Types.ObjectId, ref: 'Loan' }],

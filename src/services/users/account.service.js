@@ -52,6 +52,25 @@ exports.editAccount = async (req, res) => {
     }
 };
 
+exports.addBankDetails = async (req, res) => {
+    try {
+        const id = req.user.id;
+        const { bankName, accountName, accountNumber } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(id, { 
+            $push: { bankDetails: { bankName, accountName, accountNumber } } 
+        }, { new: true });
+        return res.status(200).json({
+            success: true,
+            data: updatedUser
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
 exports.getMyTransactions = async (req, res) => {
     try {
         const _id = req.user._id;
