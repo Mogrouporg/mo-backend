@@ -9,7 +9,7 @@ const transportationSchema = new schema(
         },
         transportType: {
             type: String,
-            enum: ['gold', 'silver', 'bronze'],
+            enum: ['Gold', 'Silver', 'Bronze'],
             required: true
         },
         amount: {
@@ -18,6 +18,13 @@ const transportationSchema = new schema(
         },
         image: {
             type: String,
+        },
+        numberOfBuyers: {
+            type: Number,
+            default: 0
+        },
+        roi:{
+            type: Number
         }
     },{
         timestamps: true

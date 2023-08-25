@@ -325,6 +325,7 @@ exports.withdrawFunds = async (req, res) => {
 
 exports.requestLoan = async (req, res)=>{
     const { id } = req.user;
+    const user = req.user;
     try {
         if(req.user.status === 'inactive'){
             return res.status(403).json({
@@ -353,10 +354,13 @@ exports.requestLoan = async (req, res)=>{
             user: id,
             loanAmount: amount,
             loanPeriod: req.body.loanPeriod,
-            bankName: req.body.bankName,
-            accountNumber: req.body.accountNumber,
-            accountName: req.body.accountName,
             loanDesc: req.body.loanDesc
+        }
+        if (!user.bankDetails) {
+            return res.status(403).json({
+                success: false,
+                message: "You have not added your bank details"
+            })
         }
 
         const loan = new loanRequest(newLoan);

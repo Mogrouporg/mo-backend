@@ -10,7 +10,7 @@ const realEstateSchema = new schema(
         propertyName: {
             type: String,
             required: true
-        },
+        },  
         amount: {
             type: Number,
         },
@@ -47,5 +47,5 @@ const realEstateSchema = new schema(
 const RealEstate = mongoose.model("RealEstate", realEstateSchema);
 
 module.exports ={
-    RealEstate: RealEstate
+        RealEstate: RealEstate
 }

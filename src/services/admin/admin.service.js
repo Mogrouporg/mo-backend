@@ -132,7 +132,7 @@ exports.createLandInvestment = async (req, res) => {
 exports.getAllRealInvestments = async (req, res) => {
   try {
     const investments = await RealEstate.find().select(
-      "propertyName image _id sizeInSqm"
+      "propertyName image _id sizeInSqm amount state"
     );
     return res.status(200).json({
       success: true,
@@ -148,9 +148,7 @@ exports.getAllRealInvestments = async (req, res) => {
 
 exports.getAllTransInvestments = async (req, res) => {
   try {
-    const investments = await Transportation.find().select(
-      "transportName image _id amount"
-    );
+    const investments = await Transportation.find()
     return res.status(200).json({
       success: true,
       data: investments,
