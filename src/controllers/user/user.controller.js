@@ -23,4 +23,5 @@ useRouter.get('/transports', verifyToken, getAllTransInvestments);
 useRouter.get('/loan-history', verifyToken, fetchLoanHistory);
 useRouter.post('/loan/apply', verifyToken, requestLoan);
 useRouter.post('/loan/apply', verifyToken, addBankDetails);
+useRouter.post('/add-bank-details', verifyToken, add);
 module.exports = useRouter; 
