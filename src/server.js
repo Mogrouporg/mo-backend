@@ -9,12 +9,13 @@ const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 const cors = require('cors');
 const { updateRoi } = require('./cronJobs/roiUpdate');
+const {payloan} = require('./cronJobs/payloan.cron');
 const path = require('path');
 
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['https://mo-website-5715.vercel.app', 'http://localhost:3000'];
+const allowedOrigins = ['https://mo-website-5715.vercel.app', 'http://localhost:3000', 'https://infomogroupltd.com', 'http://192.168.8.114:3000'];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -37,6 +38,8 @@ app.use('/api/v1/admin', routerAdmin, routerAdminTask)
 config();
 setUsersInactive();
 updateRoi();
+payloan();
+
 
 app.use((req, res, next) => {
     const error = new Error('Invalid endpoint, wetin you dey look for here?');

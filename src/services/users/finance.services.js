@@ -49,7 +49,7 @@ exports.verifyDeposit = async (req, res) => {
 
     const response = await verifyPayment(reference);
 
-    if (response.data.data.status === 'Failed') {
+    if (response.data.data.status === 'failed') {
       await transaction.updateOne(
         { $set: { status: 'Failed', balance: user.balance } },
         { new: true }
@@ -60,9 +60,9 @@ exports.verifyDeposit = async (req, res) => {
       });
     }
 
-    if(response.data.data.status === 'Abandoned'){
+    if(response.data.data.status === 'abandoned'){
         await transaction.updateOne(
-            { $set: { status: 'abandoned', balance: user.balance } },
+            { $set: { status: 'Abandoned', balance: user.balance } },
             { new: true }
           );
           return res.status(400).json({
@@ -282,6 +282,14 @@ exports.withdrawFunds = async (req, res) => {
                 data: "Cannot leave less than 500 in the account"
             })
         } else {
+            //check if there is pending loan
+            const loan = await loanRequest.findOne({user: user._id, paid: false})
+            if(loan){
+                return res.status(403).json({
+                    success: false,
+                    message: "You have an unpaid loan"
+                })
+            }
             const withdraw = {
                 amount: amount,
                 status: "pending",
