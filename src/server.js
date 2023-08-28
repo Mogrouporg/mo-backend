@@ -38,7 +38,7 @@ app.use('/api/v1/admin', routerAdmin, routerAdminTask)
 config();
 setUsersInactive();
 updateRoi();
-payLoan();
+payLoan;
 
 
 app.use((req, res, next) => {
