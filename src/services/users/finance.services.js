@@ -23,7 +23,6 @@ exports.deposit = async (req, res) => {
     const form = { amount, email };
 
     const response = await initializePayment(form);
-    console.log(response.data.data);
 
     const newDeposit = new Transaction({
       amount: amount / 100,
