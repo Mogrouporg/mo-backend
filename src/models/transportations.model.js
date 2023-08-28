@@ -31,7 +31,7 @@ const transportationSchema = new schema(
     }
 )
 
-const Transportation = mongxoose.model("Transportation", transportationSchema);
+const Transportation = mongoose.model("Transportation", transportationSchema);
 
 module.exports = {
     Transportation: Transportation
