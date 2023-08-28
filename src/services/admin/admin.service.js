@@ -199,32 +199,69 @@ exports.createTransportInvestment = async (req, res) => {
 
 exports.getAllRealInvestments = async (req, res) => {
   try {
-    const investments = await RealEstate.find().select(
-      "propertyName image _id sizeInSqm amount state"
-    );
+    const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
+    const perPage = 10; // Number of items to display per page
+
+    const startIndex = (page - 1) * perPage;
+    const endIndex = page * perPage;
+
+    const totalInvestments = await RealEstate.countDocuments({ onSale: true });
+
+    const investments = await RealEstate.find({ onSale: true })
+      .select("propertyName image _id sizeInSqm amount state")
+      .skip(startIndex)
+      .limit(perPage);
+
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalInvestments,
+      totalPages: Math.ceil(totalInvestments / perPage),
+    };
+
     return res.status(200).json({
       success: true,
       data: investments,
+      pagination: pagination,
     });
   } catch (e) {
     console.log(e);
-    return res.status(200).json({
-      message: "Internal Server error",
+    return res.status(500).json({
+      message: "Internal Server Error",
     });
   }
 };
 
 exports.getAllTransInvestments = async (req, res) => {
   try {
-    const investments = await Transportation.find();
+    const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
+    const perPage = 10; // Number of items to display per page
+
+    const startIndex = (page - 1) * perPage;
+    const endIndex = page * perPage;
+
+    const totalInvestments = await Transportation.countDocuments({ onSale: true });
+
+    const investments = await Transportation.find({ onSale: true })
+      .skip(startIndex)
+      .limit(perPage);
+
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalInvestments,
+      totalPages: Math.ceil(totalInvestments / perPage),
+    };
+
     return res.status(200).json({
       success: true,
       data: investments,
+      pagination: pagination,
     });
   } catch (e) {
     console.log(e);
-    return res.status(200).json({
-      message: "Internal Server error",
+    return res.status(500).json({
+      message: "Internal Server Error",
     });
   }
 };

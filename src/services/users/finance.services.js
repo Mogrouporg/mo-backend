@@ -100,7 +100,7 @@ exports.verifyDeposit = async (req, res) => {
   }
 };
 
-exports.investInRealEstate =async (req, res)=>{
+exports. investInRealEstate =async (req, res)=>{
     try {
         const user = req.user;
         const id = req.params.id;
