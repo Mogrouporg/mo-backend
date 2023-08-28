@@ -10,8 +10,8 @@ const calculateAllMyDailyROI = async (userId) => {
     try {
         const user = await User.findById(userId)
             .select('realEstateInvestment transportInvestment')
-            .populate('RealEstateInvestment')
-            .populate('TransInvest');
+            .populate('realEstateInvestment')
+            .populate('transportInvestment');
 
         const realEstateInvestment = user.realEstateInvestment;
         const transportInvestment = user.transportInvestment;
