@@ -11,7 +11,7 @@ routerAdminTask.get('/user/:userId', verifyTokenAdmin, getSingleUser);
 
 //realEstate
 routerAdminTask.post('/real-estate/create', verifyTokenAdmin, createLandInvestment);
-routerAdminTask.post('/transport', verifyTokenAdmin, createTransportInvestment);
+routerAdminTask.post('/transport/create', verifyTokenAdmin, createTransportInvestment);
 routerAdminTask.get('/real-estates', verifyTokenAdmin, getAllRealInvestments);
 routerAdminTask.get('/real-estate/:id', verifyTokenAdmin, getSingleRealEstate);
 
