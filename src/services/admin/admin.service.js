@@ -12,13 +12,14 @@ exports.getAllTransactions = async (req, res) => {
   try {
     const admin = req.admin;
     let transactions = await Transaction.find()
-      .select("amount status -_id email")
+      .select("amount status -_id user")
       .sort({ createdAt: -1 });
 
     // Using Promise.all to handle asynchronous operations
     transactions = await Promise.all(transactions.map(async (transaction) => {
-      const email = transaction.user; // Changed from transaction.user to transaction.email
+      const email = transaction.user;
       const user = await User.findOne({ email: email }).select("firstName lastName _id email status");
+      console.log(email, user) // Changed from transaction.user to transaction.email
       transaction.user = JSON.stringify(user);
       return transaction;
     }));
