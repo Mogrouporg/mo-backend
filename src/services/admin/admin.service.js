@@ -172,7 +172,7 @@ exports.createTransportInvestment = async (req, res) => {
       transportName: name,
       amount: amount,
       image: urls,
-      type: type,
+      transportType: type,
     });
 
     await newTransport.save();

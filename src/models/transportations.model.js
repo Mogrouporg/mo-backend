@@ -17,7 +17,7 @@ const transportationSchema = new schema(
             required: true
         },
         image: {
-            type: String,
+            type: Array,
         },
         numberOfBuyers: {
             type: Number,
