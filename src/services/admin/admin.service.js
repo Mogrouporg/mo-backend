@@ -9,7 +9,7 @@ const {
   stopProcessing,
 } = require("../../utils/notifyAllUsers.util");
 const { loanRequest } = require("../../models/loanRequests.model");
-const { realEstateSchema } = require("../../models/validations/data");
+const { realEstateSchema, transportSchema } = require("../../models/validations/data");
 const { Transportation } = require("../../models/transportations.model");
 
 exports.getAllTransactions = async (req, res) => {
