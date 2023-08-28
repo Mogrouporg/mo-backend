@@ -71,7 +71,6 @@ exports.register = async (req, res) => {
 exports.verifyUser = async (req, res) => {
   try {
     const email = req.user.email;
-    //const user = await User.findOne({ email: email});
     const { otp } = req.body;
     if ((await verifyOtp(email, otp)) === true) {
       await User.findOneAndUpdate(
@@ -112,7 +111,6 @@ exports.requestOtp = async (req, res) => {
       subject: "Account Verification",
       text: `Your one time password is ${otp}, thanks`,
     });
-    console.log(otp);
     return res.status(200).json({
       success: true,
       message: "Otp sent!",
