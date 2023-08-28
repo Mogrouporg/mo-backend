@@ -16,7 +16,8 @@ exports.getAllTransactions = async (req, res) => {
       .populate({
         path: "user",
         model: "User",
-        select: "firstName lastName email _id balance lastTransact status"
+        select: "firstName lastName email _id balance lastTransact status",
+        match: { email: {$exists: true}}
       });
     return res.status(200).json({
       _id: admin.id,
