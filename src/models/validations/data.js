@@ -13,7 +13,7 @@ const Joi = require('joi');
 const transportSchema = Joi.object({
   name: Joi.string().required(),
   amount: Joi.number().required(),
-  location: Joi.string().required(),
+  type: Joi.string().required(),
   images: Joi.array().items(Joi.object()).required(),
 })
 
