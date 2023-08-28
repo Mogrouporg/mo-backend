@@ -2,13 +2,14 @@ const useRouter = require('express').Router();
 const {verifyToken} = require("../../utils/updateToken.utils");
 const { findNotifById } = require('../../services/notif/notif.services');
 const {deposit, verifyDeposit, investInRealEstate, sellRealEstateInvestment, investInTransport, sellTransportInvestment, withdrawFunds, fetchLoanHistory, requestLoan} = require("../../services/users/finance.services");
-const {myProfile, getMyTransactions, getSingleRealEstateInvestment, getSingleTransInvestment, addBankDetails} = require("../../services/users/account.service");
+const {myProfile, getMyTransactions, getSingleRealEstateInvestment, getSingleTransInvestment, addBankDetails, editAccount} = require("../../services/users/account.service");
 const { getAllRealInvestments, getAllTransInvestments } = require('../../services/admin/admin.service');
 
 useRouter.get('/user/notifications', verifyToken, findNotifById);
 //Payments && Balance
 useRouter.post('/account/deposit', verifyToken, deposit);
-useRouter.get('/profile', verifyToken, myProfile)
+useRouter.get('/profile', verifyToken, myProfile);
+useRouter.post('/account/edit', verifyToken, editAccount);
 useRouter.get('/paystack/callback', verifyToken, verifyDeposit);
 useRouter.get('/account/transactions', verifyToken, getMyTransactions);
 useRouter.post('/real-estate/:id/invest', verifyToken, investInRealEstate );

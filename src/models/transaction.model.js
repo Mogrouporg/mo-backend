@@ -22,7 +22,7 @@ const transactionSchema = new schema(
         },
         type:{
             type: String,
-            enum: ['Deposit', 'Loan', 'Withdrawal', 'Invest']
+            enum: ['Deposit', 'Loan', 'Withdrawal', 'Investment']
         }
     },{
         timestamps: true

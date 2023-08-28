@@ -75,7 +75,6 @@ exports.editAccount = async (req, res) => {
         } else {
             const file = req.files.file;
             const folder = 'avatars';
-            console.log(file);
             const url = await imageUpload(file, folder);
             console.log(url);
             const updatedUser = await User.findByIdAndUpdate(id, { profile_url: url }, { new: true });
@@ -189,20 +188,62 @@ exports.getSingleTransInvestment = async (req, res) => {
 
 exports.getMyInvestments = async (req, res) => {
     try {
-        const _id = req.user._id;
-        const myInvestments = await User.findById(_id)
-    .select('realEstateInvestment transportInvestment')
-    .populate({
-        path: 'realEstateInvestment',
-    },
-    {
-        path: 'transportInvestment'
-    })
-    }catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
+      const _id = req.user._id;
+      const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
+      const perPage = 10; // Number of items to display per page
+  
+      const startIndex = (page - 1) * perPage;
+      const endIndex = page * perPage;
+  
+      const [myRealEstateInvestments, myTransportInvestments] = await Promise.all([
+        User.findById(_id)
+          .select('realEstateInvestment')
+          .populate({
+            path: 'realEstateInvestment',
+            model: 'RealEstateInvestment',
+            options: {
+              skip: startIndex,
+              limit: perPage,
+            },
+          }),
+  
+        User.findById(_id)
+          .select('transportInvestment')
+          .populate({
+            path: 'transportInvestment',
+            model: 'TransInvest',
+            options: {
+              skip: startIndex,
+              limit: perPage,
+            },
+          }),
+      ]);
+  
+      const [totalRealEstateInvestments, totalTransportInvestments] = await Promise.all([
+        User.findById(_id).select('realEstateInvestment'),
+        User.findById(_id).select('transportInvestment'),
+      ]);
+  
+      const pagination = {
+        currentPage: page,
+        itemsPerPage: perPage,
+        totalRealEstateInvestments: totalRealEstateInvestments.realEstateInvestment.length,
+        totalTransportInvestments: totalTransportInvestments.transportInvestment.length,
+      };
+  
+      return res.status(200).json({
+        success: true,
+        data: {
+          myRealEstateInvestments,
+          myTransportInvestments,
+        },
+        pagination: pagination,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
-}
-
+  };
+  

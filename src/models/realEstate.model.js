@@ -38,6 +38,10 @@ const realEstateSchema = new schema(
         },
         roi: {
             type: Number
+        },
+        onSale:{
+            type: Boolean,
+            default: false
         }
     },{
         timestamps: true
