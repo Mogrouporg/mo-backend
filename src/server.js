@@ -9,7 +9,7 @@ const routerAdminTask = require("./controllers/admin/admin.controller")
 const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
 const cors = require('cors');
 const { updateRoi } = require('./cronJobs/roiUpdate');
-const {payloan} = require('./cronJobs/payloan.cron');
+const {payLoan} = require('./cronJobs/payloan.cron');
 const path = require('path');
 
 
@@ -38,7 +38,7 @@ app.use('/api/v1/admin', routerAdmin, routerAdminTask)
 config();
 setUsersInactive();
 updateRoi();
-payloan();
+payLoan();
 
 
 app.use((req, res, next) => {
