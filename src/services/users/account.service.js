@@ -8,44 +8,42 @@ const { imageUpload } = require("../../utils/imageUpload.util");
 
 const calculateAllMyDailyROI = async (userId) => {
     try {
-        const myInvestments = await User.findById(userId)
-    .select('realEstateInvestment transportInvestment')
-    .populate({
-        path: 'realEstateInvestment',
-    },
-    {
-        path: 'transportInvestment'
-    })
+        const user = await User.findById(userId)
+            .select('realEstateInvestment transportInvestment')
+            .populate('realEstateInvestment')
+            .populate('transportInvestment');
 
-    const realEstateInvestment = myInvestments.realEstateInvestment;
-    const transportInvestment = myInvestments.transportInvestment;
-    
-    const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
-        const { currentRoi } = investment;
-        
-        return currentRoi;
-    });
+        const realEstateInvestment = user.realEstateInvestment;
+        const transportInvestment = user.transportInvestment;
 
-    const transportInvestmentROI = transportInvestment.map((investment) => {
-        const { currentRoi } = investment;
-        return currentRoi;
-    });
+        const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
+            const { currentRoi } = investment;
+            return currentRoi;
+        });
 
-    const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce((a, b) => a + b, 0);
-    const totalTransportInvestmentROI = transportInvestmentROI.reduce((a, b) => a + b, 0);
-    const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
+        const transportInvestmentROI = transportInvestment.map((investment) => {
+            const { currentRoi } = investment;
+            return currentRoi;
+        });
 
-    return totalROI;
-    }catch (error) {
-        console.log(error);
+        const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce((a, b) => a + b, 0);
+        const totalTransportInvestmentROI = transportInvestmentROI.reduce((a, b) => a + b, 0);
+        const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
+
+        return totalROI;
+    } catch (error) {
+        throw error; // Rethrow the error for higher-level error handling
     }
-}
+};
 
 exports.myProfile = async (req, res) => {
     try {
-        const id = req.user.id;
-        const user = await User.findById(id, '-password -refreshTokenHash');
-        user.dailyRoi = await calculateAllMyDailyROI(id);
+        const userId = req.user.id;
+        const user = await User.findById(userId, '-password -refreshTokenHash');
+        const dailyRoi = await calculateAllMyDailyROI(userId); // Calculate daily ROI
+
+        user.dailyRoi = dailyRoi;
+
         return res.status(200).json({
             success: true,
             data: user
