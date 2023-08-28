@@ -73,6 +73,11 @@ exports.signupAdmin = async (req, res) => {
 exports.requestOtpAdmin = async(req, res) => {
     try {
         const admin = req.admin;
+        if(admin.isVerified === true){
+            return res.status(400).json({
+                message: "User already verified"
+            })
+        }
         const otp = genOtp();
         await saveOtp(admin.id, otp);
         await sendMail({
