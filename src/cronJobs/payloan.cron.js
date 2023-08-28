@@ -3,7 +3,7 @@ const { loanRequest } = require("../models/loanRequests.model");
 const { User } = require("../models/users.model");
 const { Transaction } = require("../models/transaction.model");
 
-exports.payLoan = cron.schedule("0 0 1 * *", async () => {
+const payLoan = cron.schedule("0 0 1 * *", async () => {
   try {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0); // Set time to midnight to just compare dates
@@ -52,3 +52,5 @@ exports.payLoan = cron.schedule("0 0 1 * *", async () => {
     console.error(error);
   }
 });
+
+module.exports = { payLoan };
