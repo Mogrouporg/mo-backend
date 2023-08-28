@@ -11,14 +11,18 @@ const { Transportation } = require("../../models/transportations.model");
 exports.getAllTransactions = async (req, res) => {
   try {
     const admin = req.admin;
-    const transactions = await Transaction.find()
-      .select("amount status -_id")
-      .populate({
-        path: "user",
-        model: "User",
-        select: "firstName lastName email _id balance lastTransact status",
-        match: { email: {$exists: true}}
-      });
+    let transactions = await Transaction.find()
+      .select("amount status -_id email")
+      .sort({ createdAt: -1 });
+
+    // Using Promise.all to handle asynchronous operations
+    transactions = await Promise.all(transactions.map(async (transaction) => {
+      const email = transaction.email; // Changed from transaction.user to transaction.email
+      const user = await User.findOne({ email: email }).select("firstName lastName _id email status");
+      transaction.user = user;
+      return transaction;
+    }));
+
     return res.status(200).json({
       _id: admin.id,
       success: true,
