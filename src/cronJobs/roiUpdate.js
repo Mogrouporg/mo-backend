@@ -1,30 +1,37 @@
 const cron = require('node-cron');
 const { RealEstateInvestment } = require('../models/realEstateInvestments.model');
+const { TransportInvestment } = require('../models/transInvestments.model');
 
-const updateInvestmentsRoi = async () => {
+const isLeapYear = year => ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+
+const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
   try {
-    console.log('Cron started');
+    console.log(`Cron started for ${modelName}`);
 
-    // Fetch all owned investments
-    const investments = await RealEstateInvestment.find({ status: 'owned' });
+    const investments = await InvestmentModel.find({ status: 'owned' });
 
-    // Prepare updates by calculating daily ROI and adding it to the current ROI
+    const currentYear = new Date().getFullYear();
+    const divisor = isLeapYear(currentYear) ? 366 : 365;
+
     const updates = investments.map(investment => ({
       updateOne: {
         filter: { _id: investment._id },
-        update: { $inc: { currentRoi: investment.roi / 365 } },
+        update: { $inc: { currentRoi: investment.roi / divisor } },
       },
     }));
 
-    // Execute bulk updates
-    const result = await RealEstateInvestment.bulkWrite(updates);
+    const result = await InvestmentModel.bulkWrite(updates);
 
-    console.log(`Updated ROI for ${result.nModified} investments.`);
+    console.log(`Updated ROI for ${result.nModified} ${modelName} investments.`);
   } catch (error) {
-    console.error('Error updating ROI', error);
+    console.error(`Error updating ROI for ${modelName}`, error);
+    // Implement retry mechanism here if needed
   }
 };
 
 exports.updateRoi = () => {
-  cron.schedule('0 0 * * *', updateInvestmentsRoi);
+  cron.schedule('0 0 * * *', () => {
+    updateInvestmentsRoi(RealEstateInvestment, 'Real Estate');
+    updateInvestmentsRoi(TransportInvestment, 'Transport');
+  });
 };

@@ -6,10 +6,49 @@ const { TransInvest } = require("../../models/transInvestments.model");
 const { RealEstateInvestment } = require("../../models/realEstateInvestments.model");
 const { imageUpload } = require("../../utils/imageUpload.util");
 
+const calculateAllMyDailyROI = async (userId) => {
+    try {
+        const myInvestments = await User.findById(userId)
+    .select('realEstateInvestment transportInvestment')
+    .populate({
+        path: 'realEstateInvestment',
+    },
+    {
+        path: 'transportInvestment'
+    })
+
+    const realEstateInvestment = myInvestments.realEstateInvestment;
+    const transportInvestment = myInvestments.transportInvestment;
+    
+    const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
+        const { currentRoi } = investment;
+        
+        return currentRoi;
+    });
+
+    const transportInvestmentROI = transportInvestment.map((investment) => {
+        const { currentRoi } = investment;
+        return currentRoi;
+    });
+
+    const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce((a, b) => a + b, 0);
+    const totalTransportInvestmentROI = transportInvestmentROI.reduce((a, b) => a + b, 0);
+    const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
+
+    return totalROI;
+    }catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
 exports.myProfile = async (req, res) => {
     try {
         const id = req.user.id;
         const user = await User.findById(id, '-password -refreshTokenHash');
+        user.dailyRoi = await calculateAllMyDailyROI(id);
         return res.status(200).json({
             success: true,
             data: user
@@ -146,3 +185,23 @@ exports.getSingleTransInvestment = async (req, res) => {
         });
     }
 }
+
+exports.getMyInvestments = async (req, res) => {
+    try {
+        const _id = req.user._id;
+        const myInvestments = await User.findById(_id)
+    .select('realEstateInvestment transportInvestment')
+    .populate({
+        path: 'realEstateInvestment',
+    },
+    {
+        path: 'transportInvestment'
+    })
+    }catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
