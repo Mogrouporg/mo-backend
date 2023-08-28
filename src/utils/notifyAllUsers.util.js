@@ -22,7 +22,7 @@ async function pushNotificationBatch(emailBatch, message) {
 
 exports.notifyAllUsers = async (users, title, message) => {
     try {
-        const emails = users.map(user => user.email);
+        const emails = users.map(user => user);
         
         for (let i = 0; i < emails.length; i += BATCH_SIZE) {
             const emailBatch = emails.slice(i, i + BATCH_SIZE);
