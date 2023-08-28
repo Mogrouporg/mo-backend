@@ -99,7 +99,12 @@ exports.verifyUser = async (req, res) => {
 exports.requestOtp = async (req, res) => {
   try {
     const email = req.user.email;
-    console.log(email);
+    if (req.user.isVerified === true) {
+      return res.status(200).json({
+        success: true,
+        message: "User already verified",
+      });
+    }
     const otp = genOtp();
     await saveOtp(email, otp);
     await sendMail({
