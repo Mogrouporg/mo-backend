@@ -10,4 +10,11 @@ const Joi = require('joi');
   state: Joi.string().required(),
 });
 
-module.exports = { realEstateSchema }
+const transportSchema = Joi.object({
+  name: Joi.string().required(),
+  amount: Joi.number().required(),
+  type: Joi.string().required(),
+  images: Joi.array().items(Joi.object()).required(),
+})
+
+module.exports = { realEstateSchema, transportSchema }

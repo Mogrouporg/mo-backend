@@ -6,16 +6,23 @@ const BATCH_SIZE = 50;
 const DELAY_BETWEEN_BATCHES = 5000;
 
 async function sendMailBatch(emailBatch, title, message) {
-    return Promise.all(emailBatch.map(email => sendMail(email, title, message)));
+    return Promise.all(emailBatch.map(email => sendMail({
+        email,
+        subject: title,
+        text: message
+    })));
 }
 
 async function pushNotificationBatch(emailBatch, message) {
-    return Promise.all(emailBatch.map(email => pushNotification(email, message)));
+    return Promise.all(emailBatch.map(email => pushNotification({
+        email,
+        message
+    })));
 }
 
 exports.notifyAllUsers = async (users, title, message) => {
     try {
-        const emails = users.map(user => user.email);
+        const emails = users.map(user => user);
         
         for (let i = 0; i < emails.length; i += BATCH_SIZE) {
             const emailBatch = emails.slice(i, i + BATCH_SIZE);
