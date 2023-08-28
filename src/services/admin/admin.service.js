@@ -3,7 +3,11 @@ const { Admin } = require("../../models/admins.model");
 const { Transaction } = require("../../models/transaction.model");
 const { imageUpload } = require("../../utils/imageUpload.util");
 const { RealEstate } = require("../../models/realEstate.model");
-const { notifyAllUsers, startProcessing, stopProcessing } = require("../../utils/notifyAllUsers.util");
+const {
+  notifyAllUsers,
+  startProcessing,
+  stopProcessing,
+} = require("../../utils/notifyAllUsers.util");
 const { loanRequest } = require("../../models/loanRequests.model");
 const { realEstateSchema } = require("../../models/validations/data");
 const { Transportation } = require("../../models/transportations.model");
@@ -16,12 +20,16 @@ exports.getAllTransactions = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Using Promise.all to handle asynchronous operations
-    transactions = await Promise.all(transactions.map(async (transaction) => {
-      const email = transaction.user;
-      const user = await User.findOne({ email: email }).select("firstName lastName _id email status");
-      transaction.user = JSON.stringify(user);
-      return transaction;
-    }));
+    transactions = await Promise.all(
+      transactions.map(async (transaction) => {
+        const email = transaction.user;
+        const user = await User.findOne({ email: email }).select(
+          "firstName lastName _id email status"
+        );
+        transaction.user = JSON.stringify(user);
+        return transaction;
+      })
+    );
 
     return res.status(200).json({
       _id: admin.id,
@@ -83,22 +91,22 @@ exports.createLandInvestment = async (req, res) => {
       images: req.files.images,
     });
     if (error) {
-      return res.status(400).json({ message: 'All fields are required!' });
+      return res.status(400).json({ message: "All fields are required!" });
     }
 
     // Check authorization (example, you may have a different authorization logic)
     if (!req.admin || !req.admin.email) {
-      return res.status(403).json({ message: 'Permission denied!' });
+      return res.status(403).json({ message: "Permission denied!" });
     }
 
     const email = req.admin.email;
     const { name, amount, size, address, location, images, state } = value;
 
     // Image upload
-    const urls = await imageUpload(images, 'realEstate');
+    const urls = await imageUpload(images, "realEstate");
 
     // Fetch users
-    const users = await User.find({status: "active"}, 'email');
+    const users = await User.find({ status: "active" }, "email");
 
     // Create real estate object
     const newRealEstate = new RealEstate({
@@ -120,10 +128,8 @@ exports.createLandInvestment = async (req, res) => {
     console.log(emails);
     await notifyAllUsers(
       emails,
-      'New Set of Real Estate Available!',
-      `Get a portion of land for as low as ${amount} with the size of ${size} now!`,
-      startProcessing,
-      stopProcessing
+      "New Set of Real Estate Available!",
+      `Get a portion of land for as low as ${amount} with the size of ${size} now!`
     );
 
     return res.status(201).json({
@@ -133,7 +139,60 @@ exports.createLandInvestment = async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-      message: 'Internal server error',
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.createTransportInvestment = async (req, res) => {
+  try {
+    const { error, value } = transportSchema.validate({
+      ...req.body,
+      images: req.files.images,
+    });
+
+    if (error) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
+
+    if (!req.admin || !req.admin.email) {
+      return res.status(403).json({ message: "Permission denied!" });
+    }
+
+    const email = req.admin.email;
+
+    const { name, amount, images, type } = value;
+
+    const urls = await imageUpload(images, "transport");
+
+    const users = await User.find({ status: "active" }, "email");
+
+    const newTransport = new Transportation({
+      user: email,
+      transportName: name,
+      amount: amount,
+      image: urls,
+      type: type,
+    });
+
+    await newTransport.save();
+
+    const emails = users.map((user) => user.email);
+
+    await notifyAllUsers(
+      emails,
+      "New set of Transportation Investment available!",
+      `Invest in this new Transportation investment for as low as ${amount} now!`
+    );
+
+    return res.status(201).json({
+      success: true,
+      data: newTransport,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
 };
@@ -157,7 +216,7 @@ exports.getAllRealInvestments = async (req, res) => {
 
 exports.getAllTransInvestments = async (req, res) => {
   try {
-    const investments = await Transportation.find()
+    const investments = await Transportation.find();
     return res.status(200).json({
       success: true,
       data: investments,
@@ -186,19 +245,19 @@ exports.getSingleRealEstate = async (req, res) => {
 };
 
 exports.getSingleTransInvestment = async (req, res) => {
-    try {
-      const _id = req.params.id;
-      const investment = await Transportation.findById(_id).select(
-        "transportName image _id amount"
-      );
-      return res.status({
-        success: true,
-        data: investment,
-      });
-    } catch (e) {
-      console.log(e);
-    }
-}
+  try {
+    const _id = req.params.id;
+    const investment = await Transportation.findById(_id).select(
+      "transportName image _id amount"
+    );
+    return res.status({
+      success: true,
+      data: investment,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.approveLoan = async (req, res) => {
   try {
@@ -210,39 +269,39 @@ exports.approveLoan = async (req, res) => {
       });
     }
 
-    const {status} = req.body // "approved" || "rejected"
-    if(status === 'approved'){
-        loan.status = status;
-        const user = await User.findById(loan.user);
-        user.balance += parseInt(loan.amount)
-        const transaction = new Transaction({
-            amount: loan.amount,
-            user: user.email,
-            status: 'success',
-            balance: user.balance,
-            type: 'loan'
-        })
-        await loan.save(); 
-        await transaction.save()
-        await user.save();
-        const message = `Your loan request of ${loan.amount} has been approved!`
-        await pushNotification({
-            message: message,
-            email: user.email
-        })
+    const { status } = req.body; // "approved" || "rejected"
+    if (status === "approved") {
+      loan.status = status;
+      const user = await User.findById(loan.user);
+      user.balance += parseInt(loan.amount);
+      const transaction = new Transaction({
+        amount: loan.amount,
+        user: user.email,
+        status: "success",
+        balance: user.balance,
+        type: "loan",
+      });
+      await loan.save();
+      await transaction.save();
+      await user.save();
+      const message = `Your loan request of ${loan.amount} has been approved!`;
+      await pushNotification({
+        message: message,
+        email: user.email,
+      });
     }
 
-    if(status === 'rejected'){
-        loan.status = status;
-        await loan.save();
-        const user = await User.findById(loan.user);
-        const message = `Your loan request of ${loan.amount} has been rejected!`
-        await pushNotification({
-            message: message,
-            email: user.email
-        })
+    if (status === "rejected") {
+      loan.status = status;
+      await loan.save();
+      const user = await User.findById(loan.user);
+      const message = `Your loan request of ${loan.amount} has been rejected!`;
+      await pushNotification({
+        message: message,
+        email: user.email,
+      });
     }
-    
+
     return res.status(200).json({
       success: true,
       data: loan,
