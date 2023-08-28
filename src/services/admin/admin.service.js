@@ -19,7 +19,6 @@ exports.getAllTransactions = async (req, res) => {
     transactions = await Promise.all(transactions.map(async (transaction) => {
       const email = transaction.user;
       const user = await User.findOne({ email: email }).select("firstName lastName _id email status");
-      console.log(email, user) // Changed from transaction.user to transaction.email
       transaction.user = JSON.stringify(user);
       return transaction;
     }));
