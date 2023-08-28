@@ -13,7 +13,11 @@ exports.getAllTransactions = async (req, res) => {
     const admin = req.admin;
     const transactions = await Transaction.find()
       .select("amount status -_id")
-      .populate("user", "firstName lastName");
+      .populate({
+        path: "user",
+        model: "User",
+        select: "firstName lastName email _id balance lastTransact status"
+      });
     return res.status(200).json({
       _id: admin.id,
       success: true,
