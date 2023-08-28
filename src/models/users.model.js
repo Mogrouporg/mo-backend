@@ -88,7 +88,7 @@ const UserSchema = new Schema(
         notifications:[{ type: Schema.Types.ObjectId, ref: 'Notification' }],
         loanRequests:[{ type: Schema.Types.ObjectId, ref: 'Loan' }],
         realEstateInvestment: [{ type: Schema.Types.ObjectId, ref: 'RealEstateInvestment' }],
-        transportInvestment: [{ type: Schema.Types.ObjectId, ref: 'TransportInvestment' }],
+        transportInvestment: [{ type: Schema.Types.ObjectId, ref: 'TransInvest' }],
     },{
         timestamps: true
     }
