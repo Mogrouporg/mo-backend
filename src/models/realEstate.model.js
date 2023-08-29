@@ -41,7 +41,7 @@ const realEstateSchema = new schema(
         },
         onSale:{
             type: Boolean,
-            default: false
+            default: true
         }
     },{
         timestamps: true
