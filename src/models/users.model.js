@@ -60,7 +60,8 @@ const UserSchema = new Schema(
         },
         profile_url:{
             type: Array,
-            required: false
+            required: false,
+            default: ["https://d1pjrefzr8ts6o.cloudfront.net/default.jpeg"]
         },
         isVerified: {
             type: Boolean,
