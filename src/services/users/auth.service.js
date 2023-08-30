@@ -156,7 +156,7 @@ exports.loginUser = async (req, res) => {
       generateRefreshToken({ id: existingUser.id }).then(argon2.hash), // hash the refreshToken immediately after generating it
     ]);
 
-    await updateToken(existingUser.email, hash);
+    await updateToken(email, hash);
 
     return res.status(200).json({
       success: true,

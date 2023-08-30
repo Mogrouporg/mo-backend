@@ -80,9 +80,7 @@ exports.editAccount = async (req, res) => {
         const file = req.files.file;
         const folder = "avatars";
         const url = await imageUpload(file, folder);
-        
-        // Update user with both file and body data
-        updatedUser = await User.findByIdAndUpdate(
+                updatedUser = await User.findByIdAndUpdate(
           id,
           {
             ...body,
@@ -91,7 +89,6 @@ exports.editAccount = async (req, res) => {
           { new: true }
         );
       } else if (Object.keys(body).length > 0) {
-        // Update user with only body data
         updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
       }
   
@@ -140,7 +137,6 @@ exports.addBankDetails = async (req, res) => {
     });
   }
 };
-
 exports.getMyTransactions = async (req, res) => {
   try {
     const _id = req.user._id;
@@ -162,29 +158,6 @@ exports.getMyTransactions = async (req, res) => {
     });
   }
 };
-
-// exports.getMyTransactions = async (req, res) => {
-//     try {
-//         const email = req.user.email;
-//         const myInvestments = await Promise.all([
-//             TransInvest.find({ email }).select("-_id"),
-//             RealEstateInvestment.find({ email }).select("-_id")
-//         ]);
-//         return res.status(200).json({
-//             success: true,
-//             data: {
-//                 transportInvestment: myInvestments[0],
-//                 realEstateInvestment: myInvestments[1]
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({
-//             message: "Internal Server Error"
-//         });
-//     }
-// };
-
 exports.getSingleRealEstateInvestment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -220,8 +193,8 @@ exports.getSingleTransInvestment = async (req, res) => {
 exports.getMyInvestments = async (req, res) => {
   try {
     const _id = req.user._id;
-    const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
-    const perPage = 10; // Number of items to display per page
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
 
     const startIndex = (page - 1) * perPage;
     const endIndex = page * perPage;
