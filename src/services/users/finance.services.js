@@ -29,6 +29,7 @@ exports.deposit = async (req, res) => {
       user: email,
       reference: response.data.data.reference,
       type: 'Deposit',
+      
     });
     await newDeposit.save();
 
