@@ -7,6 +7,8 @@ const {
   RealEstateInvestment,
 } = require("../../models/realEstateInvestments.model");
 const { imageUpload } = require("../../utils/imageUpload.util");
+const { RealEstate } = require("../../models/realEstate.model");
+const { Transportation } = require("../../models/transportations.model");
 
 const calculateAllMyDailyROI = async (userId) => {
   try {
@@ -158,10 +160,10 @@ exports.getMyTransactions = async (req, res) => {
     });
   }
 };
-exports.getSingleRealEstateInvestment = async (req, res) => {
+exports.getSingleRealEstate = async (req, res) => {
   try {
     const { id } = req.params;
-    const investment = await TransInvest.findById(id);
+    const investment = await RealEstate.findById(id);
     return res.status(200).json({
       success: true,
       data: investment,
@@ -174,10 +176,10 @@ exports.getSingleRealEstateInvestment = async (req, res) => {
   }
 };
 
-exports.getSingleTransInvestment = async (req, res) => {
+exports.getSingleTransportTation = async (req, res) => {
   try {
     const { id } = req.params;
-    const investment = await TransInvest.findById(id);
+    const investment = await Transportation.findById(id);
     return res.status(200).json({
       success: true,
       data: investment,
