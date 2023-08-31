@@ -134,14 +134,6 @@ exports.investInRealEstate = async (req, res) => {
 
         const investment = await RealEstateInvestment.create(newInvestment);
 
-        await User.findByIdAndUpdate(user.id, {
-            $push: { realEstateInvestment: investment },
-            $inc: { balance: -realEstate.amount },
-            lastTransact: new Date(Date.now())
-        });
-
-        await realEstate.updateOne({ $inc: { numberOfBuyers: 1 } });
-
         const newTransaction = {
             amount: realEstate.amount.toString(),
             user: user.email,
@@ -153,6 +145,14 @@ exports.investInRealEstate = async (req, res) => {
 
         const transaction = new Transaction(newTransaction);
         await transaction.save();
+        await User.findByIdAndUpdate(user.id, {
+            $push: { realEstateInvestment: investment, transactions: transaction.id },
+            $inc: { balance: -realEstate.amount },
+            lastTransact: new Date(Date.now())
+        });
+
+        await realEstate.updateOne({ $inc: { numberOfBuyers: 1 } });
+
 
         await sendMail({
             email: user.email,
