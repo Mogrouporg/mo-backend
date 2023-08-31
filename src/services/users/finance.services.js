@@ -147,7 +147,7 @@ exports.investInRealEstate = async (req, res) => {
         await transaction.save();
         await User.findByIdAndUpdate(user.id, {
             $push: { realEstateInvestment: investment, transactions: transaction.id },
-            $inc: { balance: -realEstate.amount },
+            $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
             lastTransact: new Date(Date.now())
         });
 
