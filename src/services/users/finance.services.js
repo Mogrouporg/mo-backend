@@ -29,7 +29,7 @@ exports.deposit = async (req, res) => {
       user: email,
       reference: response.data.data.reference,
       type: 'Deposit',
-      
+
     });
     await newDeposit.save();
 
@@ -58,7 +58,7 @@ exports.verifyDeposit = async (req, res) => {
         success: false,
         message: 'Error with the payment',
       });
-    }
+    };
 
     if(response.data.data.status === 'abandoned'){
         await transaction.updateOne(
@@ -155,6 +155,7 @@ exports. investInRealEstate =async (req, res)=>{
                 }
         }
         } catch (error) {
+            console.log(error)
         return res.status(500).json({
             message: "Internal Server error"
         })
@@ -234,6 +235,7 @@ exports.investInTransport =async (req, res)=>{
                 })
             }
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "Internal Server error"
         })
