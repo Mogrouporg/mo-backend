@@ -7,6 +7,7 @@ const Joi = require('joi');
   address: Joi.string().required(),
   location: Joi.string().required(),
   images: Joi.array().items(Joi.object()).required(),
+  description: Joi.string().required(),
   state: Joi.string().required(),
 });
 
@@ -15,6 +16,7 @@ const transportSchema = Joi.object({
   amount: Joi.number().required(),
   type: Joi.string().required(),
   images: Joi.array().items(Joi.object()).required(),
+  description: Joi.string().required(),
 })
 
 module.exports = { realEstateSchema, transportSchema }

@@ -26,6 +26,9 @@ const transportationSchema = new schema(
         roi:{
             type: Number
         },
+        description:{
+            type: String
+        },
         onSale: {
             type: Boolean,
             default: true

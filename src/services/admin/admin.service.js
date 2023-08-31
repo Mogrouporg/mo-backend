@@ -100,7 +100,7 @@ exports.createLandInvestment = async (req, res) => {
     }
 
     const email = req.admin.email;
-    const { name, amount, size, address, location, images, state } = value;
+    const { name, amount, size, address, location, images, state, description } = value;
 
     // Image upload
     const urls = await imageUpload(images, "realEstate");
@@ -118,6 +118,7 @@ exports.createLandInvestment = async (req, res) => {
       image: urls,
       location: location,
       state: state,
+      description: description,
     });
 
     // Save real estate object
@@ -161,7 +162,7 @@ exports.createTransportInvestment = async (req, res) => {
 
     const email = req.admin.email;
 
-    const { name, amount, images, type } = value;
+    const { name, amount, images, type, description } = value;
 
     const urls = await imageUpload(images, "transport");
 
@@ -173,6 +174,7 @@ exports.createTransportInvestment = async (req, res) => {
       amount: amount,
       image: urls,
       transportType: type,
+      description: description,
     });
 
     await newTransport.save();
