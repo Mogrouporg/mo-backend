@@ -135,6 +135,8 @@ exports. investInRealEstate =async (req, res)=>{
                         },
                         balance: newBalance,
                         lastTransact: new Date(Date.now())
+                    }, {
+                        new: true
                     });
                     await realEstate.updateOne({
                         $inc: {
