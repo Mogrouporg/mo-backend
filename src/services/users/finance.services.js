@@ -100,69 +100,75 @@ exports.verifyDeposit = async (req, res) => {
   }
 };
 
-exports. investInRealEstate =async (req, res)=>{
+exports.investInRealEstate = async (req, res) => {
     try {
         const user = req.user;
         const id = req.params.id;
-        const {invPeriod}  = req.body
-        const realEstate = await RealEstate.findById(id);
-        const balance = user.balance;
-        if(user.isVerified === false){
+        const { invPeriod } = req.body;
+
+        if (!user.isVerified) {
             return res.status(403).json({
                 message: "Not allowed",
                 status: "forbidden"
-            })
-        }else{
-                const newInvestment = {
-                    user: req.user.id,
-                    propertyId: id,
-                    roi: realEstate.roi,
-                    invPeriod: invPeriod,
-                    status: 'owned',
-                    currency: 'NGN'
-                }
-                if(!(balance >= realEstate.amount)){
-                    return res.status(403).json({
-                        message: "Account Balance is low!",
-                        success: false,
-                    })
-                }else{
-                    const investment = await RealEstateInvestment.create(newInvestment);
-                    //const newBalance = balance - realEstate.amount;
-                    await User.findByIdAndUpdate(user.id, {
-                        $push: {
-                            realEstateInvestment: investment
-                        },
-                        $inc: {
-                            balance: -realEstate.amount
-                        },
-                        lastTransact: new Date(Date.now())
-                    }, {
-                        new: true
-                    });
-                    await realEstate.updateOne({
-                        $inc: {
-                            numberOfBuyers: 1
-                        }
-                    },{
-                        new: true
-                    })
-                    await sendMail({
-                        email: user.email,
-                        subject: "Acquired a portion!",
-                        text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`
-                    })
-                    return res.status(200).json({
-                        success: true,
-                        data: investment
-                    })
-                }
+            });
         }
-        } catch (error) {
-            console.log(error)
+
+        const realEstate = await RealEstate.findById(id);
+        const balance = user.balance;
+
+        if (balance < realEstate.amount) {
+            return res.status(403).json({
+                message: "Account Balance is low!",
+                success: false
+            });
+        }
+
+        const newInvestment = {
+            user: req.user.id,
+            propertyId: id,
+            roi: realEstate.roi,
+            invPeriod: invPeriod,
+            status: 'owned',
+            currency: 'NGN'
+        };
+
+        const investment = await RealEstateInvestment.create(newInvestment);
+
+        await User.findByIdAndUpdate(user.id, {
+            $push: { realEstateInvestment: investment },
+            $inc: { balance: -realEstate.amount },
+            lastTransact: new Date(Date.now())
+        });
+
+        await realEstate.updateOne({ $inc: { numberOfBuyers: 1 } });
+
+        const newTransaction = {
+            amount: realEstate.amount.toString(),
+            user: user.email,
+            type: 'Investment',
+            reference: Math.random().toString().slice(2),
+            balance: user.balance - realEstate.amount,
+            status: 'Success'
+        };
+
+        const transaction = new Transaction(newTransaction);
+        await transaction.save();
+
+        await sendMail({
+            email: user.email,
+            subject: "Acquired a portion!",
+            text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: investment
+        });
+    } catch (error) {
+        console.error(error);
         return res.status(500).json({
             message: "Internal Server error"
-        })
+        });
     }
 };
 
