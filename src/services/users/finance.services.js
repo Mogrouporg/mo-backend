@@ -128,12 +128,14 @@ exports. investInRealEstate =async (req, res)=>{
                     })
                 }else{
                     const investment = await RealEstateInvestment.create(newInvestment);
-                    const newBalance = parseInt(balance) - realEstate.amount;
+                    //const newBalance = balance - realEstate.amount;
                     await User.findByIdAndUpdate(user.id, {
                         $push: {
                             realEstateInvestment: investment
                         },
-                        balance: newBalance,
+                        $inc: {
+                            balance: -realEstate.amount
+                        },
                         lastTransact: new Date(Date.now())
                     }, {
                         new: true
@@ -142,7 +144,7 @@ exports. investInRealEstate =async (req, res)=>{
                         $inc: {
                             numberOfBuyers: 1
                         }
-                    }, {
+                    },{
                         new: true
                     })
                     await sendMail({
