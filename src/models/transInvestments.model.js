@@ -5,12 +5,12 @@ const transInvestSchema = new schema(
     {
         transportId: {
             type: schema.Types.ObjectId,
-            name: "transports",
+            name: "Transportation",
             required: true
         },
         userId: {
             type: schema.Types.ObjectId,
-            name: "Users",
+            name: "User",
             required: true
         },
         status:{
