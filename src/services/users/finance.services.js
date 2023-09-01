@@ -288,7 +288,7 @@ exports.withdrawFunds = async (req, res) => {
                 data: "Insufficient Balance"
             })
         }
-        if ((parseInt(amount) + 500) >= user.balance) {
+        if ((parseInt(amount) + 500) >= user.totalRoi) {
             return  res.status(400).json({
                 success: false,
                 data: "Cannot leave less than 500 in the account"
@@ -304,11 +304,11 @@ exports.withdrawFunds = async (req, res) => {
             }
             const withdraw = {
                 amount: amount,
-                status: "pending",
+                status: "Pending",
                 user: user._id,
                 reference: reference,
-                type: 'withdrawal',
-                balance: parseInt(user.balance) - parseInt(amount)
+                type: 'Withdrawal',
+                balance: parseInt(user.totalRoi) - parseInt(amount)
             }
             const notification = {
                 message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
