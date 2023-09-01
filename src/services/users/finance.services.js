@@ -129,7 +129,8 @@ exports.investInRealEstate = async (req, res) => {
             roi: realEstate.roi,
             invPeriod: invPeriod,
             status: 'owned',
-            currency: 'NGN'
+            currency: 'NGN',
+            roi: realEstate.roi* parseInt(invPeriod)
         };
 
         const investment = await RealEstateInvestment.create(newInvestment);
@@ -210,7 +211,8 @@ exports.investInTransport =async (req, res)=>{
                 roi: transport.roi,
                 invPeriod: invPeriod,
                 status: 'owned',
-                currency: 'NGN'
+                currency: 'NGN',
+                roi: transport.roi* parseInt(invPeriod)
             }
             if(!(balance >= transport.amount)){
                 return res.status(403).json({
