@@ -119,6 +119,7 @@ exports.createLandInvestment = async (req, res) => {
       location: location,
       state: state,
       description: description,
+      roi: 0.12*amount,
     });
 
     // Save real estate object
@@ -175,6 +176,7 @@ exports.createTransportInvestment = async (req, res) => {
       image: urls,
       transportType: type,
       description: description,
+      roi: 0.12*amount,
     });
 
     await newTransport.save();
