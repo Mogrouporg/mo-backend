@@ -146,7 +146,7 @@ exports.getMyTransactions = async (req, res) => {
       .select("transactions")
       .populate({
         path: "transactions",
-        match: { status: { $nin: ["Abandoned", "Pending"] } },
+        match: { status: { $nin: ["Abandoned"] } },
         options: { sort: { createdAt: -1 } },
       });
     return res.status(200).json({

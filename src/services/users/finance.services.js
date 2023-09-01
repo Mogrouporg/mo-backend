@@ -219,12 +219,25 @@ exports.investInTransport =async (req, res)=>{
                 })
             }else{
                 const investment = await TransInvest.create(newInvestment);
-                const newBalance = parseInt(balance) - transport.amount;
+                const newTransaction = {
+                    amount: transport.amount,
+                    user: user.email,
+                    type: 'Investment',
+                    reference: Math.random().toString().slice(2),
+                    balance: user.balance - transport.amount,
+                    status: 'Success'
+                };
+        
+                const transaction = new Transaction(newTransaction);
+                await transaction.save();
                 await User.findByIdAndUpdate(user.id, {
                     $push: {
-                        transportInvestment: investment
+                        transportInvestment: investment,
+                        transactions: transaction.id
                     },
-                    balance: newBalance,
+                    $inc: {
+                        balance: -transport.amount,
+                    },
                     lastTransact: new Date(Date.now())
                 });
                 await transport.updateOne({
@@ -318,7 +331,7 @@ exports.withdrawFunds = async (req, res) => {
             await newWithdrawal.save();
             const notifications = await pushNotification(notification);
             await client.updateOne({
-                balance: parseInt(user.balance) - parseInt(amount),
+                balance: parseInt(user.totalRoi) - parseInt(amount),
                 $push: {
                     transactions: newWithdrawal,
                     notifications: notifications
