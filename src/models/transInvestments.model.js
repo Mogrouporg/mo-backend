@@ -16,6 +16,15 @@ const transInvestSchema = new schema(
         status:{
             type: String,
             enum: ['owned','onSale', 'sold']
+        },
+        invPeriod:{
+            type: String
+        },
+        currentRoi:{
+            type: Number
+        },
+        roi:{
+            type: Number
         }
     }, {
         timestamps: true
