@@ -1,5 +1,4 @@
 const speakeasy  = require('speakeasy');
-const {User} = require('../models/users.model')
 const redis = require('redis');
 require('dotenv').config();
 const {createClient} = require("redis");
@@ -9,9 +8,8 @@ const connection = async ()=>{
         const client = createClient({
             url: process.env.REDIS_PUBLIC_URL,
             password: process.env.REDIS_PASSWORD
-        })
-        await client.connect();
-
+        });
+        await client.connect()
         client.on('error', (err) => console.log(err));
         client.on('connect', () => console.log('connect'));
         return client;
@@ -20,7 +18,7 @@ const connection = async ()=>{
     }
 }
 
-const addToRedis = async (key, value, expiresIn) => {
+exports.addToRedis = async (key, value, expiresIn) => {
     const redisClient = await connection();
     try {
         return await redisClient.set(key, value, expiresIn);
@@ -29,7 +27,7 @@ const addToRedis = async (key, value, expiresIn) => {
     }
 };
 
-const deleteFromRedis = async (key) => {
+exports.deleteFromRedis = async (key) => {
     const redisClient = await connection();
     try {
         return redisClient.del(key);
@@ -38,7 +36,7 @@ const deleteFromRedis = async (key) => {
     }
 };
 
-const getValueFromRedis = async (key) => {
+exports.getValueFromRedis = async (key) => {
     try {
         const redisClient = await connection();
         return redisClient.get(key);
@@ -47,13 +45,14 @@ const getValueFromRedis = async (key) => {
     }
 };
 
-exports.genOtp = async () => {
-    return Math.floor(Math.random() * 1000000)
-}
+exports.genOtp = () => {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  };
+  
 
 exports.saveOtp = async (email, otp)=>{
     try {
-        await addToRedis(email, otp, 600)
+        await this.addToRedis(email, otp, 600)
     }catch (e) {
         console.log(e)
     }
@@ -61,11 +60,11 @@ exports.saveOtp = async (email, otp)=>{
 
 exports.verifyOtp = async (email, body)=>{
     try {
-       const realOtp = await getValueFromRedis(email)
+       const realOtp = await this.getValueFromRedis(email)
         if(realOtp !== body){
             return false;
         }else{
-            await deleteFromRedis(email);
+            await this.deleteFromRedis(email);
             return true;
         }
     }catch (e) {

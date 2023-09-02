@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const {mongo} = require("mongoose");
 const schema = mongoose.Schema;
 
 const transactionSchema = new schema(
@@ -13,7 +12,7 @@ const transactionSchema = new schema(
         },
         status: {
             type: String,
-            enum: ["success", "failed"]
+            enum: ["Success", "Failed", "Abandoned", "Pending"]
         },
         balance: {
             type: String
@@ -23,7 +22,7 @@ const transactionSchema = new schema(
         },
         type:{
             type: String,
-            enum: ['deposit', 'loan', 'withdrawal']
+            enum: ['Deposit', 'Loan', 'Withdrawal', 'Investment']
         }
     },{
         timestamps: true
@@ -34,4 +33,4 @@ const Transaction = mongoose.model("Transaction", transactionSchema);
 
 module.exports = {
     Transaction: Transaction
-}
+} 

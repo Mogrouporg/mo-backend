@@ -5,13 +5,26 @@ const transInvestSchema = new schema(
     {
         transportId: {
             type: schema.Types.ObjectId,
-            name: "transports",
+            name: "Transportation",
             required: true
         },
         userId: {
             type: schema.Types.ObjectId,
-            name: "Users",
+            name: "User",
             required: true
+        },
+        status:{
+            type: String,
+            enum: ['owned','onSale', 'sold']
+        },
+        invPeriod:{
+            type: String
+        },
+        currentRoi:{
+            type: Number
+        },
+        roi:{
+            type: Number
         }
     }, {
         timestamps: true

@@ -26,24 +26,42 @@ const UserSchema = new Schema(
             type: Number,
             default: 0
         },
+        totalInvestment:{
+            type: Number,
+            default:  0
+        },
+        totalRoi:{
+            type: Number,
+            default: 0
+        },
+        dailyRoi:{
+            type: Number,
+            default: 0
+        },
+        totalLoan: {
+            type: Number,
+            default: 0
+        },
         password: {
             type: String,
             required: false
         },
-        token:{
+        refreshTokenHash:{
             type: String,
             required: false
         },
         resetPasswordToken:{
-            type: String
+            type: String,
+            default: false
         },
         resetPasswordExp:{
             type: Date,
             required: false
         },
         profile_url:{
-            type: String,
-            required: false
+            type: Array,
+            required: false,
+            default: ["https://d1pjrefzr8ts6o.cloudfront.net/default.jpeg"]
         },
         isVerified: {
             type: Boolean,
@@ -51,39 +69,72 @@ const UserSchema = new Schema(
         },
         role:{
            type: String,
-           enum: ['USER', 'AGENT', 'ADMIN']
+           enum: ['USER', 'AGENT'],
+           default: 'USER'
         },
-        otpSecret:{
+        status: {
             type: String,
-        }
+            enum: ['active', 'inactive'],
+            default: 'active'
+        },
+        lastTransact:{
+            type: Date
+        },
+        bankDetails:[{
+            bankName: String,
+            accountName: String,
+            accountNumber: String,
+        }],
+        transactions: [{ type: Schema.Types.ObjectId, ref: 'Transaction' }],
+        notifications:[{ type: Schema.Types.ObjectId, ref: 'Notification' }],
+        loanRequests:[{ type: Schema.Types.ObjectId, ref: 'Loan' }],
+        realEstateInvestment: [{ type: Schema.Types.ObjectId, ref: 'RealEstateInvestment' }],
+        transportInvestment: [{ type: Schema.Types.ObjectId, ref: 'TransInvest' }],
     },{
         timestamps: true
     }
 );
 
-UserSchema.pre("save", function (next) {
+const argon2 = require('argon2');
+
+UserSchema.pre("save", async function (next) {
     const user = this;
 
     if (!user.isModified("password")) return next();
 
-    bcrypt.genSalt(10, function (err, salt) {
-        if (err) return next(err);
+    try {
+        //const salt = await argon2.
+        const hash = await argon2.hash(user.password);
 
-        bcrypt.hash(user.password, salt, function (err, hash) {
-            if (err) return next(err);
-
-            user.password = hash;
-            next();
-        });
-    });
+        user.password = hash;
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
 
-UserSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.password);
-};
+// UserSchema.pre("save", function (next) {
+//     const user = this;
+
+//     if (!user.isModified("password")) return next();
+
+//     bcrypt.genSalt(10, function (err, salt) {
+//         if (err) return next(err);
+
+//         bcrypt.hash(user.password, salt, function (err, hash) {
+//             if (err) return next(err);
+
+//             user.password = hash;
+//             next();
+//         });
+//     });
+// });
+// UserSchema.methods.comparePassword = function (password) {
+//     return bcrypt.compareSync(password, this.password);
+// };
 
 const User = mongoose.model("User", UserSchema);
 
-module.exports ={
-    User: User
-}
+module.exports = {
+    User,
+};
