@@ -9,6 +9,7 @@ const {
 const { imageUpload } = require("../../utils/imageUpload.util");
 const { RealEstate } = require("../../models/realEstate.model");
 const { Transportation } = require("../../models/transportations.model");
+const argon2 = require("argon2");
 
 const calculateAllMyDailyROI = async (userId) => {
   try {
@@ -56,7 +57,7 @@ exports.myProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId, "-password -refreshTokenHash");
-    const dailyRoi = await calculateAllMyDailyROI(userId); // Calculate daily ROI
+    const dailyRoi = await calculateAllMyDailyROI(userId);
 
     user.dailyRoi = dailyRoi;
 
@@ -73,45 +74,32 @@ exports.myProfile = async (req, res) => {
 };
 
 exports.editAccount = async (req, res) => {
-    try {
-      const id = req.user.id;
-      const body = req.body;
-      let updatedUser = null;
-  
-      if (req.files && req.files.file) {
-        const file = req.files.file;
-        const folder = "avatars";
-        const url = await imageUpload(file, folder);
-                updatedUser = await User.findByIdAndUpdate(
-          id,
-          {
-            ...body,
-            profile_url: url,
-          },
-          { new: true }
-        );
-      } else if (Object.keys(body).length > 0) {
-        updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
-      }
-  
-      if (!updatedUser) {
-        return res.status(400).json({
-          message: "No changes were provided for updating the user.",
-        });
-      }
-  
-      return res.status(200).json({
-        message: "User updated successfully!",
-        data: updatedUser,
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        message: "Internal Server Error",
+  try {
+    const id = req.user.id;
+    const body = req.body;
+    let updatedUser = null;
+    if (Object.keys(body).length > 0) {
+      updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
+    }
+
+    if (!updatedUser) {
+      return res.status(400).json({
+        message: "No changes were provided for updating the user.",
       });
     }
-  };
-    
+
+    return res.status(200).json({
+      message: "User updated successfully!",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 exports.addBankDetails = async (req, res) => {
   try {
     const id = req.user.id;
@@ -249,6 +237,63 @@ exports.getMyInvestments = async (req, res) => {
         myTransportInvestments,
       },
       pagination: pagination,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { file } = req.files;
+    const url = await imageUpload(file, "avatars");
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { profilePicture: url },
+      { new: true }
+    );
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const user = req.user;
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Please provide all fields",
+      });
+    }
+    const isMatch = await argon2.verify(user.password, oldPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Old password is incorrect",
+      });
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+    const updatedUser = await User.findByIdAndUpdate(
+      user.id,
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
     });
   } catch (error) {
     console.log(error);
