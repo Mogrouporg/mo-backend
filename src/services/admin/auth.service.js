@@ -260,3 +260,34 @@ exports.verifyResetPassword = async (req, res) => {
     });
   }
 };
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        if (!token) {
+          return res.status(400).json({
+            message: "Bad request",
+          });
+        }
+        const user = await Admin.findOne({ resetPasswordToken: token });
+        if (!user) {
+          return res.status(400).json({
+            message: "User not found.",
+          });
+        }
+        const newPassword = req.body.password;
+        const hash = await argon2.hash(newPassword);
+        await user.updateOne({
+          password: hash,
+          resetPasswordToken: null,
+        });
+        res.status(200).json({
+          success: true,
+        });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({
+          message: "Internal Server error",
+        });
+      }
+}

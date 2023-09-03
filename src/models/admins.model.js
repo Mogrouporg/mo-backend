@@ -38,6 +38,9 @@ const AdminSchema = new Schema(
         },
         resetPasswordStatus:{
             type: Boolean,
+        },
+        resetPasswordToken:{
+            type: String
         }
 
 

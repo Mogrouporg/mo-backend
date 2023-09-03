@@ -47,7 +47,7 @@ useRouter.get("/real-estates", verifyToken, getAllRealEstates);
 useRouter.get("/transports", verifyToken, getAllTransports);
 useRouter.get("/loan-history", verifyToken, fetchLoanHistory);
 useRouter.post("/loan/apply", verifyToken, requestLoan);
-useRouter.post("/loan/apply", verifyToken, addBankDetails);
+useRouter.get("/loans", verifyToken, fetchLoanHistory);
 useRouter.post("/add-bank-details", verifyToken, addBankDetails);
 useRouter.post("/uploadProfile", verifyToken, uploadProfilePicture);
 useRouter.post("/reset-password", verifyToken, updatePassword);
