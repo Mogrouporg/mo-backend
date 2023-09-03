@@ -25,6 +25,10 @@ const transInvestSchema = new schema(
         },
         roi:{
             type: Number
+        },
+        transaction:{
+            type: schema.Types.ObjectId,
+            ref: "Transaction",
         }
     }, {
         timestamps: true

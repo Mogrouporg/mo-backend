@@ -19,7 +19,7 @@ const loanRequestSchema = new schema(
         },
         status:{
             type: String,
-            enum: ['pending', 'approved', 'rejected'],
+            enum: ['Pending', 'Approved', 'Declined'],
             default: 'pending'
         },
         paid:{
@@ -30,6 +30,10 @@ const loanRequestSchema = new schema(
             bankName: String,
             accountName: String,
             accountNumber: String
+        },
+        transaction:{
+            type: schema.Types.ObjectId,
+            ref: "Transaction"
         }
     },
     {

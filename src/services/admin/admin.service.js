@@ -11,12 +11,14 @@ const {
 const { loanRequest } = require("../../models/loanRequests.model");
 const { realEstateSchema, transportSchema } = require("../../models/validations/data");
 const { Transportation } = require("../../models/transportations.model");
+const { Withdrawals } = require("../../models/withdrawalRequest.model");
+const { pushNotification } = require("../notif/notif.services");
 
 exports.getAllTransactions = async (req, res) => {
   try {
     const admin = req.admin;
     let transactions = await Transaction.find()
-      .select("amount status -_id user")
+      .select("amount status -_id user type status")
       .sort({ createdAt: -1 });
 
     // Using Promise.all to handle asynchronous operations
@@ -201,15 +203,13 @@ exports.createTransportInvestment = async (req, res) => {
   }
 };
 
-exports.getAllRealInvestments = async (req, res) => {
+exports.getAllRealEstates = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
     const perPage = 10; // Number of items to display per page
 
     const startIndex = (page - 1) * perPage;
-    const endIndex = page * perPage;
-
-    const totalInvestments = await RealEstate.countDocuments({ onSale: true });
+    const totalInvestments = await RealEstate.countDocuments({ onSale: true }).exec();
 
     const investments = await RealEstate.find({ onSale: true })
       .select("propertyName image _id sizeInSqm amount state")
@@ -236,15 +236,14 @@ exports.getAllRealInvestments = async (req, res) => {
   }
 };
 
-exports.getAllTransInvestments = async (req, res) => {
+exports.getAllTransports = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
     const perPage = 10; // Number of items to display per page
 
     const startIndex = (page - 1) * perPage;
-    const endIndex = page * perPage;
 
-    const totalInvestments = await Transportation.countDocuments({ onSale: true });
+    const totalInvestments = await Transportation.countDocuments({ onSale: true }).exec();
 
     const investments = await Transportation.find({ onSale: true })
       .skip(startIndex)
@@ -285,7 +284,7 @@ exports.getSingleRealEstate = async (req, res) => {
   }
 };
 
-exports.getSingleTransInvestment = async (req, res) => {
+exports.getSingleTransport = async (req, res) => {
   try {
     const _id = req.params.id;
     const investment = await Transportation.findById(_id).select(
@@ -304,6 +303,7 @@ exports.approveLoan = async (req, res) => {
   try {
     const id = req.params.id;
     const loan = await loanRequest.findById(id);
+
     if (!loan) {
       return res.status(404).json({
         message: "Loan request not found",
@@ -311,46 +311,205 @@ exports.approveLoan = async (req, res) => {
     }
 
     const { status } = req.body; // "approved" || "rejected"
-    if (status === "approved") {
-      loan.status = status;
-      const user = await User.findById(loan.user);
-      user.balance += parseInt(loan.amount);
-      const transaction = new Transaction({
-        amount: loan.amount,
-        user: user.email,
-        status: "success",
-        balance: user.balance,
-        type: "loan",
-      });
-      await loan.save();
-      await transaction.save();
-      await user.save();
-      const message = `Your loan request of ${loan.amount} has been approved!`;
-      await pushNotification({
-        message: message,
-        email: user.email,
-      });
-    }
 
-    if (status === "rejected") {
+    if (status === "Approved" || status === "Declined") {
       loan.status = status;
       await loan.save();
+
       const user = await User.findById(loan.user);
-      const message = `Your loan request of ${loan.amount} has been rejected!`;
-      await pushNotification({
-        message: message,
-        email: user.email,
+      const transaction = await Transaction.findById(loan.transaction);
+
+      if (status === "Approved") {
+        await transaction.updateOne({ status: "Success" });
+        const message = `Your loan request of ${loan.amount} has been approved!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      } else if (status === "Declined") {
+        await transaction.updateOne({ status: "Failed" });
+        const message = `Your loan request of ${loan.amount} has been rejected!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: loan,
+      });
+    } else {
+      return res.status(400).json({
+        message: "Invalid status",
       });
     }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+};
 
+exports.getAllLoans = async (req, res) => {
+  try {
+    let query = {};
+    if (req.query.category) {
+      switch (req.query.category.toLowerCase()) {
+        case "approved":
+          query.status = "Approved";
+          break;
+        case "pending":
+          query.status = "Pending";
+          break;
+        case "declined":
+          query.status = "Declined";
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: "Invalid category. Valid categories are 'approved', 'pending', or 'declined'."
+          });
+      }
+    }
+
+    const loans = await loanRequest.find(query).populate("user");
+    
+    return res.status(200).json({
+      success: true,
+      data: loans,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+exports.getSingleLoan = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const loan = await loanRequest.findById(id).populate("user");
     return res.status(200).json({
       success: true,
       data: loan,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
-      message: "Internal server error",
+      message: "Internal Server error",
     });
   }
-};
+}
+
+exports.getAllWithdrawalRequests = async (req, res) => {
+  try {
+    let query = {};
+
+    // Check if a category filter is provided in the query parameters
+    if (req.query.category) {
+      switch (req.query.category.toLowerCase()) {
+        case "approved":
+          query.status = "Approved";
+          break;
+        case "pending":
+          query.status = "Pending";
+          break;
+        case "declined":
+          query.status = "Declined";
+          break;
+        default:
+          // Handle invalid category by returning an error response
+          return res.status(400).json({
+            success: false,
+            message: "Invalid category. Valid categories are 'approved', 'pending', or 'declined'."
+          });
+      }
+    }
+
+    const requests = await Withdrawals.find(query).populate("user");
+    
+    return res.status(200).json({
+      success: true,
+      data: requests,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+
+exports.getSingleWithdrawalRequest = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const request = await Withdrawals.findById(id).populate("user");
+    return res.status(200).json({
+      success: true,
+      data: request,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+exports.approveWithdrawal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const request = await Withdrawals.findById(id);
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Withdrawal request not found",
+      });
+    }
+
+    const { status } = req.body;
+
+    if (status === "Approved" || status === "Declined") {
+      request.status = status;
+      await request.save();
+
+      const user = await User.findById(request.user);
+      const transaction = await Transaction.findById(request.transaction);
+
+      if (status === "Approved") {
+        await transaction.updateOne({ status: "Success" });
+        await user.updateOne({ $inc:{ totalRoi: -request.amount}})
+        const message = `Your withdrawal request of ${request.amount} has been approved!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      } else if (status === "rejected") {
+        await transaction.updateOne({ status: "Decline" });
+        const message = `Your withdrawal request of ${request.amount} has been rejected!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: request,
+      });
+    } else {
+      return res.status(400).json({
+        message: "Invalid status",
+      });
+    }
+  }catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}

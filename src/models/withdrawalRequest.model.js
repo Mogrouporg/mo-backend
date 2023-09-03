@@ -13,13 +13,17 @@ const WithdrawalRequestSchema = new Schema(
     },
     status: {
       type: String,
-      default: "pending",
-      enum: ["pending", "approved", "declined"],
+      default: "Pending",
+      enum: ["Pending", "Approved", "Declined"],
     },
     bankDetails: {
       bankName: String,
       accountName: String,
       accountNumber: String
+    },
+    transaction:{
+        type: Schema.Types.ObjectId,
+        ref: "Transaction"
     }
   },
   {

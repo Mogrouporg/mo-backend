@@ -13,6 +13,7 @@ const { sendMail } = require("../../utils/mailer");
 const { Transportation } = require("../../models/transportations.model");
 const { TransInvest } = require("../../models/transInvestments.model");
 const { loanRequest } = require("../../models/loanRequests.model");
+const { Withdrawals } = require("../../models/withdrawalRequest.model");
 
 exports.deposit = async (req, res) => {
   try {
@@ -134,39 +135,39 @@ exports.investInRealEstate = async (req, res) => {
     const newInvestment = {
       user: req.user.id,
       propertyId: id,
-      roi: realEstate.roi,
       invPeriod: invPeriod,
       status: "owned",
       currency: "NGN",
-      roi: realEstate.roi * parseInt(invPeriod),
+      roi: realEstate.roi * parseInt(invPeriod), // Calculate ROI once
     };
 
-    const investment = await RealEstateInvestment.create(newInvestment);
+    // Use Promise.all to perform multiple asynchronous operations concurrently
+    const [investment, transaction] = await Promise.all([
+      RealEstateInvestment.create(newInvestment),
+      Transaction.create({
+        amount: realEstate.amount.toString(),
+        user: user.email,
+        type: "Investment",
+        reference: Math.random().toString().slice(2),
+        balance: user.balance - realEstate.amount,
+        status: "Success",
+      }),
+    ]);
 
-    const newTransaction = {
-      amount: realEstate.amount.toString(),
-      user: user.email,
-      type: "Investment",
-      reference: Math.random().toString().slice(2),
-      balance: user.balance - realEstate.amount,
-      status: "Success",
-    };
-
-    const transaction = new Transaction(newTransaction);
-    await transaction.save();
-    await User.findByIdAndUpdate(user.id, {
-      $push: { realEstateInvestment: investment, transactions: transaction.id },
-      $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
-      lastTransact: new Date(Date.now()),
-    });
-
-    await realEstate.updateOne({ $inc: { numberOfBuyers: 1 } });
-
-    await sendMail({
-      email: user.email,
-      subject: "Acquired a portion!",
-      text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`,
-    });
+    await Promise.all([
+      User.findByIdAndUpdate(user.id, {
+        $push: { realEstateInvestment: investment, transactions: transaction.id },
+        $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
+        lastTransact: new Date(Date.now()),
+      }),
+      realEstate.updateOne({ $inc: { numberOfBuyers: 1 } }),
+      sendMail({
+        email: user.email,
+        subject: "Acquired a portion!",
+        text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`,
+      }),
+      investment.updateOne({ transaction: transaction.id }),
+    ]);
 
     return res.status(200).json({
       success: true,
@@ -204,26 +205,42 @@ exports.investInTransport = async (req, res) => {
     const user = req.user;
     const id = req.params.id;
     const { invPeriod } = req.body;
-    const transport = await Transportation.findById(id);
-    const balance = user.balance;
 
+    // Basic request validation
+    if (!invPeriod || typeof invPeriod !== 'number' || invPeriod <= 0) {
+      return res.status(400).json({
+        message: "Invalid invPeriod",
+      });
+    }
+
+    const transport = await Transportation.findById(id);
+
+    // Check if the transportation is found
     if (!transport) {
-      return res.status(500).json({
+      return res.status(404).json({
         message: "Transportation not found",
       });
     }
-    if (user.isVerified === false) {
+
+    // Check user verification status
+    if (!user.isVerified) {
       return res.status(403).json({
         message: "Not allowed",
         status: "forbidden",
       });
     }
-    if (!(balance >= transport.amount)) {
+
+    const balance = user.balance;
+
+    // Check if the balance is sufficient
+    if (balance < transport.amount) {
       return res.status(403).json({
         message: "Account Balance is low!",
         success: false,
       });
     }
+
+    // Create a new investment
     const newInvestment = {
       userId: user.id,
       transportId: id,
@@ -234,28 +251,35 @@ exports.investInTransport = async (req, res) => {
       roi: transport.roi * invPeriod,
     };
 
-    const investment = await TransInvest.create(newInvestment);
-    const newTransaction = {
-      amount: transport.amount,
-      user: user.email,
-      type: "Investment",
-      reference: Math.random().toString().slice(2),
-      balance: user.balance - transport.amount,
-      status: "Success",
-    };
+    const [investment, transaction] = await Promise.all([
+      TransInvest.create(newInvestment),
+      Transaction.create({
+        amount: transport.amount,
+        user: user.email,
+        type: "Investment",
+        reference: Math.random().toString().slice(2),
+        balance: user.balance - transport.amount,
+        status: "Success",
+      }),
+    ]);
 
-    const transaction = new Transaction(newTransaction);
-    await transaction.save();
-    await User.findByIdAndUpdate(user.id, {
-      $push: {
-        transportInvestment: investment.id,
-        transactions: transaction.id,
+    // Update user and transport in a single query
+    const updatedUser = await User.findByIdAndUpdate(
+      user.id,
+      {
+        $push: {
+          transportInvestment: investment.id,
+          transactions: transaction.id,
+        },
+        $inc: {
+          balance: -transport.amount,
+        },
+        lastTransact: new Date(Date.now()),
       },
-      $inc: {
-        balance: -transport.amount,
-      },
-      lastTransact: new Date(Date.now()),
-    });
+      { new: true } // Get the updated user object
+    );
+
+    // Increment the number of buyers for the transport
     await transport.updateOne(
       {
         $inc: {
@@ -266,22 +290,30 @@ exports.investInTransport = async (req, res) => {
         new: true,
       }
     );
+
+    // Send email notification
     await sendMail({
       email: user.email,
       subject: "Acquired a portion!",
       text: `You have successfully acquired ${transport.transportType} of ${transport.transportName} at the rate of ${transport.amount}`,
     });
+
+    // Update the investment with the transaction ID
+    await investment.updateOne({ transaction: transaction.id });
+
     return res.status(200).json({
       success: true,
       data: investment,
+      user: updatedUser, // Include the updated user object in the response
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal Server error",
     });
   }
 };
+
 
 exports.sellTransportInvestment = async (req, res) => {
   try {
@@ -305,19 +337,20 @@ exports.sellTransportInvestment = async (req, res) => {
 exports.withdrawFunds = async (req, res) => {
   try {
     const user = req.user;
-    const { amount } = req.body;
-    const client = await User.findById(user._id);
+    const { amount, bankDetails } = req.body;
     const reference = Math.random().toString().slice(2);
+
+    // Check for invalid withdrawal requests
+    if (!bankDetails) {
+      return res.status(400).json({
+        success: false,
+        data: "Please add your bank details and amount",
+      });
+    }
     if (parseInt(amount) < 1000 || parseInt(amount) > 5000000) {
       return res.status(400).json({
         success: false,
-        data: "Cannot withdraw less than NGN1000",
-      });
-    }
-    if (parseInt(amount) > user.balance) {
-      return res.status(400).json({
-        success: false,
-        data: "Insufficient Balance",
+        data: "Cannot withdraw less than NGN1000 or more than NGN5000000",
       });
     }
     if (parseInt(amount) + 500 >= user.totalRoi) {
@@ -325,55 +358,73 @@ exports.withdrawFunds = async (req, res) => {
         success: false,
         data: "Cannot leave less than 500 in the account",
       });
-    } else {
-      //check if there is pending loan
-      const loan = await loanRequest.findOne({ user: user._id, paid: false });
-      if (loan) {
-        return res.status(403).json({
-          success: false,
-          message: "You have an unpaid loan",
-        });
-      }
-      const withdraw = {
-        amount: amount,
-        status: "Pending",
-        user: user._id,
-        reference: reference,
-        type: "Withdrawal",
-        balance: parseInt(user.totalRoi) - parseInt(amount),
-      };
-      const notification = {
-        message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
-        email: user.email,
-      };
-      const newWithdrawal = new Transaction(withdraw);
-      await newWithdrawal.save();
-      const notifications = await pushNotification(notification);
-      await client.updateOne({
-        balance: parseInt(user.totalRoi) - parseInt(amount),
-        $push: {
-          transactions: newWithdrawal,
-          notifications: notifications,
-        },
-      });
-      await sendMail({
-        email: user.email,
-        subject: "Withdrawal Request",
-        text: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
-      });
-      return res.status(200).json({
-        success: true,
-        data: "Your withdrawal request has been placed.",
+    }
+
+    // Check for pending loans
+    const loan = await loanRequest.findOne({ user: user._id, paid: false });
+    if (loan) {
+      return res.status(403).json({
+        success: false,
+        message: "You have an unpaid loan",
       });
     }
+
+    // Create withdrawal transaction and notification concurrently
+    const [transaction, withdrawal, notification] = await Promise.all([
+      Transaction.create({
+        amount: amount,
+        user: user.id,
+        status: "Pending",
+        type: "Withdrawal",
+        reference: reference,
+        balance: parseInt(user.totalRoi) - parseInt(amount),
+      }),
+      Withdrawals.create({
+        user: user.id,
+        amount: amount,
+        bankDetails: bankDetails,
+        status: "Pending",
+
+      }),
+      pushNotification({
+        message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
+        email: user.email,
+      }),
+
+    ]);
+
+    // Update user's balance and push transactions and notifications
+    await user.updateOne({
+      balance: parseInt(user.totalRoi) - parseInt(amount),
+      $push: {
+        transactions: withdrawal,
+        notifications: notification,
+      },
+    });
+
+    // Update the withdrawal request with the transaction ID
+    await withdrawal.updateOne({ transaction: withdrawal.id });
+
+    // Send email notification
+    await sendMail({
+      email: user.email,
+      subject: "Withdrawal Request",
+      text: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: "Your withdrawal request has been placed.",
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       data: "Internal Server Error",
     });
   }
 };
+
 
 exports.requestLoan = async (req, res) => {
   try {
@@ -452,6 +503,7 @@ exports.requestLoan = async (req, res) => {
           transactions: transaction.id,
         },
       }),
+      await loan.updateOne({ transaction: transaction.id }),
     ]);
 
     return res.status(200).json({
