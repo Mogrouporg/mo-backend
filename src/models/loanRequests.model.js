@@ -30,6 +30,10 @@ const loanRequestSchema = new schema(
             bankName: String,
             accountName: String,
             accountNumber: String
+        },
+        transaction:{
+            type: schema.Types.ObjectId,
+            ref: "Transaction"
         }
     },
     {
