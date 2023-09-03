@@ -361,11 +361,20 @@ exports.withdrawFunds = async (req, res) => {
     }
 
     // Check for pending loans
-    const loan = await loanRequest.findOne({ user: user._id, paid: false });
+    const loan = await loanRequest.findOne({ user: user.id, paid: false });
     if (loan) {
       return res.status(403).json({
         success: false,
         message: "You have an unpaid loan",
+      });
+    }
+
+    // Check for pending withdrawals
+    const formerWithdrawal = await Withdrawals.findOne({ user: user.id, status: "Pending" });
+    if (formerWithdrawal) {
+      return res.status(403).json({
+        success: false,
+        message: "You have a pending withdrawal request",
       });
     }
 
@@ -397,13 +406,13 @@ exports.withdrawFunds = async (req, res) => {
     await user.updateOne({
       balance: parseInt(user.totalRoi) - parseInt(amount),
       $push: {
-        transactions: withdrawal,
+        transactions: transaction.id,
         notifications: notification,
       },
     });
 
     // Update the withdrawal request with the transaction ID
-    await withdrawal.updateOne({ transaction: withdrawal.id });
+    await withdrawal.updateOne({ transaction: transaction.id });
 
     // Send email notification
     await sendMail({
