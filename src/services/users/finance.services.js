@@ -13,6 +13,7 @@ const { sendMail } = require("../../utils/mailer");
 const { Transportation } = require("../../models/transportations.model");
 const { TransInvest } = require("../../models/transInvestments.model");
 const { loanRequest } = require("../../models/loanRequests.model");
+const { Withdrawals } = require("../../models/withdrawalRequest.model");
 
 exports.deposit = async (req, res) => {
   try {
@@ -369,20 +370,27 @@ exports.withdrawFunds = async (req, res) => {
     }
 
     // Create withdrawal transaction and notification concurrently
-    const [withdrawal, notification] = await Promise.all([
+    const [transaction, withdrawal, notification] = await Promise.all([
       Transaction.create({
         amount: amount,
         user: user.id,
         status: "Pending",
-        bankDetails: bankDetails,
         type: "Withdrawal",
         reference: reference,
         balance: parseInt(user.totalRoi) - parseInt(amount),
+      }),
+      Withdrawals.create({
+        user: user.id,
+        amount: amount,
+        bankDetails: bankDetails,
+        status: "Pending",
+
       }),
       pushNotification({
         message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
         email: user.email,
       }),
+
     ]);
 
     // Update user's balance and push transactions and notifications

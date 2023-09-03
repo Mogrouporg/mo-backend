@@ -12,6 +12,7 @@ const { loanRequest } = require("../../models/loanRequests.model");
 const { realEstateSchema, transportSchema } = require("../../models/validations/data");
 const { Transportation } = require("../../models/transportations.model");
 const { Withdrawals } = require("../../models/withdrawalRequest.model");
+const { pushNotification } = require("../notif/notif.services");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -202,7 +203,7 @@ exports.createTransportInvestment = async (req, res) => {
   }
 };
 
-exports.getAllRealInvestments = async (req, res) => {
+exports.getAllRealEstates = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
     const perPage = 10; // Number of items to display per page
@@ -235,7 +236,7 @@ exports.getAllRealInvestments = async (req, res) => {
   }
 };
 
-exports.getAllTransInvestments = async (req, res) => {
+exports.getAllTransports = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
     const perPage = 10; // Number of items to display per page
@@ -283,7 +284,7 @@ exports.getSingleRealEstate = async (req, res) => {
   }
 };
 
-exports.getSingleTransInvestment = async (req, res) => {
+exports.getSingleTransport = async (req, res) => {
   try {
     const _id = req.params.id;
     const investment = await Transportation.findById(_id).select(
@@ -311,21 +312,21 @@ exports.approveLoan = async (req, res) => {
 
     const { status } = req.body; // "approved" || "rejected"
 
-    if (status === "approved" || status === "rejected") {
+    if (status === "Approved" || status === "Declined") {
       loan.status = status;
       await loan.save();
 
       const user = await User.findById(loan.user);
       const transaction = await Transaction.findById(loan.transaction);
 
-      if (status === "approved") {
+      if (status === "Approved") {
         await transaction.updateOne({ status: "Success" });
         const message = `Your loan request of ${loan.amount} has been approved!`;
         await pushNotification({
           message: message,
           email: user.email,
         });
-      } else if (status === "rejected") {
+      } else if (status === "Declined") {
         await transaction.updateOne({ status: "Failed" });
         const message = `Your loan request of ${loan.amount} has been rejected!`;
         await pushNotification({
@@ -353,7 +354,28 @@ exports.approveLoan = async (req, res) => {
 
 exports.getAllLoans = async (req, res) => {
   try {
-    const loans = await loanRequest.find().populate("user");
+    let query = {};
+    if (req.query.category) {
+      switch (req.query.category.toLowerCase()) {
+        case "approved":
+          query.status = "Approved";
+          break;
+        case "pending":
+          query.status = "Pending";
+          break;
+        case "declined":
+          query.status = "Declined";
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: "Invalid category. Valid categories are 'approved', 'pending', or 'declined'."
+          });
+      }
+    }
+
+    const loans = await loanRequest.find(query).populate("user");
+    
     return res.status(200).json({
       success: true,
       data: loans,
@@ -384,7 +406,31 @@ exports.getSingleLoan = async (req, res) => {
 
 exports.getAllWithdrawalRequests = async (req, res) => {
   try {
-    const requests = await Withdrawals.find().populate("user");
+    let query = {};
+
+    // Check if a category filter is provided in the query parameters
+    if (req.query.category) {
+      switch (req.query.category.toLowerCase()) {
+        case "approved":
+          query.status = "Approved";
+          break;
+        case "pending":
+          query.status = "Pending";
+          break;
+        case "declined":
+          query.status = "Declined";
+          break;
+        default:
+          // Handle invalid category by returning an error response
+          return res.status(400).json({
+            success: false,
+            message: "Invalid category. Valid categories are 'approved', 'pending', or 'declined'."
+          });
+      }
+    }
+
+    const requests = await Withdrawals.find(query).populate("user");
+    
     return res.status(200).json({
       success: true,
       data: requests,
@@ -396,6 +442,7 @@ exports.getAllWithdrawalRequests = async (req, res) => {
     });
   }
 }
+
 
 exports.getSingleWithdrawalRequest = async (req, res) => {
   try {
@@ -424,7 +471,7 @@ exports.approveWithdrawal = async (req, res) => {
       });
     }
 
-    const { status } = req.body; // "approved" || "rejected"
+    const { status } = req.body;
 
     if (status === "Approved" || status === "Declined") {
       request.status = status;
@@ -433,8 +480,9 @@ exports.approveWithdrawal = async (req, res) => {
       const user = await User.findById(request.user);
       const transaction = await Transaction.findById(request.transaction);
 
-      if (status === "approved") {
+      if (status === "Approved") {
         await transaction.updateOne({ status: "Success" });
+        await user.updateOne({ $inc:{ totalRoi: -request.amount}})
         const message = `Your withdrawal request of ${request.amount} has been approved!`;
         await pushNotification({
           message: message,
