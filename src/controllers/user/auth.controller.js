@@ -15,9 +15,5 @@ router.post('/user/reset-password', verifyOtpForgotPassword);
 router.post('/user/update-password/:token',  resetPassword)
 router.post('/user/edit-account', verifyToken, editAccount);
 router.post('/refresh', verifyToken, refresh);
-router.get('/docs', (req, res) => {
-    const docsPath = path.join(__dirname, '../../../docs', 'index.html' );
-    res.sendFile(docsPath);
-})
 
 module.exports = router;
