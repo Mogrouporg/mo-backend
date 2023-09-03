@@ -20,7 +20,7 @@ const loanRequestSchema = new schema(
         status:{
             type: String,
             enum: ['Pending', 'Approved', 'Declined'],
-            default: 'pending'
+            default: 'Pending'
         },
         paid:{
             type: Boolean,

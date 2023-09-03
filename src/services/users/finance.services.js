@@ -363,7 +363,7 @@ exports.withdrawFunds = async (req, res) => {
     // Check for pending loans
     const loan = await loanRequest.findOne({ user: user.id, paid: false });
     if (loan) {
-      return res.status(403).json({
+      return res.status(400).json({
         success: false,
         message: "You have an unpaid loan",
       });
