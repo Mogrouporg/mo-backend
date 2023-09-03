@@ -16,6 +16,6 @@ routerAdmin.get('/request-otp', verifyTokenAdmin, requestOtpAdmin);
 routerAdmin.post('/login', loginAdmin);
 routerAdmin.post('/logout', verifyTokenAdmin, logout);
 routerAdmin.post('/forgot-password', forgotPassword); 
-routerAdmin.post('/reset-password/:token', resetPassword);
+// routerAdmin.post('/reset-password/:token', resetPassword);
 
 module.exports =  routerAdmin;
