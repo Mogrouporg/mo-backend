@@ -16,7 +16,7 @@ exports.getAllTransactions = async (req, res) => {
   try {
     const admin = req.admin;
     let transactions = await Transaction.find()
-      .select("amount status -_id user")
+      .select("amount status -_id user type status")
       .sort({ createdAt: -1 });
 
     // Using Promise.all to handle asynchronous operations
@@ -207,9 +207,7 @@ exports.getAllRealInvestments = async (req, res) => {
     const perPage = 10; // Number of items to display per page
 
     const startIndex = (page - 1) * perPage;
-    const endIndex = page * perPage;
-
-    const totalInvestments = await RealEstate.countDocuments({ onSale: true });
+    const totalInvestments = await RealEstate.countDocuments({ onSale: true }).exec();
 
     const investments = await RealEstate.find({ onSale: true })
       .select("propertyName image _id sizeInSqm amount state")
@@ -242,9 +240,8 @@ exports.getAllTransInvestments = async (req, res) => {
     const perPage = 10; // Number of items to display per page
 
     const startIndex = (page - 1) * perPage;
-    const endIndex = page * perPage;
 
-    const totalInvestments = await Transportation.countDocuments({ onSale: true });
+    const totalInvestments = await Transportation.countDocuments({ onSale: true }).exec();
 
     const investments = await Transportation.find({ onSale: true })
       .skip(startIndex)
@@ -314,14 +311,7 @@ exports.approveLoan = async (req, res) => {
     if (status === "approved") {
       loan.status = status;
       const user = await User.findById(loan.user);
-      user.balance += parseInt(loan.amount);
-      const transaction = new Transaction({
-        amount: loan.amount,
-        user: user.email,
-        status: "success",
-        balance: user.balance,
-        type: "loan",
-      });
+      
       await loan.save();
       await transaction.save();
       await user.save();

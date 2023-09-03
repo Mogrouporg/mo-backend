@@ -25,6 +25,10 @@ const RealEstateInvestmentSchema = new schema(
         currentRoi:{
             type: Number,
             default: 0
+        },
+        transaction:{
+            type: schema.Types.ObjectId,
+            ref: 'Transaction'
         }
     },{
         timestamps: true
