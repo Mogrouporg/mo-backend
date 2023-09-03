@@ -25,8 +25,8 @@ const {
   updatePassword,
 } = require("../../services/users/account.service");
 const {
-  getAllRealInvestments,
-  getAllTransInvestments,
+  getAllRealEstates,
+  getAllTransports,
 } = require("../../services/admin/admin.service");
 
 useRouter.get("/user/notifications", verifyToken, findNotifById);
@@ -43,8 +43,8 @@ useRouter.post("/transport/:id/sell", verifyToken, sellTransportInvestment);
 useRouter.post("/account/withdraw", verifyToken, withdrawFunds);
 useRouter.get("/real-estate/:id", verifyToken, getSingleRealEstate);
 useRouter.get("/transport/:id", verifyToken, getSingleTransportTation);
-useRouter.get("/real-estates", verifyToken, getAllRealInvestments);
-useRouter.get("/transports", verifyToken, getAllTransInvestments);
+useRouter.get("/real-estates", verifyToken, getAllRealEstates);
+useRouter.get("/transports", verifyToken, getAllTransports);
 useRouter.get("/loan-history", verifyToken, fetchLoanHistory);
 useRouter.post("/loan/apply", verifyToken, requestLoan);
 useRouter.post("/loan/apply", verifyToken, addBankDetails);
