@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { RealEstateInvestment } = require('../models/realEstateInvestments.model');
-const { TransportInvestment } = require('../models/transInvestments.model');
+const { TransInvest } = require('../models/transInvestments.model');
 
 const isLeapYear = year => ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 
@@ -32,6 +32,6 @@ const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
 exports.updateRoi = () => {
   cron.schedule('0 0 * * *', () => {
     updateInvestmentsRoi(RealEstateInvestment, 'Real Estate');
-    updateInvestmentsRoi(TransportInvestment, 'Transport');
+    updateInvestmentsRoi(TransInvest, 'Transport');
   });
 };
