@@ -11,6 +11,7 @@ const {
 const { loanRequest } = require("../../models/loanRequests.model");
 const { realEstateSchema, transportSchema } = require("../../models/validations/data");
 const { Transportation } = require("../../models/transportations.model");
+const { Withdrawals } = require("../../models/withdrawalRequest.model");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -301,6 +302,7 @@ exports.approveLoan = async (req, res) => {
   try {
     const id = req.params.id;
     const loan = await loanRequest.findById(id);
+
     if (!loan) {
       return res.status(404).json({
         message: "Loan request not found",
@@ -308,39 +310,158 @@ exports.approveLoan = async (req, res) => {
     }
 
     const { status } = req.body; // "approved" || "rejected"
-    if (status === "approved") {
-      loan.status = status;
-      const user = await User.findById(loan.user);
-      
-      await loan.save();
-      await transaction.save();
-      await user.save();
-      const message = `Your loan request of ${loan.amount} has been approved!`;
-      await pushNotification({
-        message: message,
-        email: user.email,
-      });
-    }
 
-    if (status === "rejected") {
+    if (status === "approved" || status === "rejected") {
       loan.status = status;
       await loan.save();
+
       const user = await User.findById(loan.user);
-      const message = `Your loan request of ${loan.amount} has been rejected!`;
-      await pushNotification({
-        message: message,
-        email: user.email,
+      const transaction = await Transaction.findById(loan.transaction);
+
+      if (status === "approved") {
+        await transaction.updateOne({ status: "Success" });
+        const message = `Your loan request of ${loan.amount} has been approved!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      } else if (status === "rejected") {
+        await transaction.updateOne({ status: "Failed" });
+        const message = `Your loan request of ${loan.amount} has been rejected!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: loan,
+      });
+    } else {
+      return res.status(400).json({
+        message: "Invalid status",
       });
     }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+};
 
+exports.getAllLoans = async (req, res) => {
+  try {
+    const loans = await loanRequest.find().populate("user");
+    return res.status(200).json({
+      success: true,
+      data: loans,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+exports.getSingleLoan = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const loan = await loanRequest.findById(id).populate("user");
     return res.status(200).json({
       success: true,
       data: loan,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
-      message: "Internal server error",
+      message: "Internal Server error",
     });
   }
-};
+}
+
+exports.getAllWithdrawalRequests = async (req, res) => {
+  try {
+    const requests = await Withdrawals.find().populate("user");
+    return res.status(200).json({
+      success: true,
+      data: requests,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+exports.getSingleWithdrawalRequest = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const request = await Withdrawals.findById(id).populate("user");
+    return res.status(200).json({
+      success: true,
+      data: request,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
+
+exports.approveWithdrawal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const request = await Withdrawals.findById(id);
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Withdrawal request not found",
+      });
+    }
+
+    const { status } = req.body; // "approved" || "rejected"
+
+    if (status === "Approved" || status === "Declined") {
+      request.status = status;
+      await request.save();
+
+      const user = await User.findById(request.user);
+      const transaction = await Transaction.findById(request.transaction);
+
+      if (status === "approved") {
+        await transaction.updateOne({ status: "Success" });
+        const message = `Your withdrawal request of ${request.amount} has been approved!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      } else if (status === "rejected") {
+        await transaction.updateOne({ status: "Decline" });
+        const message = `Your withdrawal request of ${request.amount} has been rejected!`;
+        await pushNotification({
+          message: message,
+          email: user.email,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: request,
+      });
+    } else {
+      return res.status(400).json({
+        message: "Invalid status",
+      });
+    }
+  }catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+}
