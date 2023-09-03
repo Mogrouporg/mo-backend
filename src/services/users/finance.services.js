@@ -397,13 +397,13 @@ exports.withdrawFunds = async (req, res) => {
     await user.updateOne({
       balance: parseInt(user.totalRoi) - parseInt(amount),
       $push: {
-        transactions: withdrawal,
+        transactions: transaction.id,
         notifications: notification,
       },
     });
 
     // Update the withdrawal request with the transaction ID
-    await withdrawal.updateOne({ transaction: withdrawal.id });
+    await withdrawal.updateOne({ transaction: transaction.id });
 
     // Send email notification
     await sendMail({
