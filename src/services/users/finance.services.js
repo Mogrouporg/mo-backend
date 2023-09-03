@@ -376,15 +376,19 @@ exports.withdrawFunds = async (req, res) => {
 };
 
 exports.requestLoan = async (req, res) => {
-  const { id } = req.user;
-  const user = req.user;
   try {
-    if (req.user.status === "inactive") {
+    const { id } = req.user;
+    const user = req.user;
+
+    // Check user status
+    if (user.status === "inactive") {
       return res.status(403).json({
         success: false,
-        message: "Not allowed request for loan as you are inactive",
+        message: "Not allowed to request a loan as you are inactive",
       });
     }
+
+    // Check if the user has an unpaid loan
     const loanExist = await loanRequest.findOne({ user: id, paid: false });
     if (loanExist) {
       return res.status(403).json({
@@ -393,43 +397,69 @@ exports.requestLoan = async (req, res) => {
       });
     }
 
-    const balance = req.user.balance;
-    const { amount } = req.body;
-    if (parseInt(amount) > 0.3 * balance) {
-      return res.status(403).json({
-        success: false,
-        message: "You cannot request for more than 30% of your balance",
-      });
-    }
+    const { amount, loanPeriod, loanDesc, bankDetails } = req.body;
+    const balance = user.totalRoi;
 
-    const newLoan = {
-      user: id,
-      loanAmount: amount,
-      loanPeriod: req.body.loanPeriod,
-      loanDesc: req.body.loanDesc,
-    };
-    if (!user.bankDetails) {
+    // Check if the user has added bank details
+    if (!user.bankDetails || user.bankDetails.length === 0) {
       return res.status(403).json({
         success: false,
         message: "You have not added your bank details",
       });
     }
 
+    // Check if the requested amount exceeds the limit
+    const maxLoanAmount = 0.3 * balance;
+    if (parseInt(amount) > maxLoanAmount) {
+      return res.status(403).json({
+        success: false,
+        message: `You cannot request for more than 30% of your balance (Limit: ${maxLoanAmount})`,
+      });
+    }
+
+    const newLoan = {
+      user: id,
+      loanAmount: amount,
+      loanPeriod,
+      loanDesc,
+      bankDetails,
+    };
+
     const loan = new loanRequest(newLoan);
     await loan.save();
-    const user = await User.findById(id);
-    const newNotif = {
+
+    const newNotif = await pushNotification({
       email: user.email,
       message: `You have successfully requested for a loan of ${amount}`,
-    };
-    await pushNotification(newNotif);
-    await user.updateOne({
-      $push: {
-        loanRequests: loan.id,
-      },
+    });
+
+    const reference = Math.random().toString().slice(2);
+    const transaction = new Transaction({
+      amount,
+      user: user.email,
+      type: "Loan",
+      reference,
+      balance: user.balance,
+      status: "Pending",
+    });
+
+    await Promise.all([
+      transaction.save(),
+      user.updateOne({
+        $push: {
+          loanRequests: loan.id,
+          notifications: newNotif.id,
+          transactions: transaction.id,
+        },
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Loan request successfully created",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -448,7 +478,7 @@ exports.fetchLoanHistory = async (req, res) => {
     );
     return res.status(200).json({
       success: true,
-      data: loan,
+      data: loan
     });
   } catch (error) {
     console.log(error);

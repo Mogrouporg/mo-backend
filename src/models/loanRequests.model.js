@@ -14,15 +14,6 @@ const loanRequestSchema = new schema(
             type: Number,
             max: 3,
         },
-        bankName:{
-            type: String
-        },
-        accountNumber:{
-            type: String
-        },
-        accountName:{
-            type: String
-        },
         loanDesc:{
             type: String
         },
@@ -34,6 +25,11 @@ const loanRequestSchema = new schema(
         paid:{
             type: Boolean,
             default: false
+        },
+        bankDetails:{
+            bankName: String,
+            accountName: String,
+            accountNumber: String
         }
     },
     {
