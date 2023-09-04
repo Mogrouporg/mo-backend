@@ -50,5 +50,5 @@ useRouter.post("/loan/apply", verifyToken, requestLoan);
 useRouter.get("/loans", verifyToken, fetchLoanHistory);
 useRouter.post("/add-bank-details", verifyToken, addBankDetails);
 useRouter.post("/uploadProfile", verifyToken, uploadProfilePicture);
-useRouter.post("/reset-password", verifyToken, updatePassword);
+useRouter.post("/reset-password-profile", verifyToken, updatePassword);
 module.exports = useRouter;
