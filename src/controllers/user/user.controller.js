@@ -15,8 +15,6 @@ const {
 const {
   myProfile,
   getMyTransactions,
-  getSingleRealEstateInvestment,
-  getSingleTransInvestment,
   addBankDetails,
   editAccount,
   getSingleTransportTation,
