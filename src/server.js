@@ -15,7 +15,7 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['https://mo-website-5715.vercel.app', 'http://localhost:3000', 'https://infomogroupltd.com', 'http://192.168.8.114:3000'];
+const allowedOrigins = ['https://mo-website-5715.vercel.app', 'http://localhost:3000', 'https://infomogroupltd.com', 'http://192.168.8.114:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
