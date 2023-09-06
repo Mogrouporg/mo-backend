@@ -157,7 +157,7 @@ exports.investInRealEstate = async (req, res) => {
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
         $push: { realEstateInvestment: investment, transactions: transaction.id },
-        $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
+        $inc: { balance: -realEstate.amount },
         lastTransact: new Date(Date.now()),
       }),
       realEstate.updateOne({ $inc: { numberOfBuyers: 1 } }),

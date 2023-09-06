@@ -1,19 +1,27 @@
 const express = require('express');
 const { config } = require('dotenv');
-const {db} = require("./config/db.config");
+const fs = require('fs');
+const { db } = require("./config/db.config");
 const router = require("./controllers/user/auth.controller");
-const fileUpload = require('express-fileupload')
+const fileUpload = require('express-fileupload');
 const useRouter = require("./controllers/user/user.controller");
 const routerAdmin = require("./controllers/admin/auth.controller");
-const routerAdminTask = require("./controllers/admin/admin.controller")
-const { setUsersInactive } = require("./cronJobs/inactiveUser.cron")
+const routerAdminTask = require("./controllers/admin/admin.controller");
+const { setUsersInactive } = require("./cronJobs/inactiveUser.cron");
 const cors = require('cors');
 const { updateRoi } = require('./cronJobs/roiUpdate');
-const {payLoan} = require('./cronJobs/payloan.cron');
+const { payLoan } = require('./cronJobs/payloan.cron');
 const path = require('path');
-
+const https = require('https');
 
 const app = express();
+const pemPath = path.join(__dirname, '..', 'key.pem');
+const certPath = path.join(__dirname, '..', 'cert.pem');
+console.log(pemPath, certPath);
+const options = {
+    key: fs.readFileSync(pemPath),
+    cert: fs.readFileSync(certPath)
+};
 app.use(express.json());
 const allowedOrigins = [
     'https://mo-website-5715.vercel.app',
@@ -40,15 +48,14 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express.urlencoded({ extended: false }));
-app.use(fileUpload({ useTempFiles: false}))
-app.use('/api/v1', router)
-app.use('/api/v1/user', useRouter)
-app.use('/api/v1/admin', routerAdmin, routerAdminTask)
+app.use(fileUpload({ useTempFiles: false }));
+app.use('/api/v1', router);
+app.use('/api/v1/user', useRouter);
+app.use('/api/v1/admin', routerAdmin, routerAdminTask);
 config();
 setUsersInactive();
 updateRoi();
 payLoan;
-
 
 app.use((req, res, next) => {
     const error = new Error('Invalid endpoint, wetin you dey look for here?');
@@ -65,6 +72,19 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(process.env.PORT || 3500, db() ,()=>{
-    console.log('Server started running on ' + process.env.PORT)
-}) 
+// Redirect HTTP to HTTPS
+const httpApp = express();
+httpApp.get('*', (req, res) => {
+    res.redirect('https://' + req.headers.host + req.url);
+});
+
+// Create an HTTP server
+const httpServer = httpApp.listen(80, () => {
+    console.log('HTTP Server started running on port 80 (HTTP)');
+});
+
+// Create an HTTPS server
+https.createServer(options, app)
+    .listen(443, db(), () => {
+        console.log('HTTPS Server started running on port 443 (HTTPS)');
+    });

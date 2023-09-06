@@ -14,14 +14,79 @@ const {
 const { sendMail } = require("../../utils/mailer");
 const { Admin } = require("../../models/admins.model");
 const { User } = require("../../models/users.model");
+const crypto = require("crypto");
+
+function generateRandomPassword(length) {
+  const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
+  const allChars = lowercaseChars + uppercaseChars + specialChars;
+
+  let password = '';
+
+  password += uppercaseChars.charAt(Math.floor(Math.random() * uppercaseChars.length));
+
+  for (let i = 1; i < length; i++) {
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+  }
+
+  password = password.split('');
+  for (let i = password.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [password[i], password[j]] = [password[j], password[i]];
+  }
+
+  return password.join('');
+}
+
+exports.loginSuperAdmin = (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    } else {
+      if (email !== process.env.SUPER_ADMIN_EMAIL) {
+        return res.status(400).json({
+          message: "Invalid credentials a",
+        });
+      } else {
+        if (password !== process.env.SUPER_ADMIN_PASSWORD) {
+          return res.status(400).json({
+            message: "Invalid credentials b",
+          });
+        } else {
+          const tokens = {
+            accessToken: jwt.sign(
+              { _id: process.env.SUPER_ADMIN_ID },
+              process.env.ACCESS_TOKEN_SECRET,
+              { expiresIn: "1h" }
+            )
+          };
+          return res.status(200).json({
+            success: true,
+            message: "logged In",
+            data: {
+              tokens: tokens,
+            },
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      message: "Interval Server error",
+    });
+  }
+}
 
 exports.signupAdmin = async (req, res) => {
   try {
-    const name = req.body.lastName;
     const email = req.body.email;
-    const phoneNumber = req.body.phoneNumber;
-    const password = req.body.password;
-    if (!name || !email || !phoneNumber || !password) {
+    if ( !email) {
       return res.status(400).json({
         message: "All fields required",
       });
@@ -43,10 +108,9 @@ exports.signupAdmin = async (req, res) => {
           message: "Phone Number has been taken",
         });
       } else {
+        const generatedPassword = await generateRandomPassword(8);
         const newAdmin = new Admin({
-          name,
           email,
-          phoneNumber,
           password,
         });
         await newAdmin.save();
