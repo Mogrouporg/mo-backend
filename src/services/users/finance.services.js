@@ -89,7 +89,7 @@ exports.verifyDeposit = async (req, res) => {
 
     await Promise.all([
       transaction.updateOne(
-        { $set: { status: "success", balance: newBalance } },
+        { $set: { status: "Success", balance: newBalance } },
         { new: true }
       ),
       pushNotification(newNotif),
@@ -281,7 +281,6 @@ exports.investInTransport = async (req, res) => {
       },
       { new: true } // Get the updated user object
     );
-
     // Increment the number of buyers for the transport
     await transport.updateOne(
       {
@@ -477,6 +476,12 @@ exports.requestLoan = async (req, res) => {
         success: false,
         message: `You cannot request for more than 30% of your balance (Limit: ${maxLoanAmount})`,
       });
+    }
+
+    if(amount < 30000){
+      return res.status(403).json({
+        message: "You cannot borrow less than NGN 30000"
+      })
     }
 
     const newLoan = {
