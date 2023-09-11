@@ -156,7 +156,10 @@ exports.investInRealEstate = async (req, res) => {
 
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
-        $push: { realEstateInvestment: investment, transactions: transaction.id },
+        $push: {
+          realEstateInvestment: investment,
+          transactions: transaction.id,
+        },
         $inc: { balance: -realEstate.amount },
         lastTransact: new Date(Date.now()),
       }),
@@ -207,7 +210,7 @@ exports.investInTransport = async (req, res) => {
     const { invPeriod } = req.body;
 
     // Basic request validation
-    if (!invPeriod || typeof invPeriod !== 'number' || invPeriod <= 0) {
+    if (!invPeriod || typeof invPeriod !== "number" || invPeriod <= 0) {
       return res.status(400).json({
         message: "Invalid invPeriod",
       });
@@ -314,7 +317,6 @@ exports.investInTransport = async (req, res) => {
   }
 };
 
-
 exports.sellTransportInvestment = async (req, res) => {
   try {
     const id = req.params.id;
@@ -370,7 +372,10 @@ exports.withdrawFunds = async (req, res) => {
     }
 
     // Check for pending withdrawals
-    const formerWithdrawal = await Withdrawals.findOne({ user: user.id, status: "Pending" });
+    const formerWithdrawal = await Withdrawals.findOne({
+      user: user.id,
+      status: "Pending",
+    });
     if (formerWithdrawal) {
       return res.status(403).json({
         success: false,
@@ -393,13 +398,11 @@ exports.withdrawFunds = async (req, res) => {
         amount: amount,
         bankDetails: bankDetails,
         status: "Pending",
-
       }),
       pushNotification({
         message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
         email: user.email,
       }),
-
     ]);
 
     // Update user's balance and push transactions and notifications
@@ -433,7 +436,6 @@ exports.withdrawFunds = async (req, res) => {
     });
   }
 };
-
 
 exports.requestLoan = async (req, res) => {
   try {
@@ -539,7 +541,7 @@ exports.fetchLoanHistory = async (req, res) => {
     );
     return res.status(200).json({
       success: true,
-      data: loan
+      data: loan,
     });
   } catch (error) {
     console.log(error);
@@ -549,3 +551,68 @@ exports.fetchLoanHistory = async (req, res) => {
     });
   }
 };
+
+exports.getAllInvestment = async (req, res) => {
+  try {
+    const user = req.user;
+    const allInvestments = await User.findById(user.id)
+      .populate({
+        path: "realEstateInvestment",
+        model: "RealEstateInvestment",
+        populate: {
+          path: "propertyId",
+          model: "RealEstate",
+        },
+      })
+      .populate({
+        path: "transportInvestment",
+        model: "TransInvest",
+        populate: {
+          path: "transportId",
+          model: "Transportation",
+        },
+      });
+    return res.status(200).json({
+      success: true,
+      data: allInvestments,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getInvestment = async (req, res) => {
+  try {
+    const user = req.user;
+    const id = req.params.id;
+    const investment = await User.findById(user.id).populate({
+      path: "realEstateInvestment transportInvestment",
+      model: "RealEstateInvestment TransInvest",
+      match: {
+        $or: [
+          { "realEstateInvestment._id": id },
+          { "transportInvestment._id": id },
+        ],
+      },
+    });
+    if (!investment) {
+      return res.status(404).json({ message: "Investment not found" });
+    }
+    const foundInvestment =
+      investment.realEstateInvestment || investment.transportInvestment;
+
+    res.status(200).json({ success: true, investment: foundInvestment });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
+  }
+};
+
+

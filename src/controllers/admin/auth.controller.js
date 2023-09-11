@@ -1,5 +1,5 @@
 const routerAdmin = require('express').Router();
-const { forgotPassword, logout, loginAdmin, resetPassword, signupAdmin, verifyOtpAdmin, requestOtpAdmin, verifyResetPassword, loginSuperAdmin} = require('../../services/admin/auth.service');
+const { forgotPassword, logout, loginAdmin, resetPassword, signupAdmin, verifyOtpAdmin, requestOtpAdmin, verifyResetPassword, loginSuperAdmin, deleteAdminAccount} = require('../../services/admin/auth.service');
 const {verifyTokenAdmin, verifySuperAdmin} = require("../../utils/updateToken.utils");
 
 
@@ -19,5 +19,6 @@ routerAdmin.post('/logout', verifyTokenAdmin, logout);
 routerAdmin.post('/forgot-password', forgotPassword); 
 routerAdmin.post('/reset-password', verifyResetPassword);
 routerAdmin.post('/update-password/:token', resetPassword);
+routerAdmin.post('/delete-account', verifySuperAdmin, deleteAdminAccount)
 
 module.exports =  routerAdmin;

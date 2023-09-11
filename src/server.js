@@ -15,13 +15,6 @@ const path = require('path');
 const https = require('https');
 
 const app = express();
-const pemPath = path.join(__dirname, '..', 'key.pem');
-const certPath = path.join(__dirname, '..', 'cert.pem');
-console.log(pemPath, certPath);
-const options = {
-    key: fs.readFileSync(pemPath),
-    cert: fs.readFileSync(certPath)
-};
 app.use(express.json());
 const allowedOrigins = [
     'https://mo-website-5715.vercel.app',
@@ -84,7 +77,7 @@ const httpServer = httpApp.listen(80, () => {
 });
 
 // Create an HTTPS server
-https.createServer(options, app)
+https.createServer(app)
     .listen(443, db(), () => {
         console.log('HTTPS Server started running on port 443 (HTTPS)');
     });

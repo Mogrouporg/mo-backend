@@ -108,19 +108,16 @@ exports.signupAdmin = async (req, res) => {
           message: "Phone Number has been taken",
         });
       } else {
-        const generatedPassword = await generateRandomPassword(8);
+        const generatedPassword = await generateRandomPassword(10);
         const newAdmin = new Admin({
           email,
           password,
         });
         await newAdmin.save();
-        const _id = newAdmin.id;
-        const otp = genOtp();
-        await saveOtp(_id, otp);
         await sendMail({
           email: email,
-          subject: "Account Verification",
-          text: `Your one time password is ${otp}, thanks`,
+          subject: "Account Creation",
+          text: `Your admin account has been created with this mail and your password is ${generatedPassword}, thanks`,
         });
         const tokens = {
           accessToken: await generateAccessToken({ _id: _id }),
@@ -355,3 +352,20 @@ exports.resetPassword = async (req, res) => {
         });
       }
 }
+
+exports.deleteAdminAccount = async (req, res) => {
+  try {
+    const email = req.body.email;
+    await Admin.findOneAndDelete({ email: email });
+    return res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
+
