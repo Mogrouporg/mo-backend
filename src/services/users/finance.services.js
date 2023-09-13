@@ -619,5 +619,3 @@ exports.getInvestment = async (req, res) => {
     });
   }
 };
-
-
