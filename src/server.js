@@ -60,19 +60,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Redirect HTTP to HTTPS
-const httpApp = express();
-httpApp.get('*', (req, res) => {
-    res.redirect('https://' + req.headers.host + req.url);
-});
-
-// Create an HTTP server
-const httpServer = httpApp.listen(80, () => {
-    console.log('HTTP Server started running on port 80 (HTTP)');
-});
-
-// Create an HTTPS server
-https.createServer(app)
-    .listen(443, db(), () => {
-        console.log('HTTPS Server started running on port 443 (HTTPS)');
-    });
+app.listen(process.env.PORT || 3500, db(), () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
+})
