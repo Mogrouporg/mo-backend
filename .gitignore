@@ -3,4 +3,4 @@
 node_modules
 package-lock.json
 tmp
-us-east-1.pem
+mo-server.pem

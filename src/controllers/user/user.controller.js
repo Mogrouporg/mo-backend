@@ -11,12 +11,12 @@ const {
   withdrawFunds,
   fetchLoanHistory,
   requestLoan,
+  getAllInvestment,
+  getInvestment,
 } = require("../../services/users/finance.services");
 const {
   myProfile,
   getMyTransactions,
-  getSingleRealEstateInvestment,
-  getSingleTransInvestment,
   addBankDetails,
   editAccount,
   getSingleTransportTation,
@@ -51,4 +51,6 @@ useRouter.get("/loans", verifyToken, fetchLoanHistory);
 useRouter.post("/add-bank-details", verifyToken, addBankDetails);
 useRouter.post("/uploadProfile", verifyToken, uploadProfilePicture);
 useRouter.post("/reset-password-profile", verifyToken, updatePassword);
+useRouter.get("/getAllMyInvestments", verifyToken, getAllInvestment);
+useRouter.get("/getSingleInvestment/:id", verifyToken, getInvestment);
 module.exports = useRouter;

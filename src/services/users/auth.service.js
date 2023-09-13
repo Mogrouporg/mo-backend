@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
     ]);
 
     if (oldUser) {
-      return res.status(401).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
     if (oldPhoneNumber) {
       return res.status(401).json({ message: "Phone number already exists" });
@@ -84,7 +84,7 @@ exports.verifyUser = async (req, res) => {
       });
     } else {
       return res.status(401).json({
-        message: "Invalid otp",
+        message: "Invalid otp or expired otp",
       });
     }
   } catch (e) {
@@ -136,7 +136,7 @@ exports.loginUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         message: "User does not exist!",
       });
@@ -144,18 +144,18 @@ exports.loginUser = async (req, res) => {
 
     const passwordMatches = await argon2.verify(existingUser.password, password);
     if (!passwordMatches) {
-      return res.status(200).json({
+      return res.status(401).json({
         success: false,
         message: "Invalid password",
       });
     }
 
     // Perform these operations concurrently since they don't depend on each other
-    const [accessToken, refreshToken, hash] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       generateAccessToken({ email: existingUser.email }),
-      generateRefreshToken({ id: existingUser.id }).then(argon2.hash), // hash the refreshToken immediately after generating it
+      generateRefreshToken({ id: existingUser.id })
     ]);
-
+    const  hash = await argon2.hash(refreshToken);
     await updateToken(email, hash);
 
     return res.status(200).json({
@@ -219,7 +219,7 @@ exports.refresh = async (req, res) => {
     } else {
       const accessToken = await generateAccessToken({ email: user.email });
       const refreshTokenNew = await generateRefreshToken({ id: user.id });
-      const hash = bcrypt.hashSync(refreshTokenNew, 10);
+      const hash = argon2.hash(refreshTokenNew);
       await updateToken(user.email, hash);
       return res.status(200).json({
         success: true,

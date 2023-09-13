@@ -6,14 +6,9 @@ const AdminSchema = new Schema(
     {
         name:{
             type: String,
-            required: true
+            required: false
         },
         email:{
-            type: String,
-            required: true,
-            unique: true
-        },
-        phoneNumber: {  
             type: String,
             required: true,
             unique: true
@@ -41,9 +36,11 @@ const AdminSchema = new Schema(
         },
         resetPasswordToken:{
             type: String
+        },
+        isSuperAdmin:{
+            type: Boolean,
+            default: false
         }
-
-
     },
     {
         timestamps: true

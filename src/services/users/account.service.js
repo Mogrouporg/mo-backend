@@ -49,7 +49,7 @@ const calculateAllMyDailyROI = async (userId) => {
 
     return totalROI;
   } catch (error) {
-    throw error; // Rethrow the error for higher-level error handling
+    throw error;
   }
 };
 
@@ -102,15 +102,20 @@ exports.editAccount = async (req, res) => {
 
 exports.addBankDetails = async (req, res) => {
   try {
-    const id = req.user.id;
+    const user = req.user;
     const { bankName, accountName, accountNumber } = req.body;
     if (!bankName || !accountName || !accountNumber) {
       return res.status(400).json({
         message: "Please provide all fields",
       });
     }
+    if(user.bankDetails.length  == 3){
+      res.status(401).json({
+        message: "You cannot add more bank details."
+      })
+    }
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      user.id,
       {
         $push: { bankDetails: { bankName, accountName, accountNumber } },
       },
@@ -152,6 +157,11 @@ exports.getSingleRealEstate = async (req, res) => {
   try {
     const { id } = req.params;
     const investment = await RealEstate.findById(id);
+    if(!investment){
+      res.status(404).json({
+        message: "Couldn't find the investment you are looking for."
+      })
+    }
     return res.status(200).json({
       success: true,
       data: investment,
@@ -168,6 +178,11 @@ exports.getSingleTransportTation = async (req, res) => {
   try {
     const { id } = req.params;
     const investment = await Transportation.findById(id);
+    if(!investment){
+      res.status(404).json({
+        message: "Couldn't find the investment you are looking for."
+      })
+    }
     return res.status(200).json({
       success: true,
       data: investment,

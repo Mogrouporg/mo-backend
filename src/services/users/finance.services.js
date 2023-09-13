@@ -89,7 +89,7 @@ exports.verifyDeposit = async (req, res) => {
 
     await Promise.all([
       transaction.updateOne(
-        { $set: { status: "success", balance: newBalance } },
+        { $set: { status: "Success", balance: newBalance } },
         { new: true }
       ),
       pushNotification(newNotif),
@@ -156,8 +156,11 @@ exports.investInRealEstate = async (req, res) => {
 
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
-        $push: { realEstateInvestment: investment, transactions: transaction.id },
-        $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
+        $push: {
+          realEstateInvestment: investment,
+          transactions: transaction.id,
+        },
+        $inc: { balance: -realEstate.amount },
         lastTransact: new Date(Date.now()),
       }),
       realEstate.updateOne({ $inc: { numberOfBuyers: 1 } }),
@@ -207,7 +210,7 @@ exports.investInTransport = async (req, res) => {
     const { invPeriod } = req.body;
 
     // Basic request validation
-    if (!invPeriod || typeof invPeriod !== 'number' || invPeriod <= 0) {
+    if (!invPeriod || typeof invPeriod !== "number" || invPeriod <= 0) {
       return res.status(400).json({
         message: "Invalid invPeriod",
       });
@@ -278,7 +281,6 @@ exports.investInTransport = async (req, res) => {
       },
       { new: true } // Get the updated user object
     );
-
     // Increment the number of buyers for the transport
     await transport.updateOne(
       {
@@ -313,7 +315,6 @@ exports.investInTransport = async (req, res) => {
     });
   }
 };
-
 
 exports.sellTransportInvestment = async (req, res) => {
   try {
@@ -370,7 +371,10 @@ exports.withdrawFunds = async (req, res) => {
     }
 
     // Check for pending withdrawals
-    const formerWithdrawal = await Withdrawals.findOne({ user: user.id, status: "Pending" });
+    const formerWithdrawal = await Withdrawals.findOne({
+      user: user.id,
+      status: "Pending",
+    });
     if (formerWithdrawal) {
       return res.status(403).json({
         success: false,
@@ -393,13 +397,11 @@ exports.withdrawFunds = async (req, res) => {
         amount: amount,
         bankDetails: bankDetails,
         status: "Pending",
-
       }),
       pushNotification({
         message: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
         email: user.email,
       }),
-
     ]);
 
     // Update user's balance and push transactions and notifications
@@ -433,7 +435,6 @@ exports.withdrawFunds = async (req, res) => {
     });
   }
 };
-
 
 exports.requestLoan = async (req, res) => {
   try {
@@ -475,6 +476,12 @@ exports.requestLoan = async (req, res) => {
         success: false,
         message: `You cannot request for more than 30% of your balance (Limit: ${maxLoanAmount})`,
       });
+    }
+
+    if(amount < 30000){
+      return res.status(403).json({
+        message: "You cannot borrow less than NGN 30000"
+      })
     }
 
     const newLoan = {
@@ -539,13 +546,76 @@ exports.fetchLoanHistory = async (req, res) => {
     );
     return res.status(200).json({
       success: true,
-      data: loan
+      data: loan,
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getAllInvestment = async (req, res) => {
+  try {
+    const user = req.user;
+    const allInvestments = await User.findById(user.id)
+      .populate({
+        path: "realEstateInvestment",
+        model: "RealEstateInvestment",
+        populate: {
+          path: "propertyId",
+          model: "RealEstate",
+        },
+      })
+      .populate({
+        path: "transportInvestment",
+        model: "TransInvest",
+        populate: {
+          path: "transportId",
+          model: "Transportation",
+        },
+      });
+    return res.status(200).json({
+      success: true,
+      data: allInvestments,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getInvestment = async (req, res) => {
+  try {
+    const user = req.user;
+    const id = req.params.id;
+    const investment = await User.findById(user.id).populate({
+      path: "realEstateInvestment transportInvestment",
+      model: "RealEstateInvestment TransInvest",
+      match: {
+        $or: [
+          { "realEstateInvestment._id": id },
+          { "transportInvestment._id": id },
+        ],
+      },
+    });
+    if (!investment) {
+      return res.status(404).json({ message: "Investment not found" });
+    }
+    const foundInvestment =
+      investment.realEstateInvestment || investment.transportInvestment;
+
+    res.status(200).json({ success: true, investment: foundInvestment });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
     });
   }
 };
