@@ -478,10 +478,10 @@ exports.requestLoan = async (req, res) => {
       });
     }
 
-    if(amount < 30000){
+    if (amount < 30000) {
       return res.status(403).json({
-        message: "You cannot borrow less than NGN 30000"
-      })
+        message: "You cannot borrow less than NGN 30000",
+      });
     }
 
     const newLoan = {
@@ -561,6 +561,7 @@ exports.getAllInvestment = async (req, res) => {
   try {
     const user = req.user;
     const allInvestments = await User.findById(user.id)
+      .select("realEstateInvestment transportInvestment")
       .populate({
         path: "realEstateInvestment",
         model: "RealEstateInvestment",
@@ -577,9 +578,16 @@ exports.getAllInvestment = async (req, res) => {
           model: "Transportation",
         },
       });
+
+    // Combine realEstateInvestment and transportInvestment arrays into a single array
+    const combinedInvestments = [
+      ...(allInvestments.realEstateInvestment || []),
+      ...(allInvestments.transportInvestment || []),
+    ];
+
     return res.status(200).json({
       success: true,
-      data: allInvestments,
+      data: combinedInvestments,
     });
   } catch (error) {
     console.log(error);
@@ -615,7 +623,7 @@ exports.getInvestment = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error"
+      message: "Internal Server Error",
     });
   }
 };
