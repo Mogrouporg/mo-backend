@@ -590,7 +590,7 @@ exports.getAllInvestment = async (req, res) => {
     const renamedInvestments = combinedInvestments.map((investment) => {
       if (investment.transportId) {
         investment.transportId.propertyName = investment.transportId.transportName;
-        delete investment.transportId.transportName;
+        // delete investment.transportId.transportName;
         investment.propertyId = investment.transportId;
         delete investment.transportId;
       }
