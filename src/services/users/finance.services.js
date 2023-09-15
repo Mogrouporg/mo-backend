@@ -574,8 +574,9 @@ exports.getAllInvestment = async (req, res) => {
         path: "transportInvestment",
         model: "TransInvest",
         populate: {
-          path: "transportId",
+          path: "transportId", // Change this to "propertyId"
           model: "Transportation",
+          options: { as: "propertyId" }, // Rename the property to "propertyId"
         },
       });
 
@@ -597,6 +598,7 @@ exports.getAllInvestment = async (req, res) => {
     });
   }
 };
+
 
 exports.getInvestment = async (req, res) => {
   try {
