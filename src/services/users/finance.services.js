@@ -577,7 +577,8 @@ exports.getAllInvestment = async (req, res) => {
           path: "transportId",
           model: "Transportation",
         },
-      });
+      })
+      .lean(); // Use the lean method to get plain JavaScript objects.
 
     // Combine realEstateInvestment and transportInvestment arrays into a single array
     const combinedInvestments = [
@@ -585,9 +586,11 @@ exports.getAllInvestment = async (req, res) => {
       ...(allInvestments.transportInvestment || []),
     ];
 
-    // Manually rename the "transportId" property to "propertyId"
+    // Rename the "transportId" property to "propertyId" for each investment
     const renamedInvestments = combinedInvestments.map((investment) => {
       if (investment.transportId) {
+        investment.transportId.propertyName = investment.transportId.transportName;
+        delete investment.transportId.transportName;
         investment.propertyId = investment.transportId;
         delete investment.transportId;
       }
@@ -606,6 +609,7 @@ exports.getAllInvestment = async (req, res) => {
     });
   }
 };
+
 
 exports.getInvestment = async (req, res) => {
   try {
