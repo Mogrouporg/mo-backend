@@ -574,9 +574,8 @@ exports.getAllInvestment = async (req, res) => {
         path: "transportInvestment",
         model: "TransInvest",
         populate: {
-          path: "transportId", // Change this to "propertyId"
+          path: "transportId",
           model: "Transportation",
-          options: { as: "propertyId" }, // Rename the property to "propertyId"
         },
       });
 
@@ -586,9 +585,18 @@ exports.getAllInvestment = async (req, res) => {
       ...(allInvestments.transportInvestment || []),
     ];
 
+    // Manually rename the "transportId" property to "propertyId"
+    const renamedInvestments = combinedInvestments.map((investment) => {
+      if (investment.transportId) {
+        investment.propertyId = investment.transportId;
+        delete investment.transportId;
+      }
+      return investment;
+    });
+
     return res.status(200).json({
       success: true,
-      data: combinedInvestments,
+      data: renamedInvestments,
     });
   } catch (error) {
     console.log(error);
@@ -598,7 +606,6 @@ exports.getAllInvestment = async (req, res) => {
     });
   }
 };
-
 
 exports.getInvestment = async (req, res) => {
   try {
