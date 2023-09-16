@@ -96,7 +96,7 @@ exports.verifySuperAdmin = async (req, res, next) => {
                 });
             }
             let admin;
-            const key = decoded.id;
+            const key = decoded._id;
             
             if (key !== process.env.SUPER_ADMIN_ID) {
                 return res.status(401).json({
