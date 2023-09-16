@@ -268,7 +268,7 @@ exports.uploadProfilePicture = async (req, res) => {
     const url = await imageUpload(file, "avatars");
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { profilePicture: url },
+      { profile_url: url },
       { new: true }
     );
     return res.status(200).json({
