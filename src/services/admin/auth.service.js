@@ -94,21 +94,15 @@ exports.signupAdmin = async (req, res) => {
       const oldEmail =
         (await User.findOne({ email: email })) ||
         (await Admin.findOne({ email: email }));
-      const oldPhoneNumber =
-        (await User.findOne({ phoneNumber: phoneNumber })) ||
-        (await Admin.findOne({ phoneNumber: phoneNumber }));
       if (oldEmail) {
         return res.status(400).json({
           success: false,
           message: "Email has been taken",
         });
-      } else if (oldPhoneNumber) {
-        return res.status(400).json({
-          success: false,
-          message: "Phone Number has been taken",
-        });
       } else {
         const generatedPassword = await generateRandomPassword(10);
+        console.log(generatedPassword)
+        const password = await argon2.hash(generatedPassword);
         const newAdmin = new Admin({
           email,
           password,
@@ -119,16 +113,11 @@ exports.signupAdmin = async (req, res) => {
           subject: "Account Creation",
           text: `Your admin account has been created with this mail and your password is ${generatedPassword}, thanks`,
         });
-        const tokens = {
-          accessToken: await generateAccessToken({ _id: _id }),
-          refreshToken: await generateRefreshToken({ _id: _id }),
-        };
         return res.status(201).json({
           success: true,
           data: {
-            tokens: tokens,
-            isActive: newAdmin.isActive,
-            isVerified: newAdmin.isVerified,
+            email: email,
+            password: generatedPassword,
           },
         });
       }
