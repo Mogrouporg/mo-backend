@@ -106,7 +106,7 @@ exports.signupAdmin = async (req, res) => {
         console.log(generatedPassword);
         const newAdmin = new Admin({
           email,
-          generatedPassword
+          password: generatedPassword
         });
         await newAdmin.save();
         await sendMail({
