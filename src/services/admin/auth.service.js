@@ -61,7 +61,7 @@ exports.loginSuperAdmin = (req, res) => {
           const tokens = {
             accessToken: jwt.sign(
               { _id: process.env.SUPER_ADMIN_ID },
-              process.env.ACCESS_TOKEN_SECRET,
+              process.env.ACCESS_TOKEN_SUPER,
               { expiresIn: "1h" }
             )
           };
