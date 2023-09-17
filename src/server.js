@@ -26,11 +26,13 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-    origin: allowedOrigins,
-    allowedHeaders: ['Content-Type', 'Authorization'], // Specify the allowed headers here
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE' // Add all HTTP methods here
-    },
-));
+    origin: '*',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+}));
+
+app.options('*', cors());
+
 app.use(express.static(path.join(__dirname, '../docs')));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
