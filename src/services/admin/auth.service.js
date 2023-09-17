@@ -17,26 +17,28 @@ const { User } = require("../../models/users.model");
 const crypto = require("crypto");
 
 function generateRandomPassword(length) {
-  const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
+  const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+  const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
   const allChars = lowercaseChars + uppercaseChars + specialChars;
 
-  let password = '';
+  let password = "";
 
-  password += uppercaseChars.charAt(Math.floor(Math.random() * uppercaseChars.length));
+  password += uppercaseChars.charAt(
+    Math.floor(Math.random() * uppercaseChars.length)
+  );
 
   for (let i = 1; i < length; i++) {
     password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
 
-  password = password.split('');
+  password = password.split("");
   for (let i = password.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [password[i], password[j]] = [password[j], password[i]];
   }
 
-  return password.join('');
+  return password.join("");
 }
 
 exports.loginSuperAdmin = (req, res) => {
@@ -63,7 +65,7 @@ exports.loginSuperAdmin = (req, res) => {
               { _id: process.env.SUPER_ADMIN_ID },
               process.env.ACCESS_TOKEN_SUPER,
               { expiresIn: "1h" }
-            )
+            ),
           };
           return res.status(200).json({
             success: true,
@@ -81,12 +83,12 @@ exports.loginSuperAdmin = (req, res) => {
       message: "Interval Server error",
     });
   }
-}
+};
 
 exports.signupAdmin = async (req, res) => {
   try {
     const email = req.body.email;
-    if ( !email) {
+    if (!email) {
       return res.status(400).json({
         message: "All fields required",
       });
@@ -101,10 +103,10 @@ exports.signupAdmin = async (req, res) => {
         });
       } else {
         const generatedPassword = await generateRandomPassword(10);
-        console.log(generatedPassword)
+        console.log(generatedPassword);
         const newAdmin = new Admin({
           email,
-          password,
+          generatedPassword
         });
         await newAdmin.save();
         await sendMail({
@@ -311,35 +313,35 @@ exports.verifyResetPassword = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
-    try {
-        const { token } = req.params;
-        if (!token) {
-          return res.status(400).json({
-            message: "Bad request",
-          });
-        }
-        const user = await Admin.findOne({ resetPasswordToken: token });
-        if (!user) {
-          return res.status(400).json({
-            message: "User not found.",
-          });
-        }
-        const newPassword = req.body.password;
-        const hash = await argon2.hash(newPassword);
-        await user.updateOne({
-          password: hash,
-          resetPasswordToken: null,
-        });
-        res.status(200).json({
-          success: true,
-        });
-      } catch (error) {
-        console.log(error);
-        res.status(500).json({
-          message: "Internal Server error",
-        });
-      }
-}
+  try {
+    const { token } = req.params;
+    if (!token) {
+      return res.status(400).json({
+        message: "Bad request",
+      });
+    }
+    const user = await Admin.findOne({ resetPasswordToken: token });
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found.",
+      });
+    }
+    const newPassword = req.body.password;
+    const hash = await argon2.hash(newPassword);
+    await user.updateOne({
+      password: hash,
+      resetPasswordToken: null,
+    });
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+};
 
 exports.deleteAdminAccount = async (req, res) => {
   try {
@@ -352,8 +354,7 @@ exports.deleteAdminAccount = async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
-
