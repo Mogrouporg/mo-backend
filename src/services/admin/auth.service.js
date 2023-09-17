@@ -102,7 +102,6 @@ exports.signupAdmin = async (req, res) => {
       } else {
         const generatedPassword = await generateRandomPassword(10);
         console.log(generatedPassword)
-        const password = await argon2.hash(generatedPassword);
         const newAdmin = new Admin({
           email,
           password,
