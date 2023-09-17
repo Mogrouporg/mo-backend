@@ -14,14 +14,81 @@ const {
 const { sendMail } = require("../../utils/mailer");
 const { Admin } = require("../../models/admins.model");
 const { User } = require("../../models/users.model");
+const crypto = require("crypto");
+
+function generateRandomPassword(length) {
+  const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+  const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+  const allChars = lowercaseChars + uppercaseChars + specialChars;
+
+  let password = "";
+
+  password += uppercaseChars.charAt(
+    Math.floor(Math.random() * uppercaseChars.length)
+  );
+
+  for (let i = 1; i < length; i++) {
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+  }
+
+  password = password.split("");
+  for (let i = password.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [password[i], password[j]] = [password[j], password[i]];
+  }
+
+  return password.join("");
+}
+
+exports.loginSuperAdmin = (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    } else {
+      if (email !== process.env.SUPER_ADMIN_EMAIL) {
+        return res.status(400).json({
+          message: "Invalid credentials a",
+        });
+      } else {
+        if (password !== process.env.SUPER_ADMIN_PASSWORD) {
+          return res.status(400).json({
+            message: "Invalid credentials b",
+          });
+        } else {
+          const tokens = {
+            accessToken: jwt.sign(
+              { _id: process.env.SUPER_ADMIN_ID },
+              process.env.ACCESS_TOKEN_SUPER,
+              { expiresIn: "1h" }
+            ),
+          };
+          return res.status(200).json({
+            success: true,
+            message: "logged In",
+            data: {
+              tokens: tokens,
+            },
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      message: "Interval Server error",
+    });
+  }
+};
 
 exports.signupAdmin = async (req, res) => {
   try {
-    const name = req.body.lastName;
     const email = req.body.email;
-    const phoneNumber = req.body.phoneNumber;
-    const password = req.body.password;
-    if (!name || !email || !phoneNumber || !password) {
+    if (!email) {
       return res.status(400).json({
         message: "All fields required",
       });
@@ -29,45 +96,29 @@ exports.signupAdmin = async (req, res) => {
       const oldEmail =
         (await User.findOne({ email: email })) ||
         (await Admin.findOne({ email: email }));
-      const oldPhoneNumber =
-        (await User.findOne({ phoneNumber: phoneNumber })) ||
-        (await Admin.findOne({ phoneNumber: phoneNumber }));
       if (oldEmail) {
         return res.status(400).json({
           success: false,
           message: "Email has been taken",
         });
-      } else if (oldPhoneNumber) {
-        return res.status(400).json({
-          success: false,
-          message: "Phone Number has been taken",
-        });
       } else {
+        const generatedPassword = await generateRandomPassword(10);
+        console.log(generatedPassword);
         const newAdmin = new Admin({
-          name,
           email,
-          phoneNumber,
-          password,
+          password: generatedPassword
         });
         await newAdmin.save();
-        const _id = newAdmin.id;
-        const otp = genOtp();
-        await saveOtp(_id, otp);
         await sendMail({
           email: email,
-          subject: "Account Verification",
-          text: `Your one time password is ${otp}, thanks`,
+          subject: "Account Creation",
+          text: `Your admin account has been created with this mail and your password is ${generatedPassword}, thanks`,
         });
-        const tokens = {
-          accessToken: await generateAccessToken({ _id: _id }),
-          refreshToken: await generateRefreshToken({ _id: _id }),
-        };
         return res.status(201).json({
           success: true,
           data: {
-            tokens: tokens,
-            isActive: newAdmin.isActive,
-            isVerified: newAdmin.isVerified,
+            email: email,
+            password: generatedPassword,
           },
         });
       }
@@ -262,32 +313,48 @@ exports.verifyResetPassword = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
-    try {
-        const { token } = req.params;
-        if (!token) {
-          return res.status(400).json({
-            message: "Bad request",
-          });
-        }
-        const user = await Admin.findOne({ resetPasswordToken: token });
-        if (!user) {
-          return res.status(400).json({
-            message: "User not found.",
-          });
-        }
-        const newPassword = req.body.password;
-        const hash = await argon2.hash(newPassword);
-        await user.updateOne({
-          password: hash,
-          resetPasswordToken: null,
-        });
-        res.status(200).json({
-          success: true,
-        });
-      } catch (error) {
-        console.log(error);
-        res.status(500).json({
-          message: "Internal Server error",
-        });
-      }
-}
+  try {
+    const { token } = req.params;
+    if (!token) {
+      return res.status(400).json({
+        message: "Bad request",
+      });
+    }
+    const user = await Admin.findOne({ resetPasswordToken: token });
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found.",
+      });
+    }
+    const newPassword = req.body.password;
+    const hash = await argon2.hash(newPassword);
+    await user.updateOne({
+      password: hash,
+      resetPasswordToken: null,
+    });
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server error",
+    });
+  }
+};
+
+exports.deleteAdminAccount = async (req, res) => {
+  try {
+    const email = req.body.email;
+    await Admin.findOneAndDelete({ email: email });
+    return res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

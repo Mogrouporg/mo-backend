@@ -78,3 +78,39 @@ exports.verifyTokenAdmin = async (req, res, next) => {
 exports.updateTokenAdmin = async(_id, token)=>{
     return Admin.findByIdAndUpdate(_id, { refreshTokenHash: token }, { new: true });
 }
+
+exports.verifySuperAdmin = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization || req.body.token || req.params.token;
+        if (!token) {
+            return res.status(401).json({
+                message: 'You are not allowed to perform this action!'
+            });
+        }
+
+        jwt.verify(token, process.env.ACCESS_TOKEN_SUPER, async function(err, decoded) {
+            if (err) {
+                console.error(err);
+                return res.status(401).json({
+                    message: 'Invalid token!'
+                });
+            }
+            let admin;
+            const key = decoded._id;
+            
+            if (key !== process.env.SUPER_ADMIN_ID) {
+                return res.status(401).json({
+                    message: 'You are not allowed to perform this action!'
+                });
+            }
+            
+            req.superAdmin = admin;
+            next();
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+            message: "Please login again"
+        });
+    }
+}
