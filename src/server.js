@@ -33,11 +33,11 @@ const allowedOrigins = [
 
 // app.options('*', cors());
 
-app.use(express.static(path.join(__dirname, '../docs')));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
+// app.use(express.static(path.join(__dirname, '../docs')));
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     next();
+// });
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ useTempFiles: false }));
 app.use('/api/v1', router);
