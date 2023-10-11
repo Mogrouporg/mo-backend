@@ -25,13 +25,13 @@ const allowedOrigins = [
     'http://127.0.0.1:5174'
 ];
 
-app.use(cors({
-    origin: '*',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
-}));
+// app.use(cors({
+//     origin: '*',
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+// }));
 
-app.options('*', cors());
+// app.options('*', cors());
 
 app.use(express.static(path.join(__dirname, '../docs')));
 app.use((req, res, next) => {
