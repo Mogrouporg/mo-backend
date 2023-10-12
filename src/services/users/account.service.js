@@ -109,7 +109,7 @@ exports.addBankDetails = async (req, res) => {
         message: "Please provide all fields",
       });
     }
-    if(user.bankDetails.length  == 3){
+    if (user.bankDetails.length == 3) {
       res.status(401).json({
         message: "You cannot add more bank details."
       })
@@ -140,8 +140,13 @@ exports.getMyTransactions = async (req, res) => {
       .populate({
         path: "transactions",
         match: { status: { $nin: ["Abandoned"] } },
-        options: { sort: { createdAt: -1 } },
+        options: { sort: { createdAt: -1 } }
+      })
+      .populate({
+        path: "transactions.investment",
+        model: "investment"
       });
+
     return res.status(200).json({
       success: true,
       data: myTransactions,
@@ -157,7 +162,7 @@ exports.getSingleRealEstate = async (req, res) => {
   try {
     const { id } = req.params;
     const investment = await RealEstate.findById(id);
-    if(!investment){
+    if (!investment) {
       res.status(404).json({
         message: "Couldn't find the investment you are looking for."
       })
@@ -178,7 +183,7 @@ exports.getSingleTransportTation = async (req, res) => {
   try {
     const { id } = req.params;
     const investment = await Transportation.findById(id);
-    if(!investment){
+    if (!investment) {
       res.status(404).json({
         message: "Couldn't find the investment you are looking for."
       })

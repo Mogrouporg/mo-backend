@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const schema = mongoose.Schema;
+const Investment = require('./investment');
 
 const RealEstateInvestmentSchema = new schema(
     {
@@ -35,7 +36,7 @@ const RealEstateInvestmentSchema = new schema(
     }
 )
 
-const RealEstateInvestment = mongoose.model('RealEstateInvestment', RealEstateInvestmentSchema);
+const RealEstateInvestment = Investment.discriminator('RealEstateInvestment', RealEstateInvestmentSchema);
 module.exports = {
     RealEstateInvestment: RealEstateInvestment
 }

@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const schema = mongoose.Schema;
+const Investment = require('./investment');
 
 const transInvestSchema = new schema(
     {
-        transportId: {
+        propertyId: {
             type: schema.Types.ObjectId,
             name: "Transportation",
             required: true
@@ -35,7 +36,7 @@ const transInvestSchema = new schema(
     }
 )
 
-const TransInvest = mongoose.model("TransInvest", transInvestSchema);
+const TransInvest = Investment.discriminator("TransInvest", transInvestSchema);
 module.exports = {
     TransInvest: TransInvest
 };

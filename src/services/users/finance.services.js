@@ -141,23 +141,24 @@ exports.investInRealEstate = async (req, res) => {
       roi: realEstate.roi * parseInt(invPeriod), // Calculate ROI once
     };
 
-    // Use Promise.all to perform multiple asynchronous operations concurrently
-    const [investment, transaction] = await Promise.all([
-      RealEstateInvestment.create(newInvestment),
-      Transaction.create({
+    const investment = new RealEstateInvestment(newInvestment)
+    await investment.save()
+      const transaction = new Transaction({
         amount: realEstate.amount.toString(),
         user: user.email,
         type: "Investment",
         reference: Math.random().toString().slice(2),
         balance: user.balance - realEstate.amount,
         status: "Success",
-      }),
-    ]);
-
+        investmentId: investment.id,
+        investment: "RealEstateInvestment",
+      })
+      await transaction.save()
+      console.log(transaction)
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
         $push: {
-          realEstateInvestment: investment,
+          realEstateInvestment: investment.id,
           transactions: transaction.id,
         },
         $inc: { balance: -realEstate.amount },
@@ -169,11 +170,11 @@ exports.investInRealEstate = async (req, res) => {
         subject: "Acquired a portion!",
         text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`,
       }),
-      investment.updateOne({ transaction: transaction.id }),
     ]);
 
+    await investment.updateOne({ transaction: transaction.id })
     return res.status(200).json({
-      success: true,
+    success: true,
       data: investment,
     });
   } catch (error) {
@@ -209,7 +210,7 @@ exports.investInTransport = async (req, res) => {
     const id = req.params.id;
     const { invPeriod } = req.body;
 
-    // Basic request validation
+    // Basic request validation 
     if (!invPeriod || typeof invPeriod !== "number" || invPeriod <= 0) {
       return res.status(400).json({
         message: "Invalid invPeriod",
@@ -263,6 +264,8 @@ exports.investInTransport = async (req, res) => {
         reference: Math.random().toString().slice(2),
         balance: user.balance - transport.amount,
         status: "Success",
+        investmentId: id,
+        investment: "TransInvest",
       }),
     ]);
 

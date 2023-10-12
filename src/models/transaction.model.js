@@ -23,6 +23,14 @@ const transactionSchema = new schema(
         type:{
             type: String,
             enum: ['Deposit', 'Loan', 'Withdrawal', 'Investment']
+        }, 
+        investmentId:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "investment"
+        },
+        investment:{
+            type: String,
+            enum: ['RealEstateInvestment', 'TransInvest']
         }
     },{
         timestamps: true
