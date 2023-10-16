@@ -208,7 +208,7 @@ exports.investInTransport = async (req, res) => {
   try {
     const user = req.user;
     const id = req.params.id;
-    const { invPeriod } = req.body;
+    const { invPeriod, plan } = req.body;
 
     // Basic request validation 
     if (!invPeriod || typeof invPeriod !== "number" || invPeriod <= 0) {
@@ -234,6 +234,7 @@ exports.investInTransport = async (req, res) => {
       });
     }
 
+
     const balance = user.balance;
 
     // Check if the balance is sufficient
@@ -244,6 +245,8 @@ exports.investInTransport = async (req, res) => {
       });
     }
 
+    const totalRoi = 0.48 * transport.amount * invPeriod/12;
+
     // Create a new investment
     const newInvestment = {
       userId: user.id,
@@ -252,7 +255,8 @@ exports.investInTransport = async (req, res) => {
       invPeriod: invPeriod,
       status: "owned",
       currency: "NGN",
-      roi: transport.roi * invPeriod,
+      roi: totalRoi,
+      plan: plan
     };
 
     const [investment, transaction] = await Promise.all([

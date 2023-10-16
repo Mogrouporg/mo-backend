@@ -14,12 +14,13 @@ const transInvestSchema = new schema(
             name: "User",
             required: true
         },
+         
         status:{
             type: String,
             enum: ['owned','onSale', 'sold']
         },
         invPeriod:{
-            type: String
+            type: Number,   
         },
         currentRoi:{
             type: Number
@@ -30,8 +31,12 @@ const transInvestSchema = new schema(
         transaction:{
             type: schema.Types.ObjectId,
             ref: "Transaction",
+        },
+        plan:{
+            type: Number,
+            enum: [3, 6, 12]
         }
-    }, {
+    },{
         timestamps: true
     }
 )

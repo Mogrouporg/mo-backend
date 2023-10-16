@@ -178,7 +178,6 @@ exports.createTransportInvestment = async (req, res) => {
       image: urls,
       transportType: type,
       description: description,
-      roi: 0.12*amount,
     });
 
     await newTransport.save();

@@ -57,9 +57,11 @@ exports.myProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId, "-password -refreshTokenHash");
-    const dailyRoi = await calculateAllMyDailyROI(userId);
-
-    user.dailyRoi = dailyRoi;
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -241,7 +243,7 @@ exports.getMyInvestments = async (req, res) => {
         User.findById(_id).select("transportInvestment"),
       ]);
 
-    const pagination = {
+    const pagination = { 
       currentPage: page,
       itemsPerPage: perPage,
       totalRealEstateInvestments:

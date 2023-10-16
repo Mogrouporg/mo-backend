@@ -19,7 +19,7 @@ const crypto = require("crypto");
 function generateRandomPassword(length) {
   const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
   const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+  const specialChars = "!@#$%";
   const allChars = lowercaseChars + uppercaseChars + specialChars;
 
   let password = "";
