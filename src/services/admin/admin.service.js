@@ -351,6 +351,7 @@ exports.approveLoan = async (req, res) => {
   }
 };
 
+
 exports.getAllLoans = async (req, res) => {
   try {
     let query = {};
@@ -373,7 +374,7 @@ exports.getAllLoans = async (req, res) => {
       }
     }
 
-    const loans = await loanRequest.find(query).populate("user");
+    const loans = await loanRequest.find(query).populate("user").sort({ createdAt: -1 });
     
     return res.status(200).json({
       success: true,

@@ -160,7 +160,7 @@
  * @apiGroup Auth
  * @apiVersion 1.0.0
  * @apiParam {String} token User's token
- * @apiBody {String} new Password 
+ * @apiBody {String} new Password
  * HTTP/1.1 200 OK
  * {
  *    "success": "true",
@@ -399,7 +399,419 @@
  * @apiSuccess {String} message Verification success message.
  *
  * @apiError {String} message Error message.
- */
+ * 
+ * 
+ * */
+ 
+ /** 
+ * @api {post} /api/v1/admin/withdrawal/:id/approve Approve Withdrawal Request
+ * @apiName ApproveWithdrawalRequest
+ * @apiGroup Admin
+ * @apiVersion  1.0.0
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Withdrawal Id
+ * @apiBodyExample {json} Request-Example:
+ * {
+ *  "status": "Approved" || "Declined"
+ * }
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Withdrawal.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ *  "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "amount": 100000,
+ *      "user": "mail.com",
+ *      "status": "approved",
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ *      }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ **/
+
+ /**
+  *  @api {get} /api/v1/admin/getAllTransactions Get All Transactions
+ * @apiName GetAllTransactions
+ * @apiGroup Admin
+ * @apiVersion  1.0.0
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Transactions.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "success": "true",
+ *  "data": [
+ *     {
+ *          "_id": "5f0b1b1e1c7e18927788f2b9",
+ *          "reference": "7PVGX8MEk85tgeEpVDtD",
+ *          "amount": 100,
+ *          "user": "mail.com",
+ *          "type": "deposit",
+ *          "createdAt": "2020-07-11T12:00:00.000Z",
+ *          "updatedAt": "2020-07-11T12:00:00.000Z"
+ *     }
+ *  ]
+ * 
+ * @apiError {String} message Error message.
+ **/
+/** 
+ * 
+ * @api {post} /api/v1/admin/real-estate/create Create Real Estate
+ * @apiName CreateRealEstate
+ * @apiVersion  1.0.0
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * 
+ * @apiBodyExample {json} Request-Example:
+ * {
+ *      "name": "Real Estate",
+ *      "amount": 100000,
+ *      "size": 100,
+ *      "address": "Lagos",
+ *      "location": "Lagos",
+ *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *      "description": "This is a real estate",
+ *      "state": "Osun"
+ * }
+ * 
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Real Estate.
+ * @apiSuccessExample {json} Success-Response: 
+ * HTTP/1.1 201 CREATED
+ * {
+ *      "success": "true",
+ *     "data": {
+ *          "_id": "5f0b1b1e1c7e18927788f2b9",
+ *          "name": "Real Estate",
+ *          "amount": 100000,
+ *          "size": 100,
+ *          "address": "Lagos",
+ *          "location": "Lagos",
+ *          "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],     
+ *          "description": "This is a real estate",
+ *          "state": "Osun",
+ *          "createdAt": "2020-07-11T12:00:00.000Z",
+ *          "updatedAt": "2020-07-11T12:00:00.000Z"
+ *    }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * @api {post} /api/v1/admin/transport/create Create Transport
+ * @apiName CreateTransport
+ * @apiGroup Admin
+ * @apiVersion  1.0.0
+ * @apiHeader {String} Authorization token
+ * 
+ * @apiBodyExample {json} Request-Example:
+ * {
+ *      "name": "Transport",
+ *      "amount": 100000,
+ *      "type": "Gold",
+ *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *      "description": "This is a transport",
+ * }
+ * 
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Transport.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 201 CREATED
+ * {
+ *     "success": "true",
+ *    "data": {
+ *         "_id": "5f0b1b1e1c7e18927788f2b9",
+ *        "name": "Transport",
+ *        "amount": 100000,
+ *       "type": "Gold",
+ *       "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *       "description": "This is a transport",
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ *  }
+ * }
+ * 
+ * @apiError {String} message Error message.    
+ * 
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/real-estates Get All Real Estates
+ * @apiName GetAllRealEstates
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ *  @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Real Estates.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *    "success": "true",
+ *   "data": [
+ *     {
+ *         "_id": "5f0b1b1e1c7e18927788f2b9",
+ *        "name": "Real Estate",
+ *       "amount": 100000,
+ *       "size": 100,
+ *      "address": "Lagos",
+ *      "location": "Lagos",
+ *     "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *      "description": "This is a real estate",
+ *     "state": "Osun",
+ *    "numberOfBuyers": 0,
+ *    "createdAt": "2020-07-11T12:00:00.000Z",
+ *    "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ *  ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * @api {get} /api/v1/admin/real-estate/:id Get Single Real Estate
+ * @apiName GetSingleRealEstate
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Real Estate Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Real Estate.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "success": "true",
+ *  "data": {
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *     "name": "Real Estate",
+ *    "amount": 100000,
+ *   "size": 100,
+ *  "address": "Lagos",
+ * "location": "Lagos", 
+ * "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ * "description": "This is a real estate",
+ * "state": "Osun",
+ * "numberOfBuyers": 0,
+ * "createdAt": "2020-07-11T12:00:00.000Z",
+ * "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ * } 
+ * 
+ * 
+ * @apiError {String} message Error message.
+ *
+ **/
+
+/**
+ * 
+ * @api {get} /api/v1/admin/transports Get All Transports
+ * @apiName GetAllTransports
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Transports.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *  "success": "true",
+ * "data": [
+ *    {
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "name": "Transport",
+ *      "amount": 100000,
+ *      "type": "Gold",
+ *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *      "description": "This is a transport",
+ *      "numberOfBuyers": 0,
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ * ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * @api {get} /api/v1/admin/transport/:id Get Single Transport
+ * @apiName GetSingleTransport
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Transport Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Transport.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *  "success": "true",
+ * "data": {
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "name": "Transport",
+ *      "amount": 100000,
+ *      "type": "Gold",
+ *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ *      "description": "This is a transport",
+ *      "numberOfBuyers": 0,
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ *   }
+ * }
+ * 
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/loans?category= Create Loan Request
+ * @apiName getLoanRequests
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiQuery {String} status Loan Status (pending, approved, declined)
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Loan Request.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 201 CREATED
+ * {
+ * "success": "true",
+ * "data":[{
+ *    "_id": "5f0b1b1e1c7e18927788f2b9",
+ *    "amount": 100000,
+ *   "user": "mail.com",
+ *  "status": "pending",
+ * "createdAt": "2020-07-11T12:00:00.000Z",
+ * "updatedAt": "2020-07-11T12:00:00.000Z"
+ *  }
+ * ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * */
+
+/**
+ * 
+ * 
+ * @api {get} /api/v1/admin/loan/:id Get Single Loan Request
+ * @apiName GetSingleLoanRequest
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Loan Request Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Loan Request.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":{
+ *   "_id": "5f0b1b1e1c7e18927788f2b9",
+ *  "amount": 100000,
+ * "user": "mail.com",
+ * "status": "pending",
+ * "createdAt": "2020-07-11T12:00:00.000Z",
+ * "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * 
+ * 
+ * @api {post} /api/v1/admin/loan/:id/approve Approve Loan Request
+ * @apiName ApproveLoanRequest
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Loan Request Id
+ * @apiBodyExample {json} Request-Example:
+ * {
+ *   "status": "Approved" || "Declined"
+ * }
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Loan Request.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":{
+ *  "_id": "5f0b1b1e1c7e18927788f2b9",
+ * "amount": 100000,
+ * "user": "mail.com",
+ * "status": "approved",
+ * "createdAt": "2020-07-11T12:00:00.000Z",
+ * "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ * 
+ * 
+ * @apiError {String} message Error message. 
+ * 
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/witdrawals Get All Withdrawals
+ * @apiName GetAllWithdrawals
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Withdrawals.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":[{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "amount": 100000,
+ *      "user": "mail.com",
+ *      "status": "pending",
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ *    }
+ * ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/withdrawal/:id Get Single Withdrawal
+ * @apiName GetSingleWithdrawal
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Withdrawal Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Withdrawal.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ *  "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "amount": 100000,
+ *      "user": "mail.com",
+ *      "status": "pending",
+ *      "createdAt": "2020-07-11T12:00:00.000Z",
+ *      "updatedAt": "2020-07-11T12:00:00.000Z"
+ *  }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+*/
+
+
 
 
 
