@@ -211,7 +211,7 @@ exports.investInTransport = async (req, res) => {
     const { invPeriod, plan } = req.body;
 
     // Basic request validation 
-    if (!invPeriod || typeof invPeriod !== "number" || invPeriod <= 0) {
+    if (!invPeriod || invPeriod <= 0) {
       return res.status(400).json({
         message: "Invalid invPeriod",
       });
