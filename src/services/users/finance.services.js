@@ -217,6 +217,12 @@ exports.investInTransport = async (req, res) => {
       });
     }
 
+    if (!plan || plan <= 0) {
+      return res.status(400).json({
+        message: "Invalid plan",
+      });
+    }
+
     const transport = await Transportation.findById(id);
 
     // Check if the transportation is found
@@ -250,7 +256,7 @@ exports.investInTransport = async (req, res) => {
     // Create a new investment
     const newInvestment = {
       userId: user.id,
-      transportId: id,
+      propertyId: id,
       roi: transport.roi,
       invPeriod: invPeriod,
       status: "owned",
