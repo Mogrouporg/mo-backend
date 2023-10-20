@@ -1,6 +1,5 @@
 const { User } = require("../../models/users.model");
 const { sendMail } = require("../../utils/mailer");
-const cronJob = require("cron");
 const { Transaction } = require("../../models/transaction.model");
 const { TransInvest } = require("../../models/transInvestments.model");
 const {
