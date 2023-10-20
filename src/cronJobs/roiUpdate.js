@@ -107,6 +107,34 @@ const processInvestments = async (investments, currentDate) => {
   return totalInvestmentROI;
 };
 
+const processRealEstateInvestments = async (investments, currentDate) => {
+  let totalInvestmentROI = 0; 
+  let hasMatchingInvestment = false;
+
+  for(const investment of investments){
+    const { currentRoi, roi, invPeriod, createdAt } = investment;
+
+    const expirationDate = new Date(createdAt);
+    expirationDate.setMonth(expirationDate.getMonth() + invPeriod);
+
+    const current = new Date(currentDate);
+    
+    if (expirationDate.getDate() === current.getDate() && 
+        expirationDate.getMonth() === current.getMonth() &&
+        expirationDate.getFullYear() === current.getFullYear()) {
+      hasMatchingInvestment = true;
+      console.log("We have one");
+      totalInvestmentROI += currentRoi;
+    }
+  }
+
+  if (!hasMatchingInvestment) {
+    console.log("Nothing is returned");
+  }
+
+  return totalInvestmentROI;
+}
+
 const transferDueRoi = async () => {
   try {
     console.log("Cron for due roi has started");
@@ -135,7 +163,7 @@ const transferDueRoi = async () => {
     ]);
 
     for (const user of users) {
-      const totalRealEstateInvestmentROI = await processInvestments(
+      const totalRealEstateInvestmentROI = await processRealEstateInvestments(
         user.realEstateInvestment,
         Date.now()
       );

@@ -121,7 +121,7 @@ exports.createLandInvestment = async (req, res) => {
       location: location,
       state: state,
       description: description,
-      roi: 0.12*amount,
+      roi: 0.35*amount,
     });
 
     // Save real estate object
