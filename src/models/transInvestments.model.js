@@ -17,7 +17,7 @@ const transInvestSchema = new schema(
          
         status:{
             type: String,
-            enum: ['owned','onSale', 'sold']
+            enum: ['owned','onSale', 'sold', 'completed'],
         },
         invPeriod:{
             type: Number,   

@@ -21,7 +21,7 @@ const RealEstateInvestmentSchema = new schema(
         },
         status:{
           type: String,
-          enum: ['owned', 'onSale', 'sold']
+          enum: ['owned', 'onSale', 'sold', 'completed']
         },
         currentRoi:{
             type: Number,

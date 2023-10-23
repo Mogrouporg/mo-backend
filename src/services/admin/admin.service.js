@@ -204,34 +204,35 @@ exports.createTransportInvestment = async (req, res) => {
 
 exports.getAllRealEstates = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
-    const perPage = 10; // Number of items to display per page
+      const page = parseInt(req.query.page) || 1; 
+      const perPage = 10;
+      const stateFilter = req.query.state ? { onSale: true, state: req.query.state } : { onSale: true };
+      
+      const startIndex = (page - 1) * perPage;
+      const totalInvestments = await RealEstate.countDocuments(stateFilter).exec();
 
-    const startIndex = (page - 1) * perPage;
-    const totalInvestments = await RealEstate.countDocuments({ onSale: true }).exec();
+      const investments = await RealEstate.find(stateFilter)
+          .select("propertyName image _id sizeInSqm amount state")
+          .skip(startIndex)
+          .limit(perPage);
 
-    const investments = await RealEstate.find({ onSale: true })
-      .select("propertyName image _id sizeInSqm amount state")
-      .skip(startIndex)
-      .limit(perPage);
+      const pagination = {
+          currentPage: page,
+          itemsPerPage: perPage,
+          totalItems: totalInvestments,
+          totalPages: Math.ceil(totalInvestments / perPage),
+      };
 
-    const pagination = {
-      currentPage: page,
-      itemsPerPage: perPage,
-      totalItems: totalInvestments,
-      totalPages: Math.ceil(totalInvestments / perPage),
-    };
-
-    return res.status(200).json({
-      success: true,
-      data: investments,
-      pagination: pagination,
-    });
+      return res.status(200).json({
+          success: true,
+          data: investments,
+          pagination: pagination,
+      });
   } catch (e) {
-    console.log(e);
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+      console.log(e);
+      return res.status(500).json({
+          message: "Internal Server Error",
+      });
   }
 };
 

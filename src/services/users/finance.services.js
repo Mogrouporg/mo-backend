@@ -587,7 +587,7 @@ exports.getAllInvestment = async (req, res) => {
         path: "transportInvestment",
         model: "TransInvest",
         populate: {
-          path: "transportId",
+          path: "propertyId",
           model: "Transportation",
         },
       })

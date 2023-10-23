@@ -5,9 +5,28 @@ const {
 const { TransInvest } = require("../models/transInvestments.model");
 const { User } = require("../models/users.model");
 
+const notifyAdmin = (message, error) => {
+  // You can extend this function to send a notification, email, or alert to an admin.
+  console.error(message, error);
+};
+
+
+/**
+ * Determines if a given year is a leap year.
+ * @param {number} year - The year to be checked.
+ * @returns {boolean} - True if the year is a leap year, otherwise false.
+ */
 const isLeapYear = (year) =>
   (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
+
+/**
+ * Updates the ROI for investments.
+ * This function calculates the daily ROI increment based on whether the year is a leap year or not
+ * and updates the respective investments.
+ * @param {Model} InvestmentModel - The Mongoose model representing the investment.
+ * @param {string} modelName - The name of the investment type (for logging purposes).
+ */
 const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
   try {
     console.log(`Cron started for ${modelName}`);
@@ -30,23 +49,50 @@ const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
       `Updated ROI for ${result.nModified} ${modelName} investments.`
     );
   } catch (error) {
-    console.error(`Error updating ROI for ${modelName}`, error);
-    // Implement retry mechanism here if needed
+    notifyAdmin(`Error updating ${modelName} investments ROI.`, error);
+    throw error; // Rethrow the error for higher-level error handling
   }
 };
 
+
+
+
+/**
+ * Calculates the daily ROI for each active user.
+ * This function aggregates users with their respective investments and updates their daily ROI.
+ */
 const calculateAllMyDailyROI = async () => {
   try {
-    const users = await User.find({ status: "active" })
-      .select("realEstateInvestment transportInvestment")
-      .populate({
-        path: "realEstateInvestment",
-        model: "RealEstateInvestment",
-      })
-      .populate({
-        path: "transportInvestment",
-        model: "TransInvest",
-      });
+    const users = await User.aggregate([
+      {
+        $match: {
+          status: "active"
+        }
+      },
+      {
+        $lookup: {
+          from: "realestateinvestments", // Name of the RealEstateInvestment collection
+          localField: "realEstateInvestment",
+          foreignField: "_id",
+          as: "realEstateInvestment"
+        }
+      },
+      {
+        $lookup: {
+          from: "transinvests", // Name of the TransInvest collection
+          localField: "transportInvestment",
+          foreignField: "_id",
+          as: "transportInvestment"
+        }
+      },
+      {
+        $match: {
+          "realEstateInvestment.status": "owned",
+          "transportInvestment.status": "owned"
+        }
+      }
+    ]);
+    
     for (const user of users) {
       const realEstateInvestment = user.realEstateInvestment;
       const transportInvestment = user.transportInvestment;
@@ -60,7 +106,7 @@ const calculateAllMyDailyROI = async () => {
         const { currentRoi } = investment;
         return currentRoi;
       });
-
+ 
       const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce(
         (a, b) => a + b,
         0
@@ -76,12 +122,18 @@ const calculateAllMyDailyROI = async () => {
     }
     return true
   } catch (error) {
+    notifyAdmin(`Error calculating daily ROI for users.`, error);
     throw error; // Rethrow the error for higher-level error handling
   }
 };
 
-// Transfer due roi to total balance 
-// Helper function to process investments (both real estate and transport)
+/**
+ * Helper function to process investments.
+ * This function calculates the total ROI for investments that are either completed or ongoing.
+ * @param {Array} investments - List of investments to be processed.
+ * @param {Date} currentDate - The current date to determine if an investment is completed or ongoing.
+ * @returns {number} - The total ROI for the given investments.
+ */
 const processInvestments = async (investments, currentDate) => {
   let totalInvestmentROI = 0;
 
@@ -92,10 +144,9 @@ const processInvestments = async (investments, currentDate) => {
 
     if (currentDate >= expirationDate) {
       totalInvestmentROI += currentRoi;
-      // Reset current ROI to 0 after the plan period
-      await investment.updateOne({ currentRoi: 0 });
+      // Reset current ROI to 0 after the plan period and set status to "completed"
+      await investment.updateOne({ currentRoi: 0, status: "completed" });
     } else {
-      // Calculate daily ROI for the remaining period
       const remainingDays = Math.floor(
         (expirationDate - currentDate) / (1000 * 60 * 60 * 24)
       );
@@ -118,13 +169,15 @@ const processRealEstateInvestments = async (investments, currentDate) => {
     expirationDate.setMonth(expirationDate.getMonth() + invPeriod);
 
     const current = new Date(currentDate);
-    
+
     if (expirationDate.getDate() === current.getDate() && 
         expirationDate.getMonth() === current.getMonth() &&
         expirationDate.getFullYear() === current.getFullYear()) {
       hasMatchingInvestment = true;
       console.log("We have one");
       totalInvestmentROI += currentRoi;
+      // Set the status to "completed" for the matching investments
+      await investment.updateOne({ status: "completed" });
     }
   }
 
@@ -133,7 +186,7 @@ const processRealEstateInvestments = async (investments, currentDate) => {
   }
 
   return totalInvestmentROI;
-}
+};
 
 const transferDueRoi = async () => {
   try {
@@ -146,7 +199,7 @@ const transferDueRoi = async () => {
       },
       {
         $lookup: {
-          from: "realestateinvestments", // Name of the RealEstateInvestment collection
+          from: "realestateinvestments",
           localField: "realEstateInvestment",
           foreignField: "_id",
           as: "realEstateInvestment"
@@ -154,10 +207,16 @@ const transferDueRoi = async () => {
       },
       {
         $lookup: {
-          from: "transinvests", // Name of the TransInvest collection
+          from: "transinvests",
           localField: "transportInvestment",
           foreignField: "_id",
           as: "transportInvestment"
+        }
+      },
+      {
+        $match: {
+          "realEstateInvestment.status": "owned",
+          "transportInvestment.status": "owned"
         }
       }
     ]);
@@ -187,7 +246,11 @@ const transferDueRoi = async () => {
 };
 
 
-
+/**
+ * Scheduled task to update the ROI for investments.
+ * This function uses a cron job to periodically update the ROI for Real Estate and Transport investments,
+ * calculate the daily ROI, and transfer any due ROI.
+ */
 exports.updateRoi = () => {
   cron.schedule("0 0 * * *", () => {
     updateInvestmentsRoi(RealEstateInvestment, "Real Estate");
@@ -199,3 +262,10 @@ exports.updateRoi = () => {
     timezone: "Africa/Lagos"
   });
 };
+
+exports.isLeapYear = isLeapYear;
+exports.updateInvestmentsRoi = updateInvestmentsRoi;
+exports.calculateAllMyDailyROI = calculateAllMyDailyROI;
+exports.processInvestments = processInvestments;
+exports.processRealEstateInvestments = processRealEstateInvestments;
+exports.transferDueRoi = transferDueRoi;
