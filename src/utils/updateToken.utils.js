@@ -64,6 +64,11 @@ exports.verifyTokenAdmin = async (req, res, next) => {
                     message: 'You are not allowed to perform this action!'
                 });
             }
+            if(admin.isVerified === false){
+                return res.status(401).json({
+                    message: 'You need to verify your account before you can perform this action!'
+                })
+            }
             req.admin = admin;
             next();
         });
