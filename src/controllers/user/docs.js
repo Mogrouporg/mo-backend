@@ -811,7 +811,87 @@
  * 
 */
 
+/**
+ * @api {post} /api/v1/admin/banUser/id Ban User
+ * @apiName BanUser
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id User Id
+ * @apiResponse {Boolean} success Success status.
+ * @apiResponse {JSON} data User.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *       "firstName": "Christopher",
+ *       "lastName": "Egbaaibon",
+ *       "email": "christopheregbaaibon@gmail.com",
+ *       "phoneNumber": "08164393170",
+ *       "balance": 0,
+ *       "totalInvestment": 0,
+ *       "totalRoi": 0,
+ *       "totalLoan": 0,
+ *       "profile_url": [],
+ *       "isVerified": false,
+ *       "role": "USER",
+ *       "isBanned": true,
+ *       "status": "active",
+ *       "transactions": [],
+ *       "notifications": [],
+ *       "loanRequests": [],
+ *       "realEstateInvestment": [],
+ *       "transportInvestment": [],
+ *       "createdAt": "2023-06-01T15:23:10.826Z",
+ *       "updatedAt": "2023-06-01T19:02:32.834Z",
+ *       "__v": 0
+ *    }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ */
 
-
-
+/**
+ * @api {post} /api/v1/admin/unbanUser/id Unban User
+ * @apiName UnbanUser
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id User Id
+ * @apiResponse {Boolean} success Success status.
+ * @apiResponse {JSON} data User.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * * {
+ * "success": "true",
+ * "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *       "firstName": "Christopher",
+ *       "lastName": "Egbaaibon",
+ *       "email": "christopheregbaaibon@gmail.com",
+ *       "phoneNumber": "08164393170",
+ *       "balance": 0,
+ *       "totalInvestment": 0,
+ *       "totalRoi": 0,
+ *       "totalLoan": 0,
+ *       "profile_url": [],
+ *       "isVerified": false,
+ *       "role": "USER",
+ *       "isBanned": false,
+ *       "status": "active",
+ *       "transactions": [],
+ *       "notifications": [],
+ *       "loanRequests": [],
+ *       "realEstateInvestment": [],
+ *       "transportInvestment": [],
+ *       "createdAt": "2023-06-01T15:23:10.826Z",
+ *       "updatedAt": "2023-06-01T19:02:32.834Z",
+ *       "__v": 0
+ *    }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ */
 

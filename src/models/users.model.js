@@ -58,6 +58,10 @@ const UserSchema = new Schema(
             type: Date,
             required: false
         },
+        isBanned: {
+            type: Boolean,
+            default: false
+        },
         profile_url:{
             type: Array,
             required: false,
