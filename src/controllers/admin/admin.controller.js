@@ -15,6 +15,8 @@ const {
   approveWithdrawal,
   getAllWithdrawalRequests,
   getSingleWithdrawalRequest,
+  searchRealEstates,
+  searchTransports
 } = require("../../services/admin/admin.service");
 const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
 
@@ -41,6 +43,8 @@ routerAdminTask.get("/real-estates", verifyTokenAdmin, getAllRealEstates);
 routerAdminTask.get("/real-estate/:id", verifyTokenAdmin, getSingleRealEstate);
 routerAdminTask.get("/transports", verifyTokenAdmin, getAllTransports);
 routerAdminTask.get("/transport/:id", verifyTokenAdmin, getSingleTransport);
+routerAdminTask.get("/real-estate/search", verifyTokenAdmin, searchRealEstates);
+routerAdminTask.get("/transport/search", verifyTokenAdmin, searchTransports);
 
 // Approval
 // Loans

@@ -17,7 +17,18 @@ const { pushNotification } = require("../notif/notif.services");
 exports.getAllTransactions = async (req, res) => {
   try {
     const admin = req.admin;
-    let transactions = await Transaction.find()
+    const { status, type } = req.query; // Extract the filter parameters from the query string
+
+    // Build the query object based on the presence of filter parameters
+    let query = {};
+    if (status) {
+      query.status = status;
+    }
+    if (type) {
+      query.type = type;
+    }
+
+    let transactions = await Transaction.find(query) // Use the query object in the find method
       .select("amount status -_id user type status")
       .sort({ createdAt: -1 });
 
@@ -50,7 +61,7 @@ exports.getAllUsers = async (req, res) => {
   try {
     const admin = req.admin;
     const users = await User.find().select(
-      "firstName lastName balance status lastTransact"
+      "-password -token -resetPasswordToken"
     );
     return res.status(200).json({
       _id: admin.id,
@@ -236,6 +247,53 @@ exports.getAllRealEstates = async (req, res) => {
   }
 };
 
+export async function searchRealEstates(req, res) {
+  try {
+    const searchQuery = req.query.search;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    let searchFilters = { onSale: true };
+
+    if (searchQuery) {
+      searchFilters.propertyName = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+    }
+
+    if (req.query.state) {
+      searchFilters.state = req.query.state;
+    }
+
+    const startIndex = (page - 1) * perPage;
+
+    const totalResults = await RealEstate.countDocuments(searchFilters).exec();
+    const results = await RealEstate.find(searchFilters)
+      .select("propertyName image _id sizeInSqm amount state")
+      .skip(startIndex)
+      .limit(perPage);
+
+    // Pagination
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalResults,
+      totalPages: Math.ceil(totalResults / perPage),
+    };
+
+    res.status(200).json({
+      success: true,
+      data: results,
+      pagination: pagination,
+    });
+
+  } catch (error) {
+    // Error handling
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
+
 exports.getAllTransports = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
@@ -268,6 +326,52 @@ exports.getAllTransports = async (req, res) => {
     });
   }
 };
+
+
+export async function searchTransports(req, res){
+  try {
+    const searchQuery = req.query.search;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    let searchFilters = { onSale: true };
+
+    if (searchQuery) {
+      searchFilters.transportName = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+    }
+
+    if (req.query.type) {
+      searchFilters.transportType = req.query.type;
+    }
+
+    const startIndex = (page - 1) * perPage;
+
+    const totalResults = await Transportation.countDocuments(searchFilters).exec();
+    const results = await Transportation.find(searchFilters)
+      .skip(startIndex)
+      .limit(perPage);
+
+    // Pagination
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalResults,
+      totalPages: Math.ceil(totalResults / perPage),
+    };
+
+    res.status(200).json({
+      success: true,
+      data: results,
+      pagination: pagination,
+    });
+
+  } catch (error) {
+    // Error handling
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
 
 exports.getSingleRealEstate = async (req, res) => {
   try {

@@ -87,8 +87,8 @@ const calculateAllMyDailyROI = async () => {
       },
       {
         $match: {
-          "realEstateInvestment.status": "owned",
-          "transportInvestment.status": "owned"
+          "realEstateInvestment.0.status": "owned",
+          "transportInvestment.0.status": "owned"
         }
       }
     ]);
@@ -215,8 +215,8 @@ const transferDueRoi = async () => {
       },
       {
         $match: {
-          "realEstateInvestment.status": "owned",
-          "transportInvestment.status": "owned"
+          "realEstateInvestment.0.status": "completed",
+          "transportInvestment.0.status": "completed"
         }
       }
     ]);

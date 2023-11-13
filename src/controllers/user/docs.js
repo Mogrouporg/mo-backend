@@ -467,17 +467,15 @@
  * @apiGroup Admin
  * @apiHeader {String} Authorization token
  * 
- * @apiBodyExample {json} Request-Example:
- * {
- *      "name": "Real Estate",
- *      "amount": 100000,
- *      "size": 100,
- *      "address": "Lagos",
- *      "location": "Lagos",
- *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
- *      "description": "This is a real estate",
- *      "state": "Osun"
- * }
+ * @apiBody {string} name Real Estate,
+ * @apiBody {number} amount 100000,
+ * @apiBody {number} size 100,
+ * @apiBody {string} address Lagos,
+ * @apiBody {string} location Lagos,
+ * @apiBody {string} images ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ * @apiBody {string} description This is a real estate,
+ * @apiBody {string} state Osun,
+ * 
  * 
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Real Estate.
@@ -511,14 +509,12 @@
  * @apiVersion  1.0.0
  * @apiHeader {String} Authorization token
  * 
- * @apiBodyExample {json} Request-Example:
- * {
- *      "name": "Transport",
- *      "amount": 100000,
- *      "type": "Gold",
- *      "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
- *      "description": "This is a transport",
- * }
+ * @apiBody {string} name Transport,
+ * @apiBody {number} amount 100000,
+ * @apiBody {string} type Gold,
+ * @apiBody {string} images ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ * @apiBody {string} description This is a transport,
+ * 
  * 
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Transport.
@@ -810,6 +806,127 @@
  * @apiError {String} message Error message.
  * 
 */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/users Get All Users
+ * @apiName GetAllUsers
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Users.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":[{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "firstName": "Christopher",
+ *      "lastName": "Egbaaibon",
+ *      "email":  "mail.com",
+ *      "phoneNumber": "08164393170",
+ *      "balance": 0,
+ *      "totalInvestment": 0,
+ *      "totalRoi": 0,
+ *      "totalLoan": 0,
+ *      "profile_url": [],
+ *      "isVerified": false,
+ *      "role": "USER",
+ *      "status": "active",
+ *      "transactions": [],
+ *      "notifications": [],
+ *      "loanRequests": [],
+ *      "realEstateInvestment": [],
+ *      "transportInvestment": [],
+ *      "createdAt": "2023-06-01T15:23:10.826Z",
+ *      "updatedAt": "2023-06-01T19:02:32.834Z",
+ *      "__v": 0
+ * }
+ * ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ *  
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/user/:id Get Single User
+ * @apiName GetSingleUser
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id User Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data User.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ *  {
+ * "success": "true",
+ * "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "firstName": "Christopher",
+ *      "lastName": "Egbaaibon",
+ *      "email":  "mail.com",
+ *      "phoneNumber": "08164393170",
+ *      "balance": 0,
+ *      "totalInvestment": 0,
+ *      "totalRoi": 0,
+ *      "totalLoan": 0,
+ *      "profile_url": [],
+ *      "isVerified": false,
+ *      "role": "USER",
+ *      "status": "active",
+ *      "transactions": [],
+ *      "notifications": [],
+ *      "loanRequests": [],
+ *      "realEstateInvestment": [],
+ *      "transportInvestment": [],
+ *      "createdAt": "2023-06-01T15:23:10.826Z",
+ *      "updatedAt": "2023-06-01T19:02:32.834Z",
+ *      "__v": 0
+ * }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ *  
+ * */
+
+/**
+ * 
+ * @api {get} /api/v1/admin/real-estates/search?search= Search Real Estates
+ * @apiName SearchRealEstates
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiQuery {String} search Search Query
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Real Estates.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *    "success": "true",
+ *   "data": [
+ *    {
+ *        "_id": "5f0b1b1e1c7e18927788f2b9",
+ *       "name": "Real Estate",
+ *      "amount": 100000,
+ *     "size": 100,
+ *    "address": "Lagos",
+ *  "location": "Lagos",
+ * "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
+ * "description": "This is a real estate",
+ * "state": "Osun",
+ * "numberOfBuyers": 0,
+ * "createdAt": "2020-07-11T12:00:00.000Z",
+ * "updatedAt": "2020-07-11T12:00:00.000Z"
+ * }
+ * ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
+
 
 
 
