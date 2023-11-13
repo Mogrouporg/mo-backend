@@ -15,8 +15,8 @@ const {
   approveWithdrawal,
   getAllWithdrawalRequests,
   getSingleWithdrawalRequest,
-  searchRealEstates,
-  searchTransports
+  banUser,
+  activateUser
 } = require("../../services/admin/admin.service");
 const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
 
@@ -55,4 +55,9 @@ routerAdminTask.get('/loans/:id', verifyTokenAdmin, getSingleLoan)
 routerAdminTask.post('/withdrawals/:id/approve', verifyTokenAdmin, approveWithdrawal);
 routerAdminTask.get('/withdrawals', verifyTokenAdmin, getAllWithdrawalRequests);
 routerAdminTask.get('/withdrawals/:id', verifyTokenAdmin, getSingleWithdrawalRequest);
+
+// Ban
+routerAdminTask.post('/banUser/:id', verifyTokenAdmin, banUser);
+routerAdminTask.post('/activateUser/:id', verifyTokenAdmin, activateUser);
+
 module.exports = routerAdminTask;

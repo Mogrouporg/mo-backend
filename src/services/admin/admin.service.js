@@ -618,3 +618,44 @@ exports.approveWithdrawal = async (req, res) => {
     });
   }
 }
+
+
+exports.banUser = async (req, res) => {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    if (user.isBanned) {
+      return res.status(400).json({
+        message: "User already banned",
+      });
+    }
+    await user.updateOne({ isBanned: true }, { new: true });
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+}
+
+exports.activateUser = async (req, res) => {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    if (!user.isBanned) {
+      return res.status(400).json({
+        message: "User already active",
+      });
+    }
+    await user.updateOne({ isBanned: false }, { new: true });
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+}

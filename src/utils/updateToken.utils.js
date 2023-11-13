@@ -64,6 +64,11 @@ exports.verifyTokenAdmin = async (req, res, next) => {
                     message: 'You are not allowed to perform this action!'
                 });
             }
+            if(admin.isVerified === false){
+                return res.status(401).json({
+                    message: 'You need to verify your account before you can perform this action!'
+                })
+            }
             req.admin = admin;
             next();
         });
@@ -107,6 +112,23 @@ exports.verifySuperAdmin = async (req, res, next) => {
             req.superAdmin = admin;
             next();
         });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+            message: "Please login again"
+        });
+    }
+}
+
+exports.checkIsBanned = async (req, res, next) => {
+    try {
+        const user = req.user;
+        if (user.isBanned) {
+            return res.status(401).json({
+                message: 'Your account has been banned!'
+            });
+        }
+        next();
     } catch (e) {
         console.error(e);
         return res.status(500).json({
