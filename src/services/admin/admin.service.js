@@ -246,8 +246,7 @@ exports.getAllRealEstates = async (req, res) => {
       });
   }
 };
-
-export async function searchRealEstates(req, res) {
+ exports.searchRealEstates= async (req, res) => {
   try {
     const searchQuery = req.query.search;
     const page = parseInt(req.query.page) || 1;
@@ -328,7 +327,7 @@ exports.getAllTransports = async (req, res) => {
 };
 
 
-export async function searchTransports(req, res){
+exports.searchTransports = async (req, res)=>{
   try {
     const searchQuery = req.query.search;
     const page = parseInt(req.query.page) || 1;

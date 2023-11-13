@@ -16,7 +16,9 @@ const {
   getAllWithdrawalRequests,
   getSingleWithdrawalRequest,
   banUser,
-  activateUser
+  activateUser,
+  searchRealEstates,
+  searchTransports
 } = require("../../services/admin/admin.service");
 const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
 
