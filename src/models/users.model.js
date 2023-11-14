@@ -58,9 +58,10 @@ const UserSchema = new Schema(
             type: Date,
             required: false
         },
-        isBanned: {
-            type: Boolean,
-            default: false
+        banStatus: {
+            type: string,
+            default: 'active',
+            enum: ['active', 'banned']
         },
         profile_url:{
             type: Array,
@@ -78,7 +79,7 @@ const UserSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['active', 'inactive'],
+            enum: ['active', 'banned', 'pending'],
             default: 'active'
         },
         lastTransact:{

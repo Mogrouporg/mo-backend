@@ -630,12 +630,12 @@ exports.banUser = async (req, res) => {
         message: "User not found",
       });
     }
-    if (user.isBanned) {
+    if (user.banStatus === "banned") {
       return res.status(400).json({
         message: "User already banned",
       });
     }
-    await user.updateOne({ isBanned: true }, { new: true });
+    await user.updateOne({ banStatus: 'banned'}, { new: true });
     return res.status(200).json({
       success: true,
       data: user,
@@ -650,12 +650,12 @@ exports.activateUser = async (req, res) => {
         message: "User not found",
       });
     }
-    if (!user.isBanned) {
+    if (user.banStatus === "active") {
       return res.status(400).json({
         message: "User already active",
       });
     }
-    await user.updateOne({ isBanned: false }, { new: true });
+    await user.updateOne({ banStatus: "active" }, { new: true });
     return res.status(200).json({
       success: true,
       data: user,
