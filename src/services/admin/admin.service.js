@@ -62,7 +62,9 @@ exports.getAllUsers = async (req, res) => {
     const admin = req.admin;
     const users = await User.find().select(
       "-password -token -resetPasswordToken"
-    );
+    ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
+    .populate('transportInvestment', "transportName image _id amount transportType description")
+    .populate('tranportInvestment', "transportName image _id amount transportType description");
     return res.status(200).json({
       _id: admin.id,
       success: true,
@@ -82,7 +84,8 @@ exports.getSingleUser = async (req, res) => {
     const id = req.params.userId;
     const user = await User.findById(id).select(
       "-password -token -resetPasswordToken"
-    );
+    ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
+    .populate('transportInvestment', "transportName image _id amount transportType description")
     return res.status(200).json({
       adminId: admin.id,
       success: true,
