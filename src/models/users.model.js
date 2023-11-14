@@ -59,7 +59,7 @@ const UserSchema = new Schema(
             required: false
         },
         banStatus: {
-            type: string,
+            type: String,
             default: 'active',
             enum: ['active', 'banned']
         },
@@ -79,7 +79,7 @@ const UserSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['active', 'banned', 'pending'],
+            enum: ['active', 'inactive'],
             default: 'active'
         },
         lastTransact:{
