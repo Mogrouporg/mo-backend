@@ -64,7 +64,6 @@ exports.getAllUsers = async (req, res) => {
       "-password -token -resetPasswordToken"
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
     .populate('transportInvestment', "transportName image _id amount transportType description")
-    .populate('tranportInvestment', "transportName image _id amount transportType description");
     return res.status(200).json({
       _id: admin.id,
       success: true,
