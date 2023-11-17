@@ -472,6 +472,8 @@ exports.getAllLoans = async (req, res) => {
         case "declined":
           query.status = "Declined";
           break;
+        case "all":
+          query = {};
         default:
           return res.status(400).json({
             success: false,

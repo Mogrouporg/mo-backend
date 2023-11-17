@@ -850,7 +850,7 @@
  */
 
 /**
- * @api {post} /api/v1/admin/unbanUser/id Unban User
+ * @api {post} /api/v1/admin/activateUser/id Unban User
  * @apiName UnbanUser
  * @apiGroup Admin
  * @apiHeader {String} Authorization token
