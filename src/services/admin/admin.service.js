@@ -13,6 +13,7 @@ const { realEstateSchema, transportSchema } = require("../../models/validations/
 const { Transportation } = require("../../models/transportations.model");
 const { Withdrawals } = require("../../models/withdrawalRequest.model");
 const { pushNotification } = require("../notif/notif.services");
+const Investment = require("../../models/investment");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -663,14 +664,23 @@ exports.activateUser = async (req, res) => {
     });
 }
 
-exports.totalInactiveUsers = async (req, res)=>{
+exports.totalCounts = async (req, res)=>{
   try{
-    const users = await User.find({status: 'inactive'}).populate();
     const count = await User.count({ status: 'inactive'})
+    const totalBannedUsers = await User.count({ banStatus: 'banned'});
+    const properties = await Investment.count();
+    const availableProperties = await RealEstate.count({ onSale: true });
+    const availableTransport = await Transportation.count({ onSale: true });
+
+
+
     return res.status(200).json({
       success: true,
-      users,
-      count
+      inactiveUsers: count,
+      bannedUsers: totalBannedUsers,
+      totalBought: properties,
+      availableProperties: availableProperties,
+      availableTransport: availableTransport
     })
   }catch(e){
     console.log(e)

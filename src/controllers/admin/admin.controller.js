@@ -18,7 +18,8 @@ const {
   banUser,
   activateUser,
   searchRealEstates,
-  searchTransports
+  searchTransports,
+  totalCounts
 } = require("../../services/admin/admin.service");
 const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
 
@@ -61,5 +62,6 @@ routerAdminTask.get('/withdrawals/:id', verifyTokenAdmin, getSingleWithdrawalReq
 // Ban
 routerAdminTask.post('/banUser/:id', verifyTokenAdmin, banUser);
 routerAdminTask.post('/activateUser/:id', verifyTokenAdmin, activateUser);
+routerAdminTask.get('/counts', verifyTokenAdmin, totalCounts)
 
 module.exports = routerAdminTask;

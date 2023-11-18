@@ -1009,6 +1009,31 @@
  * 
  * */
 
+// get counts of data
+
+/**
+ * @api {get} /api/v1/admin/counts Get Counts
+ * @apiName GetCounts
+ * @apiGroup Admin
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Counts.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * 
+ * {
+ *   "success": true,
+ *   "inactiveUsers": 0,
+ *   "bannedUsers": 4,
+ *   "totalBought": 18,
+ *   "availableProperties": 25,
+ *   "availableTransport": 17
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ * */
+
 
 
 
