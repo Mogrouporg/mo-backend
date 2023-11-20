@@ -78,6 +78,53 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.searchUsers = async (req, res) => {
+  try {
+    const searchQuery = req.query.search;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    let searchFilters = {};
+
+    if (searchQuery) {
+      searchFilters.email = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+    }
+
+    if (req.query.status) {
+      searchFilters.status = req.query.status;
+    }
+
+    const startIndex = (page - 1) * perPage;
+
+    const totalResults = await User.countDocuments(searchFilters).exec();
+    const results = await User.find(searchFilters)
+      .select("-password -token -resetPasswordToken")
+      .skip(startIndex)
+      .limit(perPage);
+
+    // Pagination
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalResults,
+      totalPages: Math.ceil(totalResults / perPage),
+    };
+
+    res.status(200).json({
+      success: true,
+      data: results,
+      pagination: pagination,
+    });
+
+  } catch (error) {
+    // Error handling
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+
+}
+
 exports.getSingleUser = async (req, res) => {
   try {
     const admin = req.admin;
@@ -228,7 +275,7 @@ exports.getAllRealEstates = async (req, res) => {
       const investments = await RealEstate.find(stateFilter)
           .select("propertyName image _id sizeInSqm amount state")
           .skip(startIndex)
-          .limit(perPage);
+          .limit(perPage).sort({ createdAt: -1 });
 
       const pagination = {
           currentPage: page,
@@ -307,7 +354,7 @@ exports.getAllTransports = async (req, res) => {
 
     const investments = await Transportation.find({ onSale: true })
       .skip(startIndex)
-      .limit(perPage);
+      .limit(perPage).sort({ createdAt: -1 });
 
     const pagination = {
       currentPage: page,

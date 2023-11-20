@@ -63,6 +63,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(process.env.PORT || 3500, db(), () => {
+app.listen(process.env.PORT || 3600, db(), () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 })

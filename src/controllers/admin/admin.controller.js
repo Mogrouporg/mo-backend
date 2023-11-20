@@ -19,7 +19,8 @@ const {
   activateUser,
   searchRealEstates,
   searchTransports,
-  totalCounts
+  totalCounts,
+  searchUsers
 } = require("../../services/admin/admin.service");
 const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
 
@@ -29,6 +30,7 @@ routerAdminTask.get(
   getAllTransactions
 );
 routerAdminTask.post("/getAllUsers", verifyTokenAdmin, getAllUsers);
+routerAdminTask.get("/getAllUsers", verifyTokenAdmin, searchUsers);
 routerAdminTask.get("/user/:userId", verifyTokenAdmin, getSingleUser);
 
 //realEstate
