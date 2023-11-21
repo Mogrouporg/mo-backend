@@ -729,10 +729,8 @@
  * @apiGroup Admin
  * @apiHeader {String} Authorization token
  * @apiParam {String} id Loan Request Id
- * @apiBodyExample {json} Request-Example:
- * {
- *   "status": "Approved" || "Declined"
- * }
+ * @apiBodyExample {json} status: "Approved" || "Declined"
+ * 
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Loan Request.
  * @apiSuccessExample {json} Success-Response:

@@ -63,35 +63,23 @@ const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
  */
 const calculateAllMyDailyROI = async () => {
   try {
-    const users = await User.aggregate([
-      {
-        $match: {
-          status: "active"
-        }
-      },
-      {
-        $lookup: {
-          from: "realestateinvestments", // Name of the RealEstateInvestment collection
-          localField: "realEstateInvestment",
-          foreignField: "_id",
-          as: "realEstateInvestment"
-        }
-      },
-      {
-        $lookup: {
-          from: "transinvests", // Name of the TransInvest collection
-          localField: "transportInvestment",
-          foreignField: "_id",
-          as: "transportInvestment"
-        }
-      },
-      {
-        $match: {
-          "realEstateInvestment.0.status": "owned",
-          "transportInvestment.0.status": "owned"
-        }
+    const users = await User.find({ status: "active"}).populate({
+      path: "realEstateInvestment",
+      model: "RealEstateInvestment",
+      match: { status: "owned" },
+      populate: {
+        path: "realEstate",
+        model: "RealEstate"
       }
-    ]);
+    }).populate({
+      path: "transportInvestment",
+      model: "TransInvest",
+      match: { status: "owned" },
+      populate: {
+        path: "transport",
+        model: "Transport"
+      }
+    })
     
     for (const user of users) {
       const realEstateInvestment = user.realEstateInvestment;

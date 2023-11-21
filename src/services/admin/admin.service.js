@@ -644,7 +644,7 @@ exports.approveWithdrawal = async (req, res) => {
           message: message,
           email: user.email,
         });
-      } else if (status === "rejected") {
+      } else if (status === "Declined") {
         await transaction.updateOne({ status: "Decline" });
         const message = `Your withdrawal request of ${request.amount} has been rejected!`;
         await pushNotification({
