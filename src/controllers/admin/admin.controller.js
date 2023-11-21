@@ -22,7 +22,8 @@ const {
   totalCounts,
   searchUsers
 } = require("../../services/admin/admin.service");
-const { verifyTokenAdmin } = require("../../utils/updateToken.utils");
+const { editUser, deleteUser } = require("../../services/admin/superAdmin.service");
+const { verifyTokenAdmin, verifySuperAdmin } = require("../../utils/updateToken.utils");
 
 routerAdminTask.get(
   "/getAllTransactions",
@@ -65,5 +66,10 @@ routerAdminTask.get('/withdrawals/:id', verifyTokenAdmin, getSingleWithdrawalReq
 routerAdminTask.post('/banUser/:id', verifyTokenAdmin, banUser);
 routerAdminTask.post('/activateUser/:id', verifyTokenAdmin, activateUser);
 routerAdminTask.get('/counts', verifyTokenAdmin, totalCounts)
+
+//super admin
+routerAdminTask.post('/superAdmin/editUser/:id', verifySuperAdmin, editUser);
+routerAdminTask.post('/superAdmin/deleteUser/:id', verifySuperAdmin, deleteUser);
+//TODO: add other admin routes here, don't forget to export them
 
 module.exports = routerAdminTask;

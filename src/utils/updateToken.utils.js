@@ -42,7 +42,7 @@ exports.verifyToken = async (req, res, next )=>{
     }
 }
 
-exports.verifyTokenAdmin = async (req, res, next) => {
+exports.verifyTokenAdminAndSuperAdmin = async (req, res, next) => {
     try {
         const token = req.headers.authorization || req.body.token || req.params.token;
         if (!token) {
@@ -60,8 +60,11 @@ exports.verifyTokenAdmin = async (req, res, next) => {
             const key = decoded._id;
             const admin = await Admin.findById(key);
             if (!admin) {
+                if(key === process.env.SUPER_ADMIN_ID){
+                    return next();
+                }
                 return res.status(401).json({
-                    message: 'You are not allowed to perform this action!'
+                    message: 'Admin not found!'
                 });
             }
             if(admin.isVerified === false){
