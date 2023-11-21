@@ -42,7 +42,7 @@ exports.verifyToken = async (req, res, next )=>{
     }
 }
 
-exports.verifyTokenAdminAndSuperAdmin = async (req, res, next) => {
+exports.verifyTokenAdmin = async (req, res, next) => {
     try {
         const token = req.headers.authorization || req.body.token || req.params.token;
         if (!token) {
