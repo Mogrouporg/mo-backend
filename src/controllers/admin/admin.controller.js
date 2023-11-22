@@ -22,7 +22,7 @@ const {
   totalCounts,
   searchUsers
 } = require("../../services/admin/admin.service");
-const { editUser, deleteUser } = require("../../services/admin/superAdmin.service");
+const { editUser, deleteUser, getSingleAdmin } = require("../../services/admin/superAdmin.service");
 const { verifyTokenAdmin, verifySuperAdmin } = require("../../utils/updateToken.utils");
 
 routerAdminTask.get(
@@ -70,6 +70,9 @@ routerAdminTask.get('/counts', verifyTokenAdmin, totalCounts)
 //super admin
 routerAdminTask.post('/superAdmin/editUser/:id', verifySuperAdmin, editUser);
 routerAdminTask.post('/superAdmin/deleteUser/:id', verifySuperAdmin, deleteUser);
+routerAdminTask.get('/superAdmin/getAllAdmins', verifySuperAdmin,  getAdmins);
+routerAdminTask.get('/superAdmin/admin/:id', verifySuperAdmin, getSingleAdmin);
+
 //TODO: add other admin routes here, don't forget to export them
 
 module.exports = routerAdminTask;

@@ -399,11 +399,11 @@
  * @apiSuccess {String} message Verification success message.
  *
  * @apiError {String} message Error message.
- * 
- * 
+ *
+ *
  * */
- 
- /** 
+
+/**
  * @api {post} /api/v1/admin/withdrawal/:id/approve Approve Withdrawal Request
  * @apiName ApproveWithdrawalRequest
  * @apiGroup Admin
@@ -429,12 +429,12 @@
  *      "updatedAt": "2020-07-11T12:00:00.000Z"
  *      }
  * }
- * 
+ *
  * @apiError {String} message Error message.
  **/
 
- /**
-  *  @api {get} /api/v1/admin/getAllTransactions Get All Transactions
+/**
+ *  @api {get} /api/v1/admin/getAllTransactions Get All Transactions
  * @apiName GetAllTransactions
  * @apiGroup Admin
  * @apiVersion  1.0.0
@@ -456,17 +456,17 @@
  *          "updatedAt": "2020-07-11T12:00:00.000Z"
  *     }
  *  ]
- * 
+ *
  * @apiError {String} message Error message.
  **/
-/** 
- * 
+/**
+ *
  * @api {post} /api/v1/admin/real-estate/create Create Real Estate
  * @apiName CreateRealEstate
  * @apiVersion  1.0.0
  * @apiGroup Admin
  * @apiHeader {String} Authorization token
- * 
+ *
  * @apiBody {string} name Real Estate,
  * @apiBody {number} amount 100000,
  * @apiBody {number} size 100,
@@ -475,11 +475,11 @@
  * @apiBody {string} images ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
  * @apiBody {string} description This is a real estate,
  * @apiBody {string} state Osun,
- * 
- * 
+ *
+ *
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Real Estate.
- * @apiSuccessExample {json} Success-Response: 
+ * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 201 CREATED
  * {
  *      "success": "true",
@@ -490,16 +490,16 @@
  *          "size": 100,
  *          "address": "Lagos",
  *          "location": "Lagos",
- *          "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],     
+ *          "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
  *          "description": "This is a real estate",
  *          "state": "Osun",
  *          "createdAt": "2020-07-11T12:00:00.000Z",
  *          "updatedAt": "2020-07-11T12:00:00.000Z"
  *    }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
@@ -508,14 +508,14 @@
  * @apiGroup Admin
  * @apiVersion  1.0.0
  * @apiHeader {String} Authorization token
- * 
+ *
  * @apiBody {string} name Transport,
  * @apiBody {number} amount 100000,
  * @apiBody {string} type Gold,
  * @apiBody {string} images ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
  * @apiBody {string} description This is a transport,
- * 
- * 
+ *
+ *
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Transport.
  * @apiSuccessExample {json} Success-Response:
@@ -533,13 +533,13 @@
  *      "updatedAt": "2020-07-11T12:00:00.000Z"
  *  }
  * }
- * 
- * @apiError {String} message Error message.    
- * 
+ *
+ * @apiError {String} message Error message.
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/real-estates Get All Real Estates
  * @apiName GetAllRealEstates
  * @apiGroup Admin
@@ -567,9 +567,9 @@
  * }
  *  ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
@@ -590,7 +590,7 @@
  *    "amount": 100000,
  *   "size": 100,
  *  "address": "Lagos",
- * "location": "Lagos", 
+ * "location": "Lagos",
  * "images": ['https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-1.jpg', 'https://res.cloudinary.com/djxhcwowp/image/upload/v1614628239/real-estate/real-estate-2.jpg'],
  * "description": "This is a real estate",
  * "state": "Osun",
@@ -598,15 +598,15 @@
  * "createdAt": "2020-07-11T12:00:00.000Z",
  * "updatedAt": "2020-07-11T12:00:00.000Z"
  * }
- * } 
- * 
- * 
+ * }
+ *
+ *
  * @apiError {String} message Error message.
  *
  **/
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/transports Get All Transports
  * @apiName GetAllTransports
  * @apiGroup Admin
@@ -631,9 +631,9 @@
  * }
  * ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
@@ -660,14 +660,14 @@
  *      "updatedAt": "2020-07-11T12:00:00.000Z"
  *   }
  * }
- * 
- * 
+ *
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/loans?category= Create Loan Request
  * @apiName getLoanRequests
  * @apiGroup Admin
@@ -689,13 +689,13 @@
  *  }
  * ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
  * */
 
 /**
- * 
- * 
+ *
+ *
  * @api {get} /api/v1/admin/loan/:id Get Single Loan Request
  * @apiName GetSingleLoanRequest
  * @apiGroup Admin
@@ -716,21 +716,21 @@
  * "updatedAt": "2020-07-11T12:00:00.000Z"
  * }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
- * 
- * 
+ *
+ *
  * @api {post} /api/v1/admin/loan/:id/approve Approve Loan Request
  * @apiName ApproveLoanRequest
  * @apiGroup Admin
  * @apiHeader {String} Authorization token
  * @apiParam {String} id Loan Request Id
  * @apiBodyExample {json} status: "Approved" || "Declined"
- * 
+ *
  * @apiSuccess {Boolean} success Success status.
  * @apiSuccess {JSON} data Loan Request.
  * @apiSuccessExample {json} Success-Response:
@@ -745,14 +745,14 @@
  * "createdAt": "2020-07-11T12:00:00.000Z",
  * "updatedAt": "2020-07-11T12:00:00.000Z"
  * }
- * 
- * 
- * @apiError {String} message Error message. 
- * 
+ *
+ *
+ * @apiError {String} message Error message.
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/witdrawals Get All Withdrawals
  * @apiName GetAllWithdrawals
  * @apiGroup Admin
@@ -773,13 +773,13 @@
  *    }
  * ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/withdrawal/:id Get Single Withdrawal
  * @apiName GetSingleWithdrawal
  * @apiGroup Admin
@@ -800,10 +800,10 @@
  *      "updatedAt": "2020-07-11T12:00:00.000Z"
  *  }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
-*/
+ *
+ */
 
 /**
  * @api {post} /api/v1/admin/banUser/id Ban User
@@ -842,9 +842,9 @@
  *       "__v": 0
  *    }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  */
 
 /**
@@ -884,12 +884,12 @@
  *       "__v": 0
  *    }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  */
 /**
- * 
+ *
  * @api {get} /api/v1/admin/users Get All Users
  * @apiName GetAllUsers
  * @apiGroup Admin
@@ -925,13 +925,13 @@
  * }
  * ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
- *  
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/user/:id Get Single User
  * @apiName GetSingleUser
  * @apiGroup Admin
@@ -967,13 +967,13 @@
  *      "__v": 0
  * }
  * }
- * 
+ *
  * @apiError {String} message Error message.
- *  
+ *
  * */
 
 /**
- * 
+ *
  * @api {get} /api/v1/admin/real-estates/search?search= Search Real Estates
  * @apiName SearchRealEstates
  * @apiGroup Admin
@@ -1002,9 +1002,9 @@
  * }
  * ]
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
 // get counts of data
@@ -1018,7 +1018,7 @@
  * @apiSuccess {JSON} data Counts.
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
- * 
+ *
  * {
  *   "success": true,
  *   "inactiveUsers": 0,
@@ -1027,14 +1027,141 @@
  *   "availableProperties": 25,
  *   "availableTransport": 17
  * }
- * 
+ *
  * @apiError {String} message Error message.
- * 
+ *
  * */
 
+/**
+ * @api {post} /api/v1/admin/superAdmin/editUser/id Edit User
+ * @apiName EditUser
+ * @apiGroup Super Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id User Id
+ * @apiBody {String} firstName First Name
+ * @apiBody {String} lastName Last Name
+ * @apiBody {String} email Email
+ * @apiBody {String} phoneNumber Phone Number
+ * @apiBody {String} role Role
+ * @apiBody {String} status Status
+ * @apiBody {String} isVerified Verification Status
+ * @apiBody {String} banStatus Ban Status
+ * @apiBody {Number} balance Balance
+ * @apiBody {Number} totalInvestment Total Investment
+ * @apiBody {Number} totalRoi Total ROI
+ * @apiBody {Number} totalLoan Total Loan
+ * @apiBody {String} profile_url Profile Picture
+ * @apiResponse {Boolean} success Success status.
+ * @apiResponse {JSON} data User.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": "true",
+ * "data":{
+ *      "_id": "5f0b1b1e1c7e18927788f2b9",
+ *      "firstName": "Christopher",
+ *      "lastName": "Egbaaibon",
+ *      "email":  "mail.com",
+ *      "phoneNumber": "08164393170",
+ *      "balance": 0,
+ *      "totalInvestment": 0,
+ *      "totalRoi": 0,
+ *      "totalLoan": 0,
+ *      "profile_url": [],
+ *      "isVerified": false,
+ *      "role": "USER",
+ *      "status": "active",
+ *      "transactions": [],
+ *      "notifications": [],
+ *      "loanRequests": [],
+ *      "realEstateInvestment": [],
+ *      "transportInvestment": [],
+ *      "createdAt": "2023-06-01T15:23:10.826Z",
+ *      "updatedAt": "2023-06-01T19:02:32.834Z",
+ *      "__v": 0
+ *    }
+ * }
+ *
+ * @apiError {String} message Error message.
+ *
+ */
 
+/**
+ * @api {post} /api/v1/admin/superAdmin/deleteUser/id Delete User
+ * @apiName DeleteUser
+ * @apiGroup Super Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id User Id
+ * @apiResponse {Boolean} success Success status.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *    message: 'User deleted successfully'
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * */
 
+/** 
+ * 
+ * @api {get} /api/v1/admin/superAdmin/getAllAdmins Get All Admins
+ * @apiName GetAllAdmins
+ * @apiGroup Super Admin
+ * @apiHeader {String} Authorization token
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Admins.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "success": true,
+ *   "data": [
+ *       {
+ *          "_id": "5f0b1b1e1c7e18927788f2b9",
+ *         "firstName": "Christopher",
+ *         "lastName": "Egbaaibon",
+ *         "email":  "mail.com",
+ *         "phoneNumber": "08164393170",
+ *         "isVerified": false,
+ *         "role": "ADMIN",
+ *        "isActive": "false",
+ *       "createdAt": "2023-06-01T15:23:10.826Z",
+ *          "updatedAt": "2023-06-01T19:02:32.834Z",
+ *         "__v": 0
+ *     }
+ *  ]
+ * }
+ * 
+ * @apiError {String} message Error message.
+**/
 
-
-
+/**
+ * 
+ * @api {post} /api/v1/admin/superAdmin/admin/id Single Admin
+ * @apiName SingleAdmin
+ * @apiGroup Super Admin
+ * @apiHeader {String} Authorization token
+ * @apiParam {String} id Admin Id
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Admin.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *  "success": true,
+ * "data": {
+ *         "_id": "5f0b1b1e1c7e18927788f2b9",
+ *        "firstName": "Christopher",
+ *       "lastName": "Egbaaibon",
+ *       "email":  "mail.com",
+ *       "phoneNumber": "08164393170",
+ *      "isVerified": false,
+ *       "role": "ADMIN",
+ *      "isActive": "false",
+ *        "createdAt": "2023-06-01T15:23:10.826Z",
+ *       "updatedAt": "2023-06-01T19:02:32.834Z",
+ *       "__v": 0
+ *   }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ **/
 

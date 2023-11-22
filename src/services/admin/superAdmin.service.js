@@ -41,6 +41,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.deleteAdmin = async (req, res) => {
    const { id } = req.params;
+   const password = req.body.password;
    const admin = await Admin.findById(id);
    if (!admin) {
       return res.status(404).json({
@@ -48,11 +49,37 @@ exports.deleteAdmin = async (req, res) => {
       });
    }
 
+   if(password !== process.env.SUPER_ADMIN_PASSWORD){
+      return res.status(400).json({
+         message: "You are not authenticated to perform this action"
+      });
+   }   
+
    await admin.deleteOne();
 
    return res.status(200).json({
       message: "Admin deleted successfully",
    });
 }
+
+exports.getAdmins = async (req, res) => {
+   const admins = await Admin.find();
+   return res.status(200).json({
+      admins
+   });
+};
+
+exports.getSingleAdmin = async (req, res) => {
+   const { id } = req.params;
+   const admin = await Admin.findById(id);
+   if (!admin) {
+      return res.status(404).json({
+         message: "Admin not found",
+      });
+   }
+   return res.status(200).json({
+      admin
+   });
+};
 
 // TODO: add other admin functions here, don't forget to export them
