@@ -22,7 +22,7 @@ const {
   totalCounts,
   searchUsers
 } = require("../../services/admin/admin.service");
-const { editUser, deleteUser, getSingleAdmin } = require("../../services/admin/superAdmin.service");
+const { editUser, deleteUser, getSingleAdmin, getAdmins } = require("../../services/admin/superAdmin.service");
 const { verifyTokenAdmin, verifySuperAdmin } = require("../../utils/updateToken.utils");
 
 routerAdminTask.get(
