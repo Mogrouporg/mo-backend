@@ -1165,3 +1165,24 @@
  * @apiError {String} message Error message.
  **/
 
+/**
+ * @api {post} /api/v1/admin/login-super Login Super Admin
+ * @apiName LoginSuperAdmin
+ * @apiGroup Super Admin
+ * @apiBody {String} email voderhost@gmail.com
+ * @apiBody {String} password Blackgold85@
+ * @apiSuccess {Boolean} success Success status.
+ * @apiSuccess {JSON} data Admin.
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * "success": true,
+ * "data": {
+ *    accessToken: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ * }
+ * }
+ * 
+ * @apiError {String} message Error message.
+ * 
+ */
+
