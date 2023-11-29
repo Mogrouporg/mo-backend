@@ -46,7 +46,6 @@ exports.getAllTransactions = async (req, res) => {
     );
 
     return res.status(200).json({
-      _id: admin.id,
       success: true,
       data: transactions,
     });
@@ -66,7 +65,6 @@ exports.getAllUsers = async (req, res) => {
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
     .populate('transportInvestment', "transportName image _id amount transportType description")
     return res.status(200).json({
-      _id: admin.id,
       success: true,
       data: users,
     });
@@ -134,7 +132,6 @@ exports.getSingleUser = async (req, res) => {
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
     .populate('transportInvestment', "transportName image _id amount transportType description")
     return res.status(200).json({
-      adminId: admin.id,
       success: true,
       data: user,
     });

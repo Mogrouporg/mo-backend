@@ -46,7 +46,9 @@ exports.verifyTokenAdmin = async (req, res, next) => {
     try {
         const token = req.headers.authorization || req.body.token || req.params.token;
         if (!token) {
-            return res.status(401).redirect('https://join-monie.vercel.app/login');
+            return res.status(401).json({
+                message: 'You are not allowed to perform this action!'
+            });
         }
 
         jwt.verify(token, process.env.ACCESS_TOKEN, async function(err, decoded) {
