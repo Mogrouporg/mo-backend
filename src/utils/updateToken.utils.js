@@ -98,7 +98,7 @@ exports.verifySuperAdmin = async (req, res, next) => {
             });
         }
 
-        jwt.verify(token, process.env.ACCESS_TOKEN_SUPER, async function(err, decoded) {
+        jwt.verify(token, process.env.ACCESS_TOKEN, async function(err, decoded) {
             if (err) {
                 console.error(err);
                 return res.status(401).json({

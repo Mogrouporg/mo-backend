@@ -191,7 +191,7 @@ exports.createLandInvestment = async (req, res) => {
     await notifyAllUsers(
       emails,
       "New Set of Real Estate Available!",
-      `Get a portion of land for as low as ${amount} with the size of ${size} now!`
+      
     );
 
     return res.status(201).json({

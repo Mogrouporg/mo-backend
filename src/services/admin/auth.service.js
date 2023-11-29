@@ -112,7 +112,7 @@ exports.signupAdmin = async (req, res) => {
         await sendMail({
           email: email,
           subject: "Account Creation",
-          text: `Your admin account has been created with this mail and your password is ${generatedPassword}, thanks`,
+          html: `Your admin account has been created with this mail and your password is ${generatedPassword}, thanks`,
         });
         return res.status(201).json({
           success: true,
@@ -144,7 +144,7 @@ exports.requestOtpAdmin = async (req, res) => {
     await sendMail({
       email: admin.email,
       subject: "Account Verification",
-      text: `Your one time password is ${otp}, thanks`,
+      html: `<p>Your otp is ${otp}</p>`,
     });
     return res.status(200).json({
       success: true,
@@ -262,7 +262,7 @@ exports.forgotPassword = async (req, res) => {
         await sendMail({
           email: email,
           subject: "Forgot password",
-          text: `Your one time password is ${otp}, thanks`,
+          html: `Your one time password is ${otp}, thanks`,
         });
         return res.status(200).json({
           success: true,

@@ -9,7 +9,7 @@ async function sendMailBatch(emailBatch, title, message) {
     return Promise.all(emailBatch.map(email => sendMail({
         email,
         subject: title,
-        text: message
+        html: message
     })));
 }
 

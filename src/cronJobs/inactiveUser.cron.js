@@ -24,7 +24,7 @@ exports.setUsersInactive = async () => {
       });
       let subject = "Notice for the Inactivity on your account";
       let text =
-        "Your account has been inactive for the past 30 days, please make sure you Transact on our platform.😑";
+        "Your account has been inactive for the past 30 days, please make sure you Transact on our platform.";
       await notifyAllUsers(inActiveUsers, subject, text);
     } else {
       console.log("No inactive users at the moment!");

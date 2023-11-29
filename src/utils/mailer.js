@@ -13,8 +13,7 @@ const sendMail =  async(options)=>{
         from: 'MO Group <info@mogroupltd.com>',
         to: options.email,
         subject: options.subject,
-        text: options.text,
-        //html: options.html
+        html: options.html
     }
 
      const info = await transporter.sendMail(message)

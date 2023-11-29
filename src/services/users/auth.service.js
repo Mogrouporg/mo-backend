@@ -15,6 +15,7 @@ const {
   generateRefreshToken,
 } = require("../../utils/updateToken.utils");
 const { sendMail } = require("../../utils/mailer");
+const { sendOtpMail } = require("../../utils/mailTemplates/otp.mail");
 
 exports.register = async (req, res) => {
   try {
@@ -52,7 +53,7 @@ exports.register = async (req, res) => {
     await sendMail({
       email,
       subject: "Account Verification",
-      text: `Your one time password is ${otp}, thanks`
+      html: sendOtpMail({ otp, firstName, lastName})
     });
 
     await updateToken(email, hash);
@@ -109,7 +110,7 @@ exports.requestOtp = async (req, res) => {
     await sendMail({
       email: email,
       subject: "Account Verification",
-      text: `Your one time password is ${otp}, thanks`,
+      html: sendOtpMail({ otp, firstName: req.user.firstName, lastName: req.user.lastName })
     });
     return res.status(200).json({
       success: true,
@@ -263,7 +264,7 @@ exports.forgotPassword = async (req, res) => {
         await sendMail({
           email: email,
           subject: "Forgot password",
-          text: `Your one time password is ${otp}, thanks`,
+          html: sendOtpMail({ otp, firstName: user.firstName, lastName: user.lastName })
         });
         return res.status(200).json({
           otp: otp,
