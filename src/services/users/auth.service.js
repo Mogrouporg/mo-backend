@@ -5,8 +5,6 @@ const {
   saveOtp,
   genForgotPasswordToken,
 } = require("../../utils/otp.util");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const argon2 = require("argon2");
 const crypto = require("crypto");
 const {
@@ -43,20 +41,22 @@ exports.register = async (req, res) => {
 
     const otp = genOtp();
 
-    // Perform these operations concurrently since they don't depend on each other
-    const [token, refreshToken, hash] = await Promise.all([
+    // Generate tokens and OTP concurrently
+    const [token, refreshToken] = await Promise.all([
       generateAccessToken({ email: newUser.email }),
-      generateRefreshToken({ id: newUser.id }).then(argon2.hash),  // hash the refreshToken immediately after generating it
-      saveOtp(email, otp)
+      generateRefreshToken({ id: newUser.id }),
+      saveOtp(email, otp) // Save OTP while generating tokens
     ]);
+
+    await updateToken(email, refreshToken); // Update token before further actions
+
+    const html = await sendOtpMail({ otp, firstName, lastName });
 
     await sendMail({
       email,
       subject: "Account Verification",
-      html: sendOtpMail({ otp, firstName, lastName})
+      html: html
     });
-
-    await updateToken(email, hash);
 
     return res.status(201).json({
       success: true,
@@ -64,6 +64,7 @@ exports.register = async (req, res) => {
       isVerified: newUser.isVerified
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).json({ message: `Internal server error: ${e.message}` });
   }
 };

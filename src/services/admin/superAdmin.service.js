@@ -4,19 +4,29 @@ const { Admin } = require("../../models/admins.model");
 
 exports.editUser = async (req, res) => {
    const { id } = req.params;
-   const user = await User.findById(id);
-   if (!user) {
-      return res.status(404).json({
-         message: "User not found",
-      });
-   }
-   const body = { ...req.body, ...user };
-   await user.updateOne(body, { new: true });
+   try {
+      const user = await User.findById(id);
+      if (!user) {
+         return res.status(404).json({
+            message: "User not found",
+         });
+      }
 
-   return res.status(200).json({
-      message: "User updated successfully",
-      user,
-   });
+      // Update user properties from req.body
+      Object.keys(req.body).forEach((key) => {
+         user[key] = req.body[key];
+      });
+
+      // Save the updated user
+      const updatedUser = await user.save();
+
+      return res.status(200).json({
+         message: "User updated successfully",
+         user: updatedUser,
+      });
+   } catch (err) {
+      return res.status(500).json({ message: err.message });
+   }
 }
 
 exports.deleteUser = async (req, res) => {

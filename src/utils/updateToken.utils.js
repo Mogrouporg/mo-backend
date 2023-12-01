@@ -1,6 +1,7 @@
 const { User } = require('../models/users.model');
 const jwt = require('jsonwebtoken');
 const {Admin} = require("../models/admins.model");
+const argon2 = require('argon2');
 require('dotenv').config()
 
 
@@ -9,7 +10,8 @@ exports.generateAccessToken = async (user)=>{
 };
 
 exports.generateRefreshToken = async (user)=>{
-    return jwt.sign(user, process.env.REFRESH_TOKEN)
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN);
+    return argon2.hash(refreshToken);
 }
 
 exports.updateToken = async (email, token)=>{
