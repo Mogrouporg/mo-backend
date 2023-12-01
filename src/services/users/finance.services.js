@@ -161,7 +161,7 @@ exports.investInRealEstate = async (req, res) => {
           realEstateInvestment: investment.id,
           transactions: transaction.id,
         },
-        $inc: { balance: -realEstate.amount },
+        $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
         lastTransact: new Date(Date.now()),
       }),
       realEstate.updateOne({ $inc: { numberOfBuyers: 1 } }),
@@ -289,6 +289,7 @@ exports.investInTransport = async (req, res) => {
         },
         $inc: {
           balance: -transport.amount,
+          totalInvestment: transport.amount,
         },
         lastTransact: new Date(Date.now()),
       },

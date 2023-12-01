@@ -223,7 +223,7 @@ const transferDueRoi = async () => {
       const totalROI = user.totalROI +
         totalRealEstateInvestmentROI + totalTransportInvestmentROI;
 
-      await user.updateOne({ totalROI: totalROI });
+      await user.updateOne({ totalROI: totalROI,  $inc:{ totalInvestment: -totalROI }});
     }
 
     console.log("Cron for due roi has ended");

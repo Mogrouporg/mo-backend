@@ -61,6 +61,7 @@ exports.myProfile = async (req, res) => {
         message: "User not found",
       });
     }
+    user.totalRoi = await calculateAllMyDailyROI(userId);
 
     return res.status(200).json({
       success: true,
