@@ -20,7 +20,8 @@ const transInvestSchema = new schema(
             enum: ['owned','onSale', 'sold', 'completed'],
         },
         invPeriod:{
-            type: Number,   
+            type: Number, 
+            enum: [3, 6, 12]  
         },
         currentRoi:{
             type: Number

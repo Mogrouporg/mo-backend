@@ -17,7 +17,8 @@ const RealEstateInvestmentSchema = new schema(
             type: Number,
         },
         invPeriod: {
-            type: String
+            type: Number,
+            enum: [12, 24]
         },
         status:{
           type: String,
