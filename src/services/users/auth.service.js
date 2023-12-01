@@ -108,10 +108,11 @@ exports.requestOtp = async (req, res) => {
     }
     const otp = genOtp();
     await saveOtp(email, otp);
+    const html = sendOtpMail({ otp, firstName: req.user.firstName, lastName: req.user.lastName })
     await sendMail({
       email: email,
       subject: "Account Verification",
-      html: sendOtpMail({ otp, firstName: req.user.firstName, lastName: req.user.lastName })
+      html: html
     });
     return res.status(200).json({
       success: true,
@@ -262,10 +263,11 @@ exports.forgotPassword = async (req, res) => {
           { resetPasswordStatus: true },
           { new: true }
         );
+        const html = sendOtpMail({ otp, firstName: user.firstName, lastName: user.lastName })
         await sendMail({
           email: email,
           subject: "Forgot password",
-          html: sendOtpMail({ otp, firstName: user.firstName, lastName: user.lastName })
+          html: html
         });
         return res.status(200).json({
           otp: otp,
