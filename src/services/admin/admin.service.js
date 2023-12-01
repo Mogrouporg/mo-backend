@@ -14,6 +14,7 @@ const { Transportation } = require("../../models/transportations.model");
 const { Withdrawals } = require("../../models/withdrawalRequest.model");
 const { pushNotification } = require("../notif/notif.services");
 const Investment = require("../../models/investment");
+const { sendNewPropertyMail, sendNewTransportMail } = require("../../utils/mailTemplates/newProperty.mail");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -184,6 +185,7 @@ exports.createLandInvestment = async (req, res) => {
 
     // Save real estate object
     await newRealEstate.save();
+    const message = sendNewPropertyMail({image: urls[0], name, size, location, amount})
 
     // Notify users
     const emails = users.map((user) => user.email);
@@ -191,7 +193,7 @@ exports.createLandInvestment = async (req, res) => {
     await notifyAllUsers(
       emails,
       "New Set of Real Estate Available!",
-      
+      message
     );
 
     return res.status(201).json({
@@ -241,11 +243,12 @@ exports.createTransportInvestment = async (req, res) => {
     await newTransport.save();
 
     const emails = users.map((user) => user.email);
+    const message = sendNewTransportMail({image: urls[0], name, amount})
 
     await notifyAllUsers(
       emails,
       "New set of Transportation Investment available!",
-      `Invest in this new Transportation investment for as low as ${amount} now!`
+      message
     );
 
     return res.status(201).json({
