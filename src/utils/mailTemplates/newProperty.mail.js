@@ -621,28 +621,16 @@ exports.sendNewPropertyMail = async (data) =>{
                                           <table cellpadding="0" cellspacing="0" width="100%"
                                              style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                              <tr>
-                                                <td align="center"
-                                                   style="padding:0;Margin:0;padding-top:15px;padding-bottom:15px;font-size:0">
-                                                   <table cellpadding="0" cellspacing="0"
-                                                      class="es-table-not-adapt es-social"
-                                                      style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                                                      <tr>
-                                                         <td align="center" valign="top"
-                                                            style="padding:0;Margin:0;padding-right:40px"><img
-                                                               title="Facebook"
-                                                               src="https://ecuwtfj.stripocdn.email/content/assets/img/social-icons/logo-black/facebook-logo-black.png"
-                                                               alt="Fb" width="32"
-                                                               style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic">
-                                                         </td>
-                                                         <td align="center" valign="top" style="padding:0;Margin:0"><img
-                                                               title="Instagram"
-                                                               src="https://ecuwtfj.stripocdn.email/content/assets/img/social-icons/logo-black/instagram-logo-black.png"
-                                                               alt="Inst" width="32"
-                                                               style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic">
-                                                         </td>
-                                                      </tr>
-                                                   </table>
-                                                </td>
+                                             <td align="center" class="esd-block-social es-p15t es-p15b" style="font-size:0">
+                                             <table cellpadding="0" cellspacing="0" class="es-table-not-adapt es-social">
+                                                 <tbody>
+                                                     <tr>
+                                                         <td align="center" valign="top" class="es-p40r"><a target="_blank" href="https://www.facebook.com/MoGroupLtd?mibextid=LQQJ4d"><img title="Facebook" src="https://ecuwtfj.stripocdn.email/content/assets/img/social-icons/logo-black/facebook-logo-black.png" alt="Fb" width="32"></a></td>
+                                                         <td align="center" valign="top"><a target="_blank" href="https://instagram.com/mogroupltd?igshid=YTQwZjQ0NmI0OA%3D%3D&utm_source=qr"><img title="Instagram" src="https://ecuwtfj.stripocdn.email/content/assets/img/social-icons/logo-black/instagram-logo-black.png" alt="Inst" width="32"></a></td>
+                                                     </tr>
+                                                 </tbody>
+                                             </table>
+                                         </td>
                                              </tr>
                                              <tr>
                                                 <td align="center" style="padding:0;Margin:0;padding-bottom:35px">
