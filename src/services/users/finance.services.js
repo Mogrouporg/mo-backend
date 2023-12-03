@@ -15,6 +15,8 @@ const { TransInvest } = require("../../models/transInvestments.model");
 const { loanRequest } = require("../../models/loanRequests.model");
 const { Withdrawals } = require("../../models/withdrawalRequest.model");
 
+const processedRequests = new Set();
+
 exports.deposit = async (req, res) => {
   try {
     const { email } = req.user;
@@ -29,6 +31,7 @@ exports.deposit = async (req, res) => {
     const form = { amount, email };
 
     const response = await initializePayment(form);
+    console.log(response)
 
     const newDeposit = new Transaction({
       amount: amount / 100,
@@ -56,6 +59,14 @@ exports.verifyDeposit = async (req, res) => {
     const email = transaction.user;
     const user = await User.findOne({ email });
 
+    if (processedRequests.has(reference)) {
+      return res.status(400).json({
+        success: false,
+        message: "Request already processed",
+      });
+    }
+
+    processedRequests.add(reference);
     const response = await verifyPayment(reference);
 
     if (response.data.data.status === "failed") {
