@@ -31,7 +31,6 @@ exports.deposit = async (req, res) => {
     const form = { amount, email };
 
     const response = await initializePayment(form);
-    console.log(response)
 
     const newDeposit = new Transaction({
       amount: amount / 100,
@@ -165,7 +164,6 @@ exports.investInRealEstate = async (req, res) => {
         investment: "RealEstateInvestment",
       })
       await transaction.save()
-      console.log(transaction)
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
         $push: {
