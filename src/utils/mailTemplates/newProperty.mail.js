@@ -567,7 +567,7 @@ exports.sendNewPropertyMail = async (data) =>{
                                                    style="padding:0;Margin:0;padding-bottom:10px;padding-top:15px"><span
                                                       class="es-button-border"
                                                       style="border-style:solid;border-color:#5c68e2;background:#990000;border-width:2px;display:inline-block;border-radius:5px;width:auto"><a
-                                                         href="https://mogroupltd.com/signin"
+                                                         href="https://mogroupltd.com/login"
                                                          class="es-button es-button-1621341519989" target="_blank"
                                                          style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:#FFFFFF;font-size:20px;padding:10px 30px;display:inline-block;background:#990000;border-radius:5px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:24px;width:auto;text-align:center;mso-padding-alt:0;mso-border-alt:10px solid #990000">Invest</a>
                                                    </span></td>

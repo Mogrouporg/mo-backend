@@ -185,7 +185,7 @@ exports.createLandInvestment = async (req, res) => {
 
     // Save real estate object
     await newRealEstate.save();
-    const message = sendNewPropertyMail({image: urls[0], name, size, location, amount})
+    const message = await sendNewPropertyMail({image: urls[0], name, size, location, amount})
 
     // Notify users
     const emails = users.map((user) => user.email);
@@ -243,7 +243,7 @@ exports.createTransportInvestment = async (req, res) => {
     await newTransport.save();
 
     const emails = users.map((user) => user.email);
-    const message = sendNewTransportMail({image: urls[0], name, amount})
+    const message = await sendNewTransportMail({image: urls[0], name, amount})
 
     await notifyAllUsers(
       emails,
