@@ -169,6 +169,8 @@ exports.createLandInvestment = async (req, res) => {
     // Fetch users
     const users = await User.find({ status: "active" }, "email");
 
+    
+
     // Create real estate object
     const newRealEstate = new RealEstate({
       user: email,

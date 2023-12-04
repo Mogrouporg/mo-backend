@@ -25,15 +25,17 @@ const calculateAllMyDailyROI = async (userId) => {
 
     const realEstateInvestment = user.realEstateInvestment;
     const transportInvestment = user.transportInvestment;
+    console.log(realEstateInvestment);
+    console.log(transportInvestment);
 
     const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
-      const { currentRoi } = investment;
-      return currentRoi;
+      const { roi } = investment;
+      return roi;
     });
 
     const transportInvestmentROI = transportInvestment.map((investment) => {
-      const { currentRoi } = investment;
-      return currentRoi;
+      const { roi } = investment;
+      return roi;
     });
 
     const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce(
@@ -62,6 +64,8 @@ exports.myProfile = async (req, res) => {
       });
     }
     user.totalRoi = await calculateAllMyDailyROI(userId);
+
+    await user.save();
 
     return res.status(200).json({
       success: true,

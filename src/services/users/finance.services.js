@@ -148,7 +148,7 @@ exports.investInRealEstate = async (req, res) => {
       invPeriod: invPeriod,
       status: "owned",
       currency: "NGN",
-      roi: realEstate.roi * parseInt(invPeriod), // Calculate ROI once
+      roi: realEstate.roi * (parseInt(invPeriod)/12), // Calculate ROI once
     };
 
     const investment = new RealEstateInvestment(newInvestment)
@@ -260,7 +260,7 @@ exports.investInTransport = async (req, res) => {
       });
     }
 
-    const totalRoi = 0.48 * transport.amount * invPeriod/12;
+    const totalRoi = 0.36 * transport.amount * invPeriod/12;
 
     // Create a new investment
     const newInvestment = {
