@@ -3,10 +3,6 @@ const schema = mongoose.Schema;
 
 const realEstateSchema = new schema(
     {
-        user:{
-            type: String,
-            required: true
-        },
         propertyName: {
             type: String,
             required: true

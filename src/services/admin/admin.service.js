@@ -156,7 +156,6 @@ exports.createLandInvestment = async (req, res) => {
     }
 
     
-    const email = req.admin.email;
     const { name, amount, size, address, location, images, state, description } = value;
 
     // Image upload
@@ -169,7 +168,6 @@ exports.createLandInvestment = async (req, res) => {
 
     // Create real estate object
     const newRealEstate = new RealEstate({
-      user: email,
       propertyName: name,
       amount: amount,
       sizeInSqm: size,
