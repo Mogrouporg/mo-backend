@@ -21,7 +21,7 @@ const transInvestSchema = new schema(
         },
         invPeriod:{
             type: Number, 
-            enum: [3, 6, 12]  
+            enum: [12]  
         },
         currentRoi:{
             type: Number
