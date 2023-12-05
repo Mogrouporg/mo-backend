@@ -366,19 +366,19 @@ exports.withdrawFunds = async (req, res) => {
     if (!bankDetails) {
       return res.status(400).json({
         success: false,
-        data: "Please add your bank details and amount",
+        message: "Please add your bank details and amount",
       });
     }
     if (parseInt(amount) < 1000 || parseInt(amount) > 5000000) {
       return res.status(400).json({
         success: false,
-        data: "Cannot withdraw less than NGN1000 or more than NGN5000000",
+        message: "Cannot withdraw less than NGN1000 or more than NGN5000000",
       });
     }
     if (parseInt(amount) + 500 >= user.totalRoi) {
       return res.status(400).json({
         success: false,
-        data: "Cannot leave less than 500 in the account",
+        message: "Cannot leave less than 500 in the account",
       });
     }
 
@@ -446,13 +446,13 @@ exports.withdrawFunds = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: "Your withdrawal request has been placed.",
+      message: "Your withdrawal request has been placed.",
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      data: "Internal Server Error",
+      message: "Internal Server Error",
     });
   }
 };
