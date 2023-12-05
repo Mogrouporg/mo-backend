@@ -155,11 +155,7 @@ exports.createLandInvestment = async (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
-    // Check authorization (example, you may have a different authorization logic)
-    if (!req.admin || !req.admin.email) {
-      return res.status(403).json({ message: "Permission denied!" });
-    }
-
+    
     const email = req.admin.email;
     const { name, amount, size, address, location, images, state, description } = value;
 
@@ -219,10 +215,6 @@ exports.createTransportInvestment = async (req, res) => {
 
     if (error) {
       return res.status(400).json({ message: "All fields are required!" });
-    }
-
-    if (!req.admin || !req.admin.email) {
-      return res.status(403).json({ message: "Permission denied!" });
     }
 
     const email = req.admin.email;

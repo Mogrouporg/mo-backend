@@ -288,7 +288,6 @@ exports.investInTransport = async (req, res) => {
       }),
     ]);
 
-    // Update user and transport in a single query
     const updatedUser = await User.findByIdAndUpdate(
       user.id,
       {
@@ -304,7 +303,6 @@ exports.investInTransport = async (req, res) => {
       },
       { new: true } // Get the updated user object
     );
-    // Increment the number of buyers for the transport
     await transport.updateOne(
       {
         $inc: {
