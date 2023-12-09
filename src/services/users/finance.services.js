@@ -90,6 +90,13 @@ exports.verifyDeposit = async (req, res) => {
       });
     }
 
+    if(response.data.data.status !== "success"){
+      return res.status(400).json({
+        success: false,
+        message: "Error with the payment",
+      });
+    }
+
     const { amount } = response.data.data;
     const newBalance = user.balance + amount / 100;
     const newNotif = {
