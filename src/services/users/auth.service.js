@@ -19,21 +19,15 @@ exports.register = async (req, res) => {
   try {
     const { firstName, lastName, email, phoneNumber, password } = req.body;
 
-    if (!firstName || !lastName || !email || !phoneNumber || !password) {
+    if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
     }
 
     // Check for existing user and phone number concurrently
-    const [oldUser, oldPhoneNumber] = await Promise.all([
-      User.findOne({ email }),
-      User.findOne({ phoneNumber })
-    ]);
+    const oldUser = await User.findOne({ email });
 
     if (oldUser) {
       return res.status(400).json({ message: "User already exists" });
-    }
-    if (oldPhoneNumber) {
-      return res.status(401).json({ message: "Phone number already exists" });
     }
 
     const newUser = new User({ firstName, lastName, email, phoneNumber, password });

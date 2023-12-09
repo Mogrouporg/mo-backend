@@ -18,7 +18,6 @@ const { sendNewPropertyMail, sendNewTransportMail } = require("../../utils/mailT
 
 exports.getAllTransactions = async (req, res) => {
   try {
-    const admin = req.admin;
     const { status, type } = req.query; // Extract the filter parameters from the query string
 
     // Build the query object based on the presence of filter parameters
@@ -185,7 +184,6 @@ exports.createLandInvestment = async (req, res) => {
 
     // Notify users
     const emails = users.map((user) => user.email);
-    console.log(emails);
     await notifyAllUsers(
       emails,
       "New Set of Real Estate Available!",

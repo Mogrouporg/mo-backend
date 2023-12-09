@@ -6,7 +6,7 @@ const realEstateSchema = Joi.object({
   size: Joi.number().required(),
   address: Joi.string().required(),
   location: Joi.string().required(),
-  images: Joi.array().items(Joi.object()).required(),
+  images: Joi.any().required(),
   description: Joi.string().required(),
   state: Joi.string()
   .required()
