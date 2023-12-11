@@ -17,7 +17,7 @@ const transportSchema = Joi.object({
   name: Joi.string().required(),
   amount: Joi.number().required(),
   type: Joi.string().required(),
-  images: Joi.array().items(Joi.object()).required(),
+  images: Joi.any().required(),
   description: Joi.string().required(),
 })
 
