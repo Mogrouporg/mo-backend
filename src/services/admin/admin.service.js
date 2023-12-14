@@ -213,8 +213,6 @@ exports.createTransportInvestment = async (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
-    const email = req.admin.email;
-
     const { name, amount, images, type, description } = value;
 
     const urls = await imageUpload(images, "transport");
