@@ -222,7 +222,6 @@ exports.createTransportInvestment = async (req, res) => {
     const users = await User.find({ status: "active" }, "email");
 
     const newTransport = new Transportation({
-      user: email,
       transportName: name,
       amount: amount,
       image: urls,
