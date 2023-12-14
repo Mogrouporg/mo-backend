@@ -260,7 +260,6 @@ exports.getAllRealEstates = async (req, res) => {
       const totalInvestments = await RealEstate.countDocuments(stateFilter).exec();
 
       const investments = await RealEstate.find(stateFilter)
-          .select("propertyName image _id sizeInSqm amount state")
           .skip(startIndex)
           .limit(perPage).sort({ createdAt: -1 });
 
@@ -302,7 +301,6 @@ exports.getAllRealEstates = async (req, res) => {
 
     const totalResults = await RealEstate.countDocuments(searchFilters).exec();
     const results = await RealEstate.find(searchFilters)
-      .select("propertyName image _id sizeInSqm amount state")
       .skip(startIndex)
       .limit(perPage);
 
@@ -412,9 +410,7 @@ exports.searchTransports = async (req, res)=>{
 exports.getSingleRealEstate = async (req, res) => {
   try {
     const _id = req.params.id;
-    const investment = await RealEstate.findById(_id).select(
-      "propertyName image _id sizeInSqm"
-    );
+    const investment = await RealEstate.findById(_id)
     return res.status({
       success: true,
       data: investment,
@@ -427,9 +423,7 @@ exports.getSingleRealEstate = async (req, res) => {
 exports.getSingleTransport = async (req, res) => {
   try {
     const _id = req.params.id;
-    const investment = await Transportation.findById(_id).select(
-      "transportName image _id amount"
-    );
+    const investment = await Transportation.findById(_id)
     return res.status({
       success: true,
       data: investment,
