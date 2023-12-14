@@ -63,8 +63,7 @@ exports.loginSuperAdmin = (req, res) => {
           const tokens = {
             accessToken: jwt.sign(
               { _id: process.env.SUPER_ADMIN_ID },
-              process.env.ACCESS_TOKEN,
-              { expiresIn: "1h" }
+              process.env.ACCESS_TOKEN
             ),
           };
           return res.status(200).json({
@@ -106,7 +105,7 @@ exports.signupAdmin = async (req, res) => {
         console.log(generatedPassword);
         const newAdmin = new Admin({
           email,
-          password: generatedPassword
+          password: generatedPassword,
         });
         await newAdmin.save();
         await sendMail({
