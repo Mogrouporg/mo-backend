@@ -252,28 +252,28 @@ exports.createTransportInvestment = async (req, res) => {
 exports.editLandInvestment = async (req, res) => {
   try {
     const id = req.params.id;
-    const investment = await RealEstate.findById(id);
+    let updateData = {...req.body};
 
+    const investment = await RealEstate.findById(id);
     if (!investment) {
       return res.status(404).json({
         message: "Real estate not found",
       });
     }
 
-
-    if (req.files.images) {
+    if (req.files && req.files.images) {
       const urls = await imageUpload(req.files.images, "realEstate");
-      await investment.updateOne({...req.body, image: urls}, {new: true});
+      updateData.image = urls;
     }
 
-    await investment.updateOne({...req.body}, {new: true});
+    const updatedInvestment = await RealEstate.findByIdAndUpdate(id, updateData, { new: true });
 
     return res.status(200).json({
       success: true,
-      data: investment,
+      data: updatedInvestment,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -283,28 +283,28 @@ exports.editLandInvestment = async (req, res) => {
 exports.editTransportInvestment = async (req, res) => {
   try {
     const id = req.params.id;
-    const investment = await Transportation.findById(id);
+    let updateData = {...req.body};
 
+    const investment = await Transportation.findById(id);
     if (!investment) {
       return res.status(404).json({
         message: "Transportation not found",
       });
     }
-    const images = req.files.images;
 
-    if (images) {
-      const urls = await imageUpload(images, "transport");
-      await investment.updateOne({...req.body, image: urls}, {new: true});
+    if (req.files && req.files.images) {
+      const urls = await imageUpload(req.files.images, "transport");
+      updateData.image = urls;
     }
 
-    await investment.updateOne({...req.body}, {new: true});
+    const updatedInvestment = await Transportation.findByIdAndUpdate(id, updateData, { new: true });
 
     return res.status(200).json({
       success: true,
-      data: investment,
+      data: updatedInvestment,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
