@@ -250,6 +250,118 @@ exports.createTransportInvestment = async (req, res) => {
   }
 };
 
+exports.editLandInvestment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const investment = await RealEstate.findById(id);
+
+    if (!investment) {
+      return res.status(404).json({
+        message: "Real estate not found",
+      });
+    }
+
+    const { name, amount, size, address, location, state, description } = req.body;
+    const images = req.files.images;
+
+    if (images) {
+      const urls = await imageUpload(images, "realEstate");
+      await investment.updateOne({...req.body, image: urls}, {new: true});
+    }
+
+    await investment.updateOne({...req.body}, {new: true});
+
+    return res.status(200).json({
+      success: true,
+      data: investment,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.editTransportInvestment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const investment = await Transportation.findById(id);
+
+    if (!investment) {
+      return res.status(404).json({
+        message: "Transportation not found",
+      });
+    }
+    const images = req.files.images;
+
+    if (images) {
+      const urls = await imageUpload(images, "transport");
+      await investment.updateOne({...req.body, image: urls}, {new: true});
+    }
+
+    await investment.updateOne({...req.body}, {new: true});
+
+    return res.status(200).json({
+      success: true,
+      data: investment,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.deleteLandInvestment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const investment = await RealEstate.findById(id);
+
+    if (!investment) {
+      return res.status(404).json({
+        message: "Real estate not found",
+      });
+    }
+
+    await investment.deleteOne();
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.deleteTransportInvestment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const investment = await Transportation.findById(id);
+
+    if (!investment) {
+      return res.status(404).json({
+        message: "Transportation not found",
+      });
+    }
+
+    await investment.deleteOne();
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
 exports.getAllRealEstates = async (req, res) => {
   try {
       const page = parseInt(req.query.page) || 1; 

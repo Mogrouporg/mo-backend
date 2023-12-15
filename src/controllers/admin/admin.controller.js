@@ -20,7 +20,11 @@ const {
   searchRealEstates,
   searchTransports,
   totalCounts,
-  searchUsers
+  searchUsers,
+  editTransportInvestment,
+  editLandInvestment,
+  deleteTransportInvestment,
+  deleteLandInvestment,
 } = require("../../services/admin/admin.service");
 const { editUser, deleteUser, getSingleAdmin, getAdmins } = require("../../services/admin/superAdmin.service");
 const { verifyTokenAdmin, verifySuperAdmin } = require("../../utils/updateToken.utils");
@@ -51,6 +55,11 @@ routerAdminTask.get("/transports", verifyTokenAdmin, getAllTransports);
 routerAdminTask.get("/transport/:id", verifyTokenAdmin, getSingleTransport);
 routerAdminTask.get("/real-estate/search", verifyTokenAdmin, searchRealEstates);
 routerAdminTask.get("/transport/search", verifyTokenAdmin, searchTransports);
+routerAdminTask.post("/transport/edit/:id", verifyTokenAdmin, editTransportInvestment);
+routerAdminTask.post("/real-estate/edit/:id", verifyTokenAdmin, editLandInvestment);
+routerAdminTask.post("/transport/delete/:id", verifyTokenAdmin, deleteTransportInvestment);
+routerAdminTask.post("/real-estate/delete/:id", verifyTokenAdmin, deleteLandInvestment);
+
 
 // Approval
 // Loans
