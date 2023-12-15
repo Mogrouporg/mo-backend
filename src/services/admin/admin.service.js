@@ -125,7 +125,6 @@ exports.searchUsers = async (req, res) => {
 
 exports.getSingleUser = async (req, res) => {
   try {
-    const admin = req.admin;
     const id = req.params.userId;
     const user = await User.findById(id).select(
       "-password -token -resetPasswordToken"
@@ -261,11 +260,9 @@ exports.editLandInvestment = async (req, res) => {
       });
     }
 
-    const { name, amount, size, address, location, state, description } = req.body;
-    const images = req.files.images;
 
-    if (images) {
-      const urls = await imageUpload(images, "realEstate");
+    if (req.files.images) {
+      const urls = await imageUpload(req.files.images, "realEstate");
       await investment.updateOne({...req.body, image: urls}, {new: true});
     }
 
@@ -523,10 +520,10 @@ exports.getSingleRealEstate = async (req, res) => {
   try {
     const _id = req.params.id;
     const investment = await RealEstate.findById(_id)
-    return res.status({
+    return res.status(200).json({
       success: true,
-      data: investment,
-    });
+      data: investment
+    })
   } catch (e) {
     console.log(e);
   }
