@@ -533,10 +533,10 @@ exports.getSingleTransport = async (req, res) => {
   try {
     const _id = req.params.id;
     const investment = await Transportation.findById(_id)
-    return res.status({
+    return res.status(200).json({
       success: true,
-      data: investment,
-    });
+      data: investment
+    })
   } catch (e) {
     console.log(e);
   }
