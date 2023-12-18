@@ -190,7 +190,7 @@ exports.getSingleTransportTation = async (req, res) => {
     const { id } = req.params;
     const investment = await Transportation.findById(id);
     if (!investment) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Couldn't find the investment you are looking for."
       })
     }

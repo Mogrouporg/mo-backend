@@ -59,7 +59,6 @@ exports.getAllTransactions = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const admin = req.admin;
     const users = await User.find().select(
       "-password -token -resetPasswordToken"
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
