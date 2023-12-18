@@ -660,7 +660,7 @@ exports.getInvestment = async (req, res) => {
     const foundInvestment =
       investment.realEstateInvestment || investment.transportInvestment;
 
-    res.status(200).json({ success: true, investment: foundInvestment });
+    return res.status(200).json({ success: true, investment: foundInvestment });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

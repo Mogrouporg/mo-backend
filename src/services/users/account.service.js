@@ -116,7 +116,7 @@ exports.addBankDetails = async (req, res) => {
       });
     }
     if (user.bankDetails.length == 3) {
-      res.status(401).json({
+      return res.status(401).json({
         message: "You cannot add more bank details."
       })
     }
@@ -169,7 +169,7 @@ exports.getSingleRealEstate = async (req, res) => {
     const { id } = req.params;
     const investment = await RealEstate.findById(id);
     if (!investment) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Couldn't find the investment you are looking for."
       })
     }

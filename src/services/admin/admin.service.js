@@ -106,7 +106,7 @@ exports.searchUsers = async (req, res) => {
       totalPages: Math.ceil(totalResults / perPage),
     };
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: results,
       pagination: pagination,
@@ -114,7 +114,7 @@ exports.searchUsers = async (req, res) => {
 
   } catch (error) {
     // Error handling
-    res.status(500).json({
+    return res.status(500).json({
       message: "Internal Server Error",
       error: error.message
     });
@@ -420,7 +420,7 @@ exports.getAllRealEstates = async (req, res) => {
       totalPages: Math.ceil(totalResults / perPage),
     };
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: results,
       pagination: pagination,
@@ -428,7 +428,7 @@ exports.getAllRealEstates = async (req, res) => {
 
   } catch (error) {
     // Error handling
-    res.status(500).json({
+    return res.status(500).json({
       message: "Internal Server Error",
       error: error.message
     });
@@ -500,7 +500,7 @@ exports.searchTransports = async (req, res)=>{
       totalPages: Math.ceil(totalResults / perPage),
     };
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: results,
       pagination: pagination,
@@ -508,7 +508,7 @@ exports.searchTransports = async (req, res)=>{
 
   } catch (error) {
     // Error handling
-    res.status(500).json({
+    return res.status(500).json({
       message: "Internal Server Error",
       error: error.message
     });
