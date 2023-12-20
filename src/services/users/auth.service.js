@@ -1,4 +1,4 @@
-const { User } = require("../../models/users.model");
+const {User} = require("../../models/users.model");
 const {
   genOtp,
   verifyOtp,
@@ -12,39 +12,39 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../../utils/updateToken.utils");
-const { sendMail } = require("../../utils/mailer");
-const { sendOtpMail } = require("../../utils/mailTemplates/otp.mail");
+const {sendMail} = require("../../utils/mailer");
+const {sendOtpMail} = require("../../utils/mailTemplates/otp.mail");
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, phoneNumber, password } = req.body;
+    const {firstName, lastName, email, phoneNumber, password} = req.body;
 
     if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({ message: "All fields required" });
+      return res.status(400).json({message: "All fields required"});
     }
 
     // Check for existing user and phone number concurrently
-    const oldUser = await User.findOne({ email });
+    const oldUser = await User.findOne({email});
 
     if (oldUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({message: "User already exists"});
     }
 
-    const newUser = new User({ firstName, lastName, email, phoneNumber, password });
+    const newUser = new User({firstName, lastName, email, phoneNumber, password});
     await newUser.save();
 
     const otp = genOtp();
 
     // Generate tokens and OTP concurrently
     const [token, refreshToken] = await Promise.all([
-      generateAccessToken({ email: newUser.email }),
-      generateRefreshToken({ id: newUser.id }),
+      generateAccessToken({email: newUser.email}),
+      generateRefreshToken({id: newUser.id}),
       saveOtp(email, otp) // Save OTP while generating tokens
     ]);
 
     await updateToken(email, refreshToken); // Update token before further actions
 
-    const html = await sendOtpMail({ otp, firstName, lastName });
+    const html = await sendOtpMail({otp, firstName, lastName});
 
     await sendMail({
       email,
@@ -54,12 +54,12 @@ exports.register = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      tokens: { accessToken: token, refreshToken },
+      tokens: {accessToken: token, refreshToken},
       isVerified: newUser.isVerified
     });
   } catch (e) {
     console.log(e);
-    return res.status(500).json({ message: `Internal server error: ${e.message}` });
+    return res.status(500).json({message: `Internal server error: ${e.message}`});
   }
 };
 
@@ -67,12 +67,12 @@ exports.register = async (req, res) => {
 exports.verifyUser = async (req, res) => {
   try {
     const email = req.user.email;
-    const { otp } = req.body;
+    const {otp} = req.body;
     if ((await verifyOtp(email, otp)) === true) {
       await User.findOneAndUpdate(
-        { email: email },
-        { isVerified: true },
-        { new: true }
+        {email: email},
+        {isVerified: true},
+        {new: true}
       );
       return res.status(200).json({
         success: true,
@@ -102,12 +102,13 @@ exports.requestOtp = async (req, res) => {
     }
     const otp = genOtp();
     await saveOtp(email, otp);
-    const html = sendOtpMail({ otp, firstName: req.user.firstName, lastName: req.user.lastName })
+    const html = sendOtpMail({otp, firstName: req.user.firstName, lastName: req.user.lastName})
     await sendMail({
       email: email,
       subject: "Account Verification",
       html: html
     });
+    console.log(otp);
     return res.status(200).json({
       success: true,
       message: "Otp sent!",
@@ -123,7 +124,7 @@ exports.requestOtp = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const {email, password} = req.body;
     if (!email || !password) {
       return res.status(200).json({
         success: false,
@@ -131,7 +132,7 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({email});
     if (!existingUser) {
       return res.status(400).json({
         success: false,
@@ -149,15 +150,15 @@ exports.loginUser = async (req, res) => {
 
     // Perform these operations concurrently since they don't depend on each other
     const [accessToken, refreshToken] = await Promise.all([
-      generateAccessToken({ email: existingUser.email }),
-      generateRefreshToken({ id: existingUser.id })
+      generateAccessToken({email: existingUser.email}),
+      generateRefreshToken({id: existingUser.id})
     ]);
-    const  hash = await argon2.hash(refreshToken);
+    const hash = await argon2.hash(refreshToken);
     await updateToken(email, hash);
 
     return res.status(200).json({
       success: true,
-      tokens: { accessToken, refreshToken },
+      tokens: {accessToken, refreshToken},
       isVerified: existingUser.isVerified,
     });
 
@@ -179,7 +180,7 @@ exports.logout = async (req, res) => {
       user.token === req.params.token
     ) {
       await User.findOneAndUpdate(
-        { email: user.email, token: token },
+        {email: user.email, token: token},
         {
           $set: {
             token: null,
@@ -205,8 +206,8 @@ exports.logout = async (req, res) => {
 
 exports.refresh = async (req, res) => {
   try {
-    const { id } = req.user;
-    const { refreshToken } = req.body;
+    const {id} = req.user;
+    const {refreshToken} = req.body;
     const user = await User.findById(id);
     const isMatch = argon2.verify(user.refreshTokenHash, refreshToken);
     if (!isMatch) {
@@ -214,8 +215,8 @@ exports.refresh = async (req, res) => {
         message: "Not authorized",
       });
     } else {
-      const accessToken = await generateAccessToken({ email: user.email });
-      const refreshTokenNew = await generateRefreshToken({ id: user.id });
+      const accessToken = await generateAccessToken({email: user.email});
+      const refreshTokenNew = await generateRefreshToken({id: user.id});
       const hash = argon2.hash(refreshTokenNew);
       await updateToken(user.email, hash);
       return res.status(200).json({
@@ -236,28 +237,30 @@ exports.refresh = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const {email} = req.body;
     if (!email) {
       return res.status(400).json({
         success: false,
         message: "Field is required",
       });
     } else {
-      const user = await User.findOne({ email: email });
+      const user = await User.findOne({email: email});
       if (!user) {
         return res.status(400).json({
           success: false,
           message: "Account with this email not found",
         });
       } else {
+        console.log(email)
         const otp = genOtp();
         await saveOtp(email, otp);
         await User.findOneAndUpdate(
-          { email: email },
-          { resetPasswordStatus: true },
-          { new: true }
+          {email: email},
+          {resetPasswordStatus: true},
+          {new: true}
         );
-        const html = sendOtpMail({ otp, firstName: user.firstName, lastName: user.lastName })
+        console.log(otp)
+        const html = sendOtpMail({otp, firstName: user.firstName, lastName: user.lastName})
         await sendMail({
           email: email,
           subject: "Forgot password",
@@ -280,13 +283,13 @@ exports.forgotPassword = async (req, res) => {
 
 exports.verifyOtpForgotPassword = async (req, res) => {
   try {
-    const { otp, email } = req.body;
+    const {otp, email} = req.body;
     if (!otp || !email) {
       return res.status(401).json({
         message: "All fields are required",
       });
     } else {
-      const user = await User.findOne({ email: email });
+      const user = await User.findOne({email: email});
       if (!(await verifyOtp(email, otp))) {
         return res.status(401).json({
           message: "Not found",
@@ -294,9 +297,9 @@ exports.verifyOtpForgotPassword = async (req, res) => {
       } else {
         const token = await crypto.randomBytes(20).toString("hex");
         await User.findOneAndUpdate(
-          { email: email },
-          { resetPasswordToken: token },
-          { new: true }
+          {email: email},
+          {resetPasswordToken: token},
+          {new: true}
         );
         return res.status(200).json({
           success: true,
@@ -314,13 +317,13 @@ exports.verifyOtpForgotPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const {token} = req.params;
     if (!token) {
       return res.status(400).json({
         message: "Bad request",
       });
     }
-    const user = await User.findOne({ resetPasswordToken: token });
+    const user = await User.findOne({resetPasswordToken: token});
     if (!user) {
       return res.status(400).json({
         message: "User not found.",
