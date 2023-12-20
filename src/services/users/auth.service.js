@@ -260,7 +260,7 @@ exports.forgotPassword = async (req, res) => {
           {new: true}
         );
         console.log(otp)
-        const html = sendOtpMail({otp, firstName: user.firstName, lastName: user.lastName})
+        const html = await sendOtpMail({otp, firstName: user.firstName, lastName: user.lastName})
         await sendMail({
           email: email,
           subject: "Forgot password",
