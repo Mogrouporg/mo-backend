@@ -251,7 +251,6 @@ exports.forgotPassword = async (req, res) => {
           message: "Account with this email not found",
         });
       } else {
-        console.log(email)
         const otp = genOtp();
         await saveOtp(email, otp);
         await User.findOneAndUpdate(
@@ -259,7 +258,6 @@ exports.forgotPassword = async (req, res) => {
           {resetPasswordStatus: true},
           {new: true}
         );
-        console.log(otp)
         const html = await sendOtpMail({otp, firstName: user.firstName, lastName: user.lastName})
         await sendMail({
           email: email,
