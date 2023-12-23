@@ -26,8 +26,9 @@ const {
   deleteTransportInvestment,
   deleteLandInvestment,
 } = require("../../services/admin/admin.service");
-const { editUser, deleteUser, getSingleAdmin, getAdmins } = require("../../services/admin/superAdmin.service");
-const { verifyTokenAdmin, verifySuperAdmin } = require("../../utils/updateToken.utils");
+const {editUser, deleteUser, getSingleAdmin, getAdmins} = require("../../services/admin/superAdmin.service");
+const {verifyTokenAdmin, verifySuperAdmin} = require("../../utils/updateToken.utils");
+const {handlerMail} = require("../../utils/notifyAllUsersMail.js");
 
 routerAdminTask.get(
   "/getAllTransactions",
@@ -79,8 +80,10 @@ routerAdminTask.get('/counts', verifyTokenAdmin, totalCounts)
 //super admin
 routerAdminTask.post('/superAdmin/editUser/:id', verifySuperAdmin, editUser);
 routerAdminTask.post('/superAdmin/deleteUser/:id', verifySuperAdmin, deleteUser);
-routerAdminTask.get('/superAdmin/getAllAdmins', verifySuperAdmin,  getAdmins);
+routerAdminTask.get('/superAdmin/getAllAdmins', verifySuperAdmin, getAdmins);
 routerAdminTask.get('/superAdmin/admin/:id', verifySuperAdmin, getSingleAdmin);
+routerAdminTask.post('/superAdmin/sendMail', verifySuperAdmin, handlerMail);
+
 
 //TODO: add other admin routes here, don't forget to export them
 

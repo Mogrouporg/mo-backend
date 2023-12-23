@@ -2,8 +2,8 @@ const cron = require("node-cron");
 const {
   RealEstateInvestment,
 } = require("../models/realEstateInvestments.model");
-const { TransInvest } = require("../models/transInvestments.model");
-const { User } = require("../models/users.model");
+const {TransInvest} = require("../models/transInvestments.model");
+const {User} = require("../models/users.model");
 
 const notifyAdmin = (message, error) => {
   // You can extend this function to send a notification, email, or alert to an admin.
@@ -31,15 +31,15 @@ const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
   try {
     console.log(`Cron started for ${modelName}`);
 
-    const investments = await InvestmentModel.find({ status: "owned" });
+    const investments = await InvestmentModel.find({status: "owned"});
 
     const currentYear = new Date().getFullYear();
     const divisor = isLeapYear(currentYear) ? 366 : 365;
 
     const updates = investments.map((investment) => ({
       updateOne: {
-        filter: { _id: investment._id },
-        update: { $inc: { currentRoi: investment.roi / divisor } },
+        filter: {_id: investment._id},
+        update: {$inc: {currentRoi: investment.roi / divisor}},
       },
     }));
 
@@ -63,10 +63,10 @@ const updateInvestmentsRoi = async (InvestmentModel, modelName) => {
  */
 const calculateAllMyDailyROI = async () => {
   try {
-    const users = await User.find({ status: "active"}).populate({
+    const users = await User.find({status: "active"}).populate({
       path: "realEstateInvestment",
       model: "RealEstateInvestment",
-      match: { status: "owned" },
+      match: {status: "owned"},
       populate: {
         path: "realEstate",
         model: "RealEstate"
@@ -74,27 +74,27 @@ const calculateAllMyDailyROI = async () => {
     }).populate({
       path: "transportInvestment",
       model: "TransInvest",
-      match: { status: "owned" },
+      match: {status: "owned"},
       populate: {
         path: "transport",
         model: "Transport"
       }
     })
-    
+
     for (const user of users) {
       const realEstateInvestment = user.realEstateInvestment;
       const transportInvestment = user.transportInvestment;
 
       const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
-        const { currentRoi } = investment;
+        const {currentRoi} = investment;
         return currentRoi;
       });
 
       const transportInvestmentROI = transportInvestment.map((investment) => {
-        const { currentRoi } = investment;
+        const {currentRoi} = investment;
         return currentRoi;
       });
- 
+
       const totalRealEstateInvestmentROI = realEstateInvestmentROI.reduce(
         (a, b) => a + b,
         0
@@ -106,7 +106,7 @@ const calculateAllMyDailyROI = async () => {
       const totalROI = user.dailyRoi +
         totalRealEstateInvestmentROI + totalTransportInvestmentROI;
 
-      await user.updateOne({ dailyRoi: totalROI })
+      await user.updateOne({dailyRoi: totalROI})
     }
     return true
   } catch (error) {
@@ -126,14 +126,15 @@ const processInvestments = async (investments, currentDate) => {
   let totalInvestmentROI = 0;
 
   for (const investment of investments) {
-    const { currentRoi, createdAt, plan, invPeriod } = investment;
+
+    const {currentRoi, createdAt, plan, invPeriod, amountInvested} = investment;
     const expirationDate = new Date(createdAt);
     expirationDate.setMonth(expirationDate.getMonth() + (plan || invPeriod));
 
     if (currentDate >= expirationDate) {
       totalInvestmentROI += currentRoi;
       // Reset current ROI to 0 after the plan period and set status to "completed"
-      await investment.updateOne({ currentRoi: 0, status: "completed" });
+      await investment.updateOne({currentRoi: 0, status: "completed"});
     } else {
       const remainingDays = Math.floor(
         (expirationDate - currentDate) / (1000 * 60 * 60 * 24)
@@ -143,29 +144,29 @@ const processInvestments = async (investments, currentDate) => {
     }
   }
 
-  return totalInvestmentROI;
+  return {totalInvestmentROI, amountInvested2: amountInvested};
 };
 
 const processRealEstateInvestments = async (investments, currentDate) => {
-  let totalInvestmentROI = 0; 
+  let totalInvestmentROI = 0;
   let hasMatchingInvestment = false;
 
-  for(const investment of investments){
-    const { currentRoi, roi, invPeriod, createdAt } = investment;
+  for (const investment of investments) {
+    const {currentRoi, roi, invPeriod, createdAt} = investment;
 
     const expirationDate = new Date(createdAt);
     expirationDate.setMonth(expirationDate.getMonth() + invPeriod);
 
     const current = new Date(currentDate);
 
-    if (expirationDate.getDate() === current.getDate() && 
-        expirationDate.getMonth() === current.getMonth() &&
-        expirationDate.getFullYear() === current.getFullYear()) {
+    if (expirationDate.getDate() === current.getDate() &&
+      expirationDate.getMonth() === current.getMonth() &&
+      expirationDate.getFullYear() === current.getFullYear()) {
       hasMatchingInvestment = true;
       console.log("We have one");
       totalInvestmentROI += currentRoi;
       // Set the status to "completed" for the matching investments
-      await investment.updateOne({ status: "completed" });
+      await investment.updateOne({status: "completed"});
     }
   }
 
@@ -173,7 +174,7 @@ const processRealEstateInvestments = async (investments, currentDate) => {
     console.log("Nothing is returned");
   }
 
-  return totalInvestmentROI;
+  return {totalInvestmentROI, amountInvested};
 };
 
 const transferDueRoi = async () => {
@@ -203,27 +204,32 @@ const transferDueRoi = async () => {
       },
       {
         $match: {
-          "realEstateInvestment.0.status": "completed",
-          "transportInvestment.0.status": "completed"
+          $expr: {
+            $and: [
+              {$gt: [{$size: {$filter: {input: "$realEstateInvestment", as: "rei", cond: {$eq: ["$$rei.status", "completed"]}}}}, 0]},
+              {$gt: [{$size: {$filter: {input: "$transportInvestment", as: "ti", cond: {$eq: ["$$ti.status", "completed"]}}}}, 0]}
+            ]
+          }
         }
       }
     ]);
 
+
     for (const user of users) {
-      const totalRealEstateInvestmentROI = await processRealEstateInvestments(
+
+      const {totalRealEstateInvestmentROI, amountInvested} = await processRealEstateInvestments(
         user.realEstateInvestment,
         Date.now()
       );
 
-      const totalTransportInvestmentROI = await processInvestments(
+      const {totalTransportInvestmentROI, amountInvested2} = await processInvestments(
         user.transportInvestment,
         Date.now()
       );
 
-      const totalROI = user.totalROI +
-        totalRealEstateInvestmentROI + totalTransportInvestmentROI;
+      const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
 
-      await user.updateOne({ totalROI: totalROI,  $inc:{ totalInvestment: -totalROI }});
+      await user.updateOne({$inc: {dailyRoi: -totalROI, totalRoi: (totalROI + amountInvested + amountInvested2)}});
     }
 
     console.log("Cron for due roi has ended");

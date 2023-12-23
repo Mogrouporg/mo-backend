@@ -2,25 +2,25 @@ const {
   initializePayment,
   verifyPayment,
 } = require("../../utils/payment.utils");
-const { User } = require("../../models/users.model");
-const { pushNotification } = require("../notif/notif.services");
-const { Transaction } = require("../../models/transaction.model");
-const { RealEstate } = require("../../models/realEstate.model");
+const {User} = require("../../models/users.model");
+const {pushNotification} = require("../notif/notif.services");
+const {Transaction} = require("../../models/transaction.model");
+const {RealEstate} = require("../../models/realEstate.model");
 const {
   RealEstateInvestment,
 } = require("../../models/realEstateInvestments.model");
-const { sendMail } = require("../../utils/mailer");
-const { Transportation } = require("../../models/transportations.model");
-const { TransInvest } = require("../../models/transInvestments.model");
-const { loanRequest } = require("../../models/loanRequests.model");
-const { Withdrawals } = require("../../models/withdrawalRequest.model");
+const {sendMail} = require("../../utils/mailer");
+const {Transportation} = require("../../models/transportations.model");
+const {TransInvest} = require("../../models/transInvestments.model");
+const {loanRequest} = require("../../models/loanRequests.model");
+const {Withdrawals} = require("../../models/withdrawalRequest.model");
 
 const processedRequests = new Set();
 
 exports.deposit = async (req, res) => {
   try {
-    const { email } = req.user;
-    let { amount } = req.body;
+    const {email} = req.user;
+    let {amount} = req.body;
     amount *= 100;
     if (!amount || amount < 3950) {
       return res.status(400).json({
@@ -28,7 +28,7 @@ exports.deposit = async (req, res) => {
         message: "Can't make a deposit less than NGN 3950",
       });
     }
-    const form = { amount, email };
+    const form = {amount, email};
 
     const response = await initializePayment(form);
 
@@ -48,16 +48,16 @@ exports.deposit = async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: "Internal Server error" });
+    return res.status(500).json({message: "Internal Server error"});
   }
 };
 
 exports.verifyDeposit = async (req, res) => {
   try {
-    const { reference } = req.query;
-    const transaction = await Transaction.findOne({ reference });
+    const {reference} = req.query;
+    const transaction = await Transaction.findOne({reference});
     const email = transaction.user;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
 
     if (processedRequests.has(reference)) {
       return res.status(400).json({
@@ -71,8 +71,8 @@ exports.verifyDeposit = async (req, res) => {
 
     if (response.data.data.status === "failed") {
       await transaction.updateOne(
-        { $set: { status: "Failed", balance: user.balance } },
-        { new: true }
+        {$set: {status: "Failed", balance: user.balance}},
+        {new: true}
       );
       return res.status(400).json({
         success: false,
@@ -82,8 +82,8 @@ exports.verifyDeposit = async (req, res) => {
 
     if (response.data.data.status === "abandoned") {
       await transaction.updateOne(
-        { $set: { status: "Abandoned", balance: user.balance } },
-        { new: true }
+        {$set: {status: "Abandoned", balance: user.balance}},
+        {new: true}
       );
       return res.status(400).json({
         success: false,
@@ -91,14 +91,14 @@ exports.verifyDeposit = async (req, res) => {
       });
     }
 
-    if(response.data.data.status !== "success"){
+    if (response.data.data.status !== "success") {
       return res.status(400).json({
         success: false,
         message: "Error with the payment",
       });
     }
 
-    const { amount } = response.data.data;
+    const {amount} = response.data.data;
     const newBalance = user.balance + amount / 100;
     const newNotif = {
       email: email,
@@ -107,13 +107,13 @@ exports.verifyDeposit = async (req, res) => {
 
     await Promise.all([
       transaction.updateOne(
-        { $set: { status: "Success", balance: newBalance } },
-        { new: true }
+        {$set: {status: "Success", balance: newBalance}},
+        {new: true}
       ),
       pushNotification(newNotif),
       User.findOneAndUpdate(
-        { email: email },
-        { balance: newBalance, $push: { transactions: transaction.id } }
+        {email: email},
+        {balance: newBalance, $push: {transactions: transaction.id}}
       ),
     ]);
 
@@ -123,7 +123,7 @@ exports.verifyDeposit = async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: "Internal server error", e });
+    return res.status(500).json({message: "Internal server error", e});
   }
 };
 
@@ -131,7 +131,7 @@ exports.investInRealEstate = async (req, res) => {
   try {
     const user = req.user;
     const id = req.params.id;
-    const { invPeriod } = req.body;
+    const {invPeriod} = req.body;
 
     if (!user.isVerified) {
       return res.status(403).json({
@@ -156,32 +156,33 @@ exports.investInRealEstate = async (req, res) => {
       invPeriod: invPeriod,
       status: "owned",
       currency: "NGN",
-      roi: realEstate.roi * (parseInt(invPeriod)/12), // Calculate ROI once
+      roi: realEstate.roi * (parseInt(invPeriod) / 12), // Calculate ROI once
     };
 
     const investment = new RealEstateInvestment(newInvestment)
     await investment.save()
-      const transaction = new Transaction({
-        amount: realEstate.amount.toString(),
-        user: user.email,
-        type: "Investment",
-        reference: Math.random().toString().slice(2),
-        balance: user.balance - realEstate.amount,
-        status: "Success",
-        investmentId: investment.id,
-        investment: "RealEstateInvestment",
-      })
-      await transaction.save()
+    const transaction = new Transaction({
+      amount: realEstate.amount.toString(),
+      user: user.email,
+      type: "Investment",
+      reference: Math.random().toString().slice(2),
+      balance: user.balance - realEstate.amount,
+      status: "Success",
+      investmentId: investment.id,
+      investment: "RealEstateInvestment",
+    })
+    await transaction.save()
+    const totalRoi = amount + (amount * realEstate.roi * (parseInt(invPeriod) / 12))
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
         $push: {
           realEstateInvestment: investment.id,
           transactions: transaction.id,
         },
-        $inc: { balance: -realEstate.amount, totalInvestment: realEstate.amount },
+        $inc: {balance: -realEstate.amount, totalInvestment: realEstate.amount},
         lastTransact: new Date(Date.now()),
       }),
-      realEstate.updateOne({ $inc: { numberOfBuyers: 1 } }),
+      realEstate.updateOne({$inc: {numberOfBuyers: 1}}),
       sendMail({
         email: user.email,
         subject: "Acquired a portion!",
@@ -189,9 +190,9 @@ exports.investInRealEstate = async (req, res) => {
       }),
     ]);
 
-    await investment.updateOne({ transaction: transaction.id })
+    await investment.updateOne({transaction: transaction.id, amountInvested: realEstate.amount})
     return res.status(200).json({
-    success: true,
+      success: true,
       data: investment,
     });
   } catch (error) {
@@ -206,7 +207,7 @@ exports.sellRealEstateInvestment = async (req, res) => {
   try {
     const id = req.params.id;
     const investment = await RealEstateInvestment.findById(id);
-    investment.updateOne({ status: "onSale" });
+    investment.updateOne({status: "onSale"});
     await pushNotification({
       message:
         "Your investment is now on sale.  We will get you notified when it has been sold!😀",
@@ -225,7 +226,7 @@ exports.investInTransport = async (req, res) => {
   try {
     const user = req.user;
     const id = req.params.id;
-    const { invPeriod, plan } = req.body;
+    const {invPeriod, plan} = req.body;
 
     // Basic request validation 
     if (!invPeriod || invPeriod <= 0) {
@@ -268,7 +269,7 @@ exports.investInTransport = async (req, res) => {
       });
     }
 
-    const totalRoi = 0.36 * transport.amount * invPeriod/12;
+    const totalRoi = 0.36 * transport.amount * invPeriod / 12;
 
     // Create a new investment
     const newInvestment = {
@@ -309,7 +310,7 @@ exports.investInTransport = async (req, res) => {
         },
         lastTransact: new Date(Date.now()),
       },
-      { new: true } // Get the updated user object
+      {new: true} // Get the updated user object
     );
     await transport.updateOne(
       {
@@ -330,7 +331,7 @@ exports.investInTransport = async (req, res) => {
     });
 
     // Update the investment with the transaction ID
-    await investment.updateOne({ transaction: transaction.id });
+    await investment.updateOne({transaction: transaction.id, amountInvested: transport.amount});
 
     return res.status(200).json({
       success: true,
@@ -349,7 +350,7 @@ exports.sellTransportInvestment = async (req, res) => {
   try {
     const id = req.params.id;
     const investment = await TransInvest.findById(id);
-    investment.updateOne({ status: "onSale" });
+    investment.updateOne({status: "onSale"});
     await pushNotification({
       message:
         "Your investment is now on sale.  We will get you notified when it has been sold!😀",
@@ -367,7 +368,7 @@ exports.sellTransportInvestment = async (req, res) => {
 exports.withdrawFunds = async (req, res) => {
   try {
     const user = req.user;
-    const { amount, bankDetails } = req.body;
+    const {amount, bankDetails} = req.body;
     const reference = Math.random().toString().slice(2);
 
     // Check for invalid withdrawal requests
@@ -391,7 +392,7 @@ exports.withdrawFunds = async (req, res) => {
     }
 
     // Check for pending loans
-    const loan = await loanRequest.findOne({ user: user.id, paid: false });
+    const loan = await loanRequest.findOne({user: user.id, paid: false});
     if (loan) {
       return res.status(400).json({
         success: false,
@@ -443,7 +444,7 @@ exports.withdrawFunds = async (req, res) => {
     });
 
     // Update the withdrawal request with the transaction ID
-    await withdrawal.updateOne({ transaction: transaction.id });
+    await withdrawal.updateOne({transaction: transaction.id});
 
     // Send email notification
     await sendMail({
@@ -467,7 +468,7 @@ exports.withdrawFunds = async (req, res) => {
 
 exports.requestLoan = async (req, res) => {
   try {
-    const { id } = req.user;
+    const {id} = req.user;
     const user = req.user;
 
     // Check user status
@@ -479,7 +480,7 @@ exports.requestLoan = async (req, res) => {
     }
 
     // Check if the user has an unpaid loan
-    const loanExist = await loanRequest.findOne({ user: id, paid: false });
+    const loanExist = await loanRequest.findOne({user: id, paid: false});
     if (loanExist) {
       return res.status(403).json({
         success: false,
@@ -487,7 +488,7 @@ exports.requestLoan = async (req, res) => {
       });
     }
 
-    const { amount, loanPeriod, loanDesc, bankDetails } = req.body;
+    const {amount, loanPeriod, loanDesc, bankDetails} = req.body;
     const balance = user.totalRoi;
 
     // Check if the user has added bank details
@@ -548,7 +549,7 @@ exports.requestLoan = async (req, res) => {
           transactions: transaction.id,
         },
       }),
-      await loan.updateOne({ transaction: transaction.id }),
+      await loan.updateOne({transaction: transaction.id}),
     ]);
 
     return res.status(200).json({
@@ -649,18 +650,18 @@ exports.getInvestment = async (req, res) => {
       model: "RealEstateInvestment TransInvest",
       match: {
         $or: [
-          { "realEstateInvestment._id": id },
-          { "transportInvestment._id": id },
+          {"realEstateInvestment._id": id},
+          {"transportInvestment._id": id},
         ],
       },
     });
     if (!investment) {
-      return res.status(404).json({ message: "Investment not found" });
+      return res.status(404).json({message: "Investment not found"});
     }
     const foundInvestment =
       investment.realEstateInvestment || investment.transportInvestment;
 
-    return res.status(200).json({ success: true, investment: foundInvestment });
+    return res.status(200).json({success: true, investment: foundInvestment});
   } catch (error) {
     console.log(error);
     return res.status(500).json({
