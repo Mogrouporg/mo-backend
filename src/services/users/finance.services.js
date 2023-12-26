@@ -437,7 +437,9 @@ exports.withdrawFunds = async (req, res) => {
 
     // Update user's balance and push transactions and notifications
     await user.updateOne({
-      balance: parseInt(user.totalRoi) - parseInt(amount),
+      $inc: {
+        totalRoi: -amount
+      },
       $push: {
         transactions: transaction.id,
         notifications: notification,

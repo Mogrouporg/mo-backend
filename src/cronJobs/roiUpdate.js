@@ -103,8 +103,7 @@ const calculateAllMyDailyROI = async () => {
         (a, b) => a + b,
         0
       );
-      const totalROI = user.dailyRoi +
-        totalRealEstateInvestmentROI + totalTransportInvestmentROI;
+      const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
 
       await user.updateOne({dailyRoi: totalROI})
     }
@@ -124,6 +123,7 @@ const calculateAllMyDailyROI = async () => {
  */
 const processInvestments = async (investments, currentDate) => {
   let totalInvestmentROI = 0;
+  let amountInvested2 = 0;
 
   for (const investment of investments) {
 
@@ -141,18 +141,20 @@ const processInvestments = async (investments, currentDate) => {
       );
       const dailyRoi = (currentRoi / ((plan || invPeriod) * 30)) * remainingDays;
       totalInvestmentROI += dailyRoi;
+      amountInvested2 = amountInvested;
     }
   }
 
-  return {totalInvestmentROI, amountInvested2: amountInvested};
+  return {totalInvestmentROI, amountInvested2};
 };
 
 const processRealEstateInvestments = async (investments, currentDate) => {
   let totalInvestmentROI = 0;
   let hasMatchingInvestment = false;
+  let amountInvested = 0;
 
   for (const investment of investments) {
-    const {currentRoi, roi, invPeriod, createdAt} = investment;
+    const {currentRoi, invPeriod, createdAt, amountInvested} = investment;
 
     const expirationDate = new Date(createdAt);
     expirationDate.setMonth(expirationDate.getMonth() + invPeriod);
@@ -165,6 +167,7 @@ const processRealEstateInvestments = async (investments, currentDate) => {
       hasMatchingInvestment = true;
       console.log("We have one");
       totalInvestmentROI += currentRoi;
+      amountInvested = amountInvested;
       // Set the status to "completed" for the matching investments
       await investment.updateOne({status: "completed"});
     }
@@ -229,10 +232,8 @@ const transferDueRoi = async () => {
 
       const totalROI = totalRealEstateInvestmentROI + totalTransportInvestmentROI;
 
-      await user.updateOne({$inc: {dailyRoi: -totalROI, totalRoi: (totalROI + amountInvested + amountInvested2)}});
+      await user.updateOne({$inc: {dailyRoi: -totalROI}});
     }
-
-    console.log("Cron for due roi has ended");
     return true;
   } catch (error) {
     throw error; // Rethrow the error for higher-level error handling
