@@ -1,13 +1,13 @@
-const { User } = require("../../models/users.model");
-const { sendMail } = require("../../utils/mailer");
-const { Transaction } = require("../../models/transaction.model");
-const { TransInvest } = require("../../models/transInvestments.model");
+const {User} = require("../../models/users.model");
+const {sendMail} = require("../../utils/mailer");
+const {Transaction} = require("../../models/transaction.model");
+const {TransInvest} = require("../../models/transInvestments.model");
 const {
   RealEstateInvestment,
 } = require("../../models/realEstateInvestments.model");
-const { imageUpload } = require("../../utils/imageUpload.util");
-const { RealEstate } = require("../../models/realEstate.model");
-const { Transportation } = require("../../models/transportations.model");
+const {imageUpload} = require("../../utils/imageUpload.util");
+const {RealEstate} = require("../../models/realEstate.model");
+const {Transportation} = require("../../models/transportations.model");
 const argon2 = require("argon2");
 
 const calculateAllMyDailyROI = async (userId) => {
@@ -29,12 +29,12 @@ const calculateAllMyDailyROI = async (userId) => {
     console.log(transportInvestment);
 
     const realEstateInvestmentROI = realEstateInvestment.map((investment) => {
-      const { roi } = investment;
+      const {roi} = investment;
       return roi;
     });
 
     const transportInvestmentROI = transportInvestment.map((investment) => {
-      const { roi } = investment;
+      const {roi} = investment;
       return roi;
     });
 
@@ -63,10 +63,6 @@ exports.myProfile = async (req, res) => {
         message: "User not found",
       });
     }
-    user.totalRoi = await calculateAllMyDailyROI(userId);
-
-    await user.save();
-
     return res.status(200).json({
       success: true,
       data: user,
@@ -85,7 +81,7 @@ exports.editAccount = async (req, res) => {
     const body = req.body;
     let updatedUser = null;
     if (Object.keys(body).length > 0) {
-      updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
+      updatedUser = await User.findByIdAndUpdate(id, body, {new: true});
     }
 
     if (!updatedUser) {
@@ -109,7 +105,7 @@ exports.editAccount = async (req, res) => {
 exports.addBankDetails = async (req, res) => {
   try {
     const user = req.user;
-    const { bankName, accountName, accountNumber } = req.body;
+    const {bankName, accountName, accountNumber} = req.body;
     if (!bankName || !accountName || !accountNumber) {
       return res.status(400).json({
         message: "Please provide all fields",
@@ -123,9 +119,9 @@ exports.addBankDetails = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       user.id,
       {
-        $push: { bankDetails: { bankName, accountName, accountNumber } },
+        $push: {bankDetails: {bankName, accountName, accountNumber}},
       },
-      { new: true }
+      {new: true}
     );
     return res.status(200).json({
       success: true,
@@ -145,8 +141,8 @@ exports.getMyTransactions = async (req, res) => {
       .select("transactions")
       .populate({
         path: "transactions",
-        match: { status: { $nin: ["Abandoned"] } },
-        options: { sort: { createdAt: -1 } }
+        match: {status: {$nin: ["Abandoned"]}},
+        options: {sort: {createdAt: -1}}
       })
       .populate({
         path: "transactions.investment",
@@ -166,7 +162,7 @@ exports.getMyTransactions = async (req, res) => {
 };
 exports.getSingleRealEstate = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {id} = req.params;
     const investment = await RealEstate.findById(id);
     if (!investment) {
       return res.status(404).json({
@@ -187,7 +183,7 @@ exports.getSingleRealEstate = async (req, res) => {
 
 exports.getSingleTransportTation = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {id} = req.params;
     const investment = await Transportation.findById(id);
     if (!investment) {
       return res.status(404).json({
@@ -247,7 +243,7 @@ exports.getMyInvestments = async (req, res) => {
         User.findById(_id).select("transportInvestment"),
       ]);
 
-    const pagination = { 
+    const pagination = {
       currentPage: page,
       itemsPerPage: perPage,
       totalRealEstateInvestments:
@@ -274,13 +270,13 @@ exports.getMyInvestments = async (req, res) => {
 
 exports.uploadProfilePicture = async (req, res) => {
   try {
-    const { id } = req.user;
-    const { file } = req.files;
+    const {id} = req.user;
+    const {file} = req.files;
     const url = await imageUpload(file, "avatars");
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { profile_url: url },
-      { new: true }
+      {profile_url: url},
+      {new: true}
     );
     return res.status(200).json({
       success: true,
@@ -297,7 +293,7 @@ exports.uploadProfilePicture = async (req, res) => {
 exports.updatePassword = async (req, res) => {
   try {
     const user = req.user;
-    const { oldPassword, newPassword } = req.body;
+    const {oldPassword, newPassword} = req.body;
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
         message: "Please provide all fields",
@@ -313,8 +309,8 @@ exports.updatePassword = async (req, res) => {
     const hashedPassword = await argon2.hash(newPassword);
     const updatedUser = await User.findByIdAndUpdate(
       user.id,
-      { password: hashedPassword },
-      { new: true }
+      {password: hashedPassword},
+      {new: true}
     );
 
     return res.status(200).json({
