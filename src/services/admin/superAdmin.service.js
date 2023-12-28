@@ -1,5 +1,8 @@
 const {User} = require("../../models/users.model");
 const {Admin} = require("../../models/admins.model");
+const {Transaction} = require("../../models/transaction.model");
+const {Investment} = require("../../models/investment");
+const {Withdrawal} = require("../../models/withdrawalRequest.model");
 
 
 exports.editUser = async (req, res) => {
