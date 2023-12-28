@@ -50,10 +50,15 @@ exports.deleteUser = async (req, res) => {
     });
   }
   await Promise.all([
-    await transactions.deleteMany(),
-    await investments.deleteMany(),
-    await withdrawals.deleteMany(),
-    await loans.deleteMany()
+    transactions.map(async (transaction) => {
+      await transaction.deleteOne();
+    }),
+    withdrawals.map(async (withdrawal) => {
+      await withdrawal.deleteOne();
+    }),
+    loans.map(async (loan) => {
+      await loan.deleteOne();
+    })
   ]);
   await user.deleteOne();
 
