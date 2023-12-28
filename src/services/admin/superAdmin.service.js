@@ -1,8 +1,7 @@
 const {User} = require("../../models/users.model");
 const {Admin} = require("../../models/admins.model");
 const {Transaction} = require("../../models/transaction.model");
-const {Investment} = require("../../models/investment");
-const {Withdrawal} = require("../../models/withdrawalRequest.model");
+const {Withdrawals} = require("../../models/withdrawalRequest.model");
 const {loanRequest} = require("../../models/loanRequests.model");
 
 
@@ -42,8 +41,7 @@ exports.deleteUser = async (req, res) => {
     });
   }
   const transactions = await Transaction.find({user: user.email});
-  const investments = await Investment.find({user: id});
-  const withdrawals = await Withdrawal.find({user: id});
+  const withdrawals = await Withdrawals.find({user: id});
   const loans = await loanRequest.find({user: id});
 
   if (!user) {
