@@ -37,11 +37,22 @@ exports.deleteUser = async (req, res) => {
       message: "You are not authenticated to perform this action"
     });
   }
+  const transactions = await Transaction.find({user: user.email});
+  const investments = await Investment.find({user: id});
+  const withdrawals = await Withdrawal.find({user: id});
+  const loans = await loanRequest.find({user: id});
+
   if (!user) {
     return res.status(404).json({
       message: "User not found",
     });
   }
+  await Promise.all([
+    await transactions.deleteMany(),
+    await investments.deleteMany(),
+    await withdrawals.deleteMany(),
+    await loans.deleteMany()
+  ]);
   await user.deleteOne();
 
   return res.status(200).json({
