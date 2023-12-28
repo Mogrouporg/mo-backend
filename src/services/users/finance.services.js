@@ -379,18 +379,6 @@ exports.withdrawFunds = async (req, res) => {
         message: "Please add your bank details and amount",
       });
     }
-    if (parseInt(amount) < 1000 || parseInt(amount) > 5000000) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot withdraw less than NGN1000 or more than NGN5000000",
-      });
-    }
-    if (parseInt(amount) + 500 >= user.totalRoi) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot leave less than 500 in the account",
-      });
-    }
 
     // Check for pending loans
     const loan = await loanRequest.findOne({user: user.id, paid: false});
