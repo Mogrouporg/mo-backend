@@ -280,7 +280,8 @@ exports.investInTransport = async (req, res) => {
       status: "owned",
       currency: "NGN",
       roi: totalRoi,
-      plan: plan
+      plan: plan,
+      amountInvested: transport.amount,
     };
 
     const [investment, transaction] = await Promise.all([
