@@ -14,6 +14,7 @@ const {Transportation} = require("../../models/transportations.model");
 const {TransInvest} = require("../../models/transInvestments.model");
 const {loanRequest} = require("../../models/loanRequests.model");
 const {Withdrawals} = require("../../models/withdrawalRequest.model");
+const {notifyAdmin} = require("../../utils/notifyAllUsers.util");
 
 const processedRequests = new Set();
 
@@ -186,7 +187,7 @@ exports.investInRealEstate = async (req, res) => {
       sendMail({
         email: user.email,
         subject: "Acquired a portion!",
-        text: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`,
+        html: `You have successfully acquired ${realEstate.size} of ${realEstate.propertyName} at the rate of ${realEstate.amount}`,
       }),
     ]);
 
@@ -211,9 +212,11 @@ exports.sellRealEstateInvestment = async (req, res) => {
     const user = await User.findById(data.id);
 
     investment.updateOne({status: "onSale"});
-    user.updateOne({ $inc: {
-      //TODO: Add the amount to the user's balance
-    } })
+    user.updateOne({
+      $inc: {
+        //TODO: Add the amount to the user's balance
+      }
+    })
     await pushNotification({
       message:
         "Your investment is now on sale.  We will get you notified when it has been sold!😀",
@@ -449,8 +452,9 @@ exports.withdrawFunds = async (req, res) => {
     await sendMail({
       email: user.email,
       subject: "Withdrawal Request",
-      text: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
+      html: `You have successfully placed a withdrawal request of ${amount} to your bank account.`,
     });
+    await notifyAdmin("Withdrawal Request", `A withdrawal request of ${amount} has been placed by ${user.email}`)
 
     return res.status(200).json({
       success: true,

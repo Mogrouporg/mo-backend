@@ -47,3 +47,31 @@ exports.notifyAllUsers = async (users, title, message) => {
     transporter.close();
   }
 }
+
+exports.notifyAdmin = async (title, message) => {
+  try {
+    const admins = await Admin.find({});
+    const emails = admins.map(admin => admin.email);
+    for (let i = 0; i < emails.length; i += BATCH_SIZE) {
+      const emailBatch = emails.slice(i, i + BATCH_SIZE);
+
+      // Use Promise.all to send emails and notifications in parallel
+      await Promise.all([
+        sendMailBatch(emailBatch, title, message),
+        pushNotificationBatch(emailBatch, message)
+      ]);
+
+      // Introduce a delay between batches
+      if (i + BATCH_SIZE < emails.length) {
+        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
+      }
+    }
+
+    return true;
+
+
+  } catch (error) {
+    console.log(error);
+  }
+
+}
