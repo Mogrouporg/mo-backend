@@ -207,7 +207,13 @@ exports.sellRealEstateInvestment = async (req, res) => {
   try {
     const id = req.params.id;
     const investment = await RealEstateInvestment.findById(id);
+    const data = req.user;
+    const user = await User.findById(data.id);
+
     investment.updateOne({status: "onSale"});
+    user.updateOne({ $inc: {
+      //TODO: Add the amount to the user's balance
+    } })
     await pushNotification({
       message:
         "Your investment is now on sale.  We will get you notified when it has been sold!😀",

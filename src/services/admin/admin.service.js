@@ -1,24 +1,24 @@
-const { User } = require("../../models/users.model");
-const { Admin } = require("../../models/admins.model");
-const { Transaction } = require("../../models/transaction.model");
-const { imageUpload } = require("../../utils/imageUpload.util");
-const { RealEstate } = require("../../models/realEstate.model");
+const {User} = require("../../models/users.model");
+const {Admin} = require("../../models/admins.model");
+const {Transaction} = require("../../models/transaction.model");
+const {imageUpload} = require("../../utils/imageUpload.util");
+const {RealEstate} = require("../../models/realEstate.model");
 const {
   notifyAllUsers,
   startProcessing,
   stopProcessing,
 } = require("../../utils/notifyAllUsers.util");
-const { loanRequest } = require("../../models/loanRequests.model");
-const { realEstateSchema, transportSchema } = require("../../models/validations/data");
-const { Transportation } = require("../../models/transportations.model");
-const { Withdrawals } = require("../../models/withdrawalRequest.model");
-const { pushNotification } = require("../notif/notif.services");
+const {loanRequest} = require("../../models/loanRequests.model");
+const {realEstateSchema, transportSchema} = require("../../models/validations/data");
+const {Transportation} = require("../../models/transportations.model");
+const {Withdrawals} = require("../../models/withdrawalRequest.model");
+const {pushNotification} = require("../notif/notif.services");
 const Investment = require("../../models/investment");
-const { sendNewPropertyMail, sendNewTransportMail } = require("../../utils/mailTemplates/newProperty.mail");
+const {sendNewPropertyMail, sendNewTransportMail} = require("../../utils/mailTemplates/newProperty.mail");
 
 exports.getAllTransactions = async (req, res) => {
   try {
-    const { status, type } = req.query; // Extract the filter parameters from the query string
+    const {status, type} = req.query; // Extract the filter parameters from the query string
 
     // Build the query object based on the presence of filter parameters
     let query = {};
@@ -31,13 +31,13 @@ exports.getAllTransactions = async (req, res) => {
 
     let transactions = await Transaction.find(query) // Use the query object in the find method
       .select("amount status -_id user type status")
-      .sort({ createdAt: -1 });
+      .sort({createdAt: -1});
 
     // Using Promise.all to handle asynchronous operations
     transactions = await Promise.all(
       transactions.map(async (transaction) => {
         const email = transaction.user;
-        const user = await User.findOne({ email: email }).select(
+        const user = await User.findOne({email: email}).select(
           "firstName lastName _id email status"
         );
         transaction.user = JSON.stringify(user);
@@ -62,7 +62,7 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find().select(
       "-password -token -resetPasswordToken"
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
-    .populate('transportInvestment', "transportName image _id amount transportType description")
+      .populate('transportInvestment', "transportName image _id amount transportType description")
     return res.status(200).json({
       success: true,
       data: users,
@@ -83,7 +83,7 @@ exports.searchUsers = async (req, res) => {
     let searchFilters = {};
 
     if (searchQuery) {
-      searchFilters.email = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+      searchFilters.email = {$regex: new RegExp(searchQuery, 'i')}; // Case-insensitive search
     }
 
     if (req.query.status) {
@@ -128,7 +128,7 @@ exports.getSingleUser = async (req, res) => {
     const user = await User.findById(id).select(
       "-password -token -resetPasswordToken"
     ).populate("transactions", "amount status -_id user type status").populate('realEstateInvestment', "propertyName image _id sizeInSqm amount state")
-    .populate('transportInvestment', "transportName image _id amount transportType description")
+      .populate('transportInvestment', "transportName image _id amount transportType description")
     return res.status(200).json({
       success: true,
       data: user,
@@ -144,24 +144,24 @@ exports.getSingleUser = async (req, res) => {
 exports.createLandInvestment = async (req, res) => {
   try {
     // Input validation
-    const { error, value } = realEstateSchema.validate({
+    const {error, value} = realEstateSchema.validate({
       ...req.body,
       images: req.files.images,
     });
     if (error) {
-      return res.status(400).json({ message: "All fields are required!" });
+      return res.status(400).json({message: "All fields are required!"});
     }
 
-    
-    const { name, amount, size, address, location, images, state, description } = value;
+
+    const {name, amount, size, address, location, images, state, description} = value;
 
     // Image upload
     const urls = await imageUpload(images, "realEstate");
 
     // Fetch users
-    const users = await User.find({ status: "active" }, "email");
+    const users = await User.find({status: "active"}, "email");
 
-    
+
 
     // Create real estate object
     const newRealEstate = new RealEstate({
@@ -173,7 +173,7 @@ exports.createLandInvestment = async (req, res) => {
       location: location,
       state: state,
       description: description,
-      roi: 0.35*amount,
+      roi: 0.35 * amount,
     });
 
     // Save real estate object
@@ -202,20 +202,20 @@ exports.createLandInvestment = async (req, res) => {
 
 exports.createTransportInvestment = async (req, res) => {
   try {
-    const { error, value } = transportSchema.validate({
+    const {error, value} = transportSchema.validate({
       ...req.body,
       images: req.files.images,
     });
 
     if (error) {
-      return res.status(400).json({ message: "All fields are required!" });
+      return res.status(400).json({message: "All fields are required!"});
     }
 
-    const { name, amount, images, type, description } = value;
+    const {name, amount, images, type, description} = value;
 
     const urls = await imageUpload(images, "transport");
 
-    const users = await User.find({ status: "active" }, "email");
+    const users = await User.find({status: "active"}, "email");
 
     const newTransport = new Transportation({
       transportName: name,
@@ -265,7 +265,7 @@ exports.editLandInvestment = async (req, res) => {
       updateData.image = urls;
     }
 
-    const updatedInvestment = await RealEstate.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedInvestment = await RealEstate.findByIdAndUpdate(id, updateData, {new: true});
 
     return res.status(200).json({
       success: true,
@@ -296,7 +296,7 @@ exports.editTransportInvestment = async (req, res) => {
       updateData.image = urls;
     }
 
-    const updatedInvestment = await Transportation.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedInvestment = await Transportation.findByIdAndUpdate(id, updateData, {new: true});
 
     return res.status(200).json({
       success: true,
@@ -360,45 +360,45 @@ exports.deleteTransportInvestment = async (req, res) => {
 
 exports.getAllRealEstates = async (req, res) => {
   try {
-      const page = parseInt(req.query.page) || 1; 
-      const perPage = 10;
-      const stateFilter = req.query.state ? { onSale: true, state: req.query.state } : { onSale: true };
-      
-      const startIndex = (page - 1) * perPage;
-      const totalInvestments = await RealEstate.countDocuments(stateFilter).exec();
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 10;
+    const stateFilter = req.query.state ? {onSale: true, state: req.query.state} : {onSale: true};
 
-      const investments = await RealEstate.find(stateFilter)
-          .skip(startIndex)
-          .limit(perPage).sort({ createdAt: -1 });
+    const startIndex = (page - 1) * perPage;
+    const totalInvestments = await RealEstate.countDocuments(stateFilter).exec();
 
-      const pagination = {
-          currentPage: page,
-          itemsPerPage: perPage,
-          totalItems: totalInvestments,
-          totalPages: Math.ceil(totalInvestments / perPage),
-      };
+    const investments = await RealEstate.find(stateFilter)
+      .skip(startIndex)
+      .limit(perPage).sort({createdAt: -1});
 
-      return res.status(200).json({
-          success: true,
-          data: investments,
-          pagination: pagination,
-      });
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalInvestments,
+      totalPages: Math.ceil(totalInvestments / perPage),
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: investments,
+      pagination: pagination,
+    });
   } catch (e) {
-      console.log(e);
-      return res.status(500).json({
-          message: "Internal Server Error",
-      });
+    console.log(e);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };
- exports.searchRealEstates= async (req, res) => {
+exports.searchRealEstates = async (req, res) => {
   try {
     const searchQuery = req.query.search;
     const page = parseInt(req.query.page) || 1;
     const perPage = 10;
-    let searchFilters = { onSale: true };
+    let searchFilters = {onSale: true};
 
     if (searchQuery) {
-      searchFilters.propertyName = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+      searchFilters.propertyName = {$regex: new RegExp(searchQuery, 'i')}; // Case-insensitive search
     }
 
     if (req.query.state) {
@@ -443,11 +443,11 @@ exports.getAllTransports = async (req, res) => {
 
     const startIndex = (page - 1) * perPage;
 
-    const totalInvestments = await Transportation.countDocuments({ onSale: true }).exec();
+    const totalInvestments = await Transportation.countDocuments({onSale: true}).exec();
 
-    const investments = await Transportation.find({ onSale: true })
+    const investments = await Transportation.find({onSale: true})
       .skip(startIndex)
-      .limit(perPage).sort({ createdAt: -1 });
+      .limit(perPage).sort({createdAt: -1});
 
     const pagination = {
       currentPage: page,
@@ -470,15 +470,15 @@ exports.getAllTransports = async (req, res) => {
 };
 
 
-exports.searchTransports = async (req, res)=>{
+exports.searchTransports = async (req, res) => {
   try {
     const searchQuery = req.query.search;
     const page = parseInt(req.query.page) || 1;
     const perPage = 10;
-    let searchFilters = { onSale: true };
+    let searchFilters = {onSale: true};
 
     if (searchQuery) {
-      searchFilters.transportName = { $regex: new RegExp(searchQuery, 'i') }; // Case-insensitive search
+      searchFilters.transportName = {$regex: new RegExp(searchQuery, 'i')}; // Case-insensitive search
     }
 
     if (req.query.type) {
@@ -552,7 +552,7 @@ exports.approveLoan = async (req, res) => {
       });
     }
 
-    const { status } = req.body; // "approved" || "rejected"
+    const {status} = req.body; // "approved" || "rejected"
 
     if (status === "Approved" || status === "Declined") {
       loan.status = status;
@@ -562,14 +562,14 @@ exports.approveLoan = async (req, res) => {
       const transaction = await Transaction.findById(loan.transaction);
 
       if (status === "Approved") {
-        await transaction.updateOne({ status: "Success" });
+        await transaction.updateOne({status: "Success"});
         const message = `Your loan request of ${loan.amount} has been approved!`;
         await pushNotification({
           message: message,
           email: user.email,
         });
       } else if (status === "Declined") {
-        await transaction.updateOne({ status: "Failed" });
+        await transaction.updateOne({status: "Failed"});
         const message = `Your loan request of ${loan.amount} has been rejected!`;
         await pushNotification({
           message: message,
@@ -619,8 +619,8 @@ exports.getAllLoans = async (req, res) => {
       }
     }
 
-    const loans = await loanRequest.find(query).populate("user").sort({ createdAt: -1 });
-    
+    const loans = await loanRequest.find(query).populate("user").sort({createdAt: -1});
+
     return res.status(200).json({
       success: true,
       data: loans,
@@ -675,7 +675,7 @@ exports.getAllWithdrawalRequests = async (req, res) => {
     }
 
     const requests = await Withdrawals.find(query).populate("user");
-    
+
     return res.status(200).json({
       success: true,
       data: requests,
@@ -716,7 +716,7 @@ exports.approveWithdrawal = async (req, res) => {
       });
     }
 
-    const { status } = req.body;
+    const {status} = req.body;
 
     if (status === "Approved" || status === "Declined") {
       request.status = status;
@@ -724,17 +724,28 @@ exports.approveWithdrawal = async (req, res) => {
 
       const user = await User.findById(request.user);
       const transaction = await Transaction.findById(request.transaction);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      if (!transaction) {
+        return res.status(404).json({
+          message: "Transaction not found",
+        });
+      }
 
       if (status === "Approved") {
-        await transaction.updateOne({ status: "Success" });
-        await user.updateOne({ $inc:{ totalRoi: -request.amount}})
+        await transaction.updateOne({status: "Success"});
+        await user.updateOne({$inc: {totalRoi: -request.amount}})
         const message = `Your withdrawal request of ${request.amount} has been approved!`;
         await pushNotification({
           message: message,
           email: user.email,
         });
       } else if (status === "Declined") {
-        await transaction.updateOne({ status: "Decline" });
+        await transaction.updateOne({status: "Decline"});
         const message = `Your withdrawal request of ${request.amount} has been rejected!`;
         await pushNotification({
           message: message,
@@ -751,7 +762,7 @@ exports.approveWithdrawal = async (req, res) => {
         message: "Invalid status",
       });
     }
-  }catch (error) {
+  } catch (error) {
     console.error(error);
     return res.status(500).json({
       message: "Internal Server error",
@@ -761,52 +772,52 @@ exports.approveWithdrawal = async (req, res) => {
 
 
 exports.banUser = async (req, res) => {
-    const id = req.params.id;
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-    if (user.banStatus === "banned") {
-      return res.status(400).json({
-        message: "User already banned",
-      });
-    }
-    await user.updateOne({ banStatus: 'banned'}, { new: true });
-    return res.status(200).json({
-      success: true,
-      data: user,
+  const id = req.params.id;
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
     });
+  }
+  if (user.banStatus === "banned") {
+    return res.status(400).json({
+      message: "User already banned",
+    });
+  }
+  await user.updateOne({banStatus: 'banned'}, {new: true});
+  return res.status(200).json({
+    success: true,
+    data: user,
+  });
 }
 
 exports.activateUser = async (req, res) => {
-    const id = req.params.id;
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-    if (user.banStatus === "active") {
-      return res.status(400).json({
-        message: "User already active",
-      });
-    }
-    await user.updateOne({ banStatus: "active" }, { new: true });
-    return res.status(200).json({
-      success: true,
-      data: user,
+  const id = req.params.id;
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
     });
+  }
+  if (user.banStatus === "active") {
+    return res.status(400).json({
+      message: "User already active",
+    });
+  }
+  await user.updateOne({banStatus: "active"}, {new: true});
+  return res.status(200).json({
+    success: true,
+    data: user,
+  });
 }
 
-exports.totalCounts = async (req, res)=>{
-  try{
-    const count = await User.count({ status: 'inactive'})
-    const totalBannedUsers = await User.count({ banStatus: 'banned'});
+exports.totalCounts = async (req, res) => {
+  try {
+    const count = await User.count({status: 'inactive'})
+    const totalBannedUsers = await User.count({banStatus: 'banned'});
     const properties = await Investment.count();
-    const availableProperties = await RealEstate.count({ onSale: true });
-    const availableTransport = await Transportation.count({ onSale: true });
+    const availableProperties = await RealEstate.count({onSale: true});
+    const availableTransport = await Transportation.count({onSale: true});
 
 
 
@@ -818,7 +829,7 @@ exports.totalCounts = async (req, res)=>{
       availableProperties: availableProperties,
       availableTransport: availableTransport
     })
-  }catch(e){
+  } catch (e) {
     console.log(e)
     return res.status(500).json({
       message: "Internal Server Error"
