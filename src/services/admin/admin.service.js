@@ -738,7 +738,7 @@ exports.approveWithdrawal = async (req, res) => {
 
       if (status === "Approved") {
         await transaction.updateOne({status: "Success"});
-        await user.updateOne({$inc: {totalRoi: -request.amount}})
+        await user.updateOne({$inc: {totalRoi: -parseInt(request.amount)}});
         const message = `Your withdrawal request of ${request.amount} has been approved!`;
         await pushNotification({
           message: message,

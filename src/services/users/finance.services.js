@@ -423,7 +423,7 @@ exports.withdrawFunds = async (req, res) => {
       }),
       Withdrawals.create({
         user: user.id,
-        amount: amount,
+        amount: parseInt(amount),
         bankDetails: bankDetails,
         status: "Pending",
       }),
@@ -435,10 +435,6 @@ exports.withdrawFunds = async (req, res) => {
 
     // Update user's balance and push transactions and notifications
     await user.updateOne({
-      $inc: {
-        totalRoi: -amount,
-        totalInvestment: -parseInt(amount),
-      },
       $push: {
         transactions: transaction.id,
         notifications: notification,
