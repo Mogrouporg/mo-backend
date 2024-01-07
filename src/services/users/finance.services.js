@@ -158,6 +158,7 @@ exports.investInRealEstate = async (req, res) => {
       status: "owned",
       currency: "NGN",
       roi: realEstate.roi * (parseInt(invPeriod) / 12), // Calculate ROI once
+      amountInvested: realEstate.amount
     };
 
     const investment = new RealEstateInvestment(newInvestment)
