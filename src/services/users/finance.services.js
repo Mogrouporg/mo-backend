@@ -15,6 +15,8 @@ const {TransInvest} = require("../../models/transInvestments.model");
 const {loanRequest} = require("../../models/loanRequests.model");
 const {Withdrawals} = require("../../models/withdrawalRequest.model");
 const {notifyAdmin} = require("../../utils/notifyAllUsers.util");
+const {House} = require("../../models/house.model");
+const {HouseInvestment} = require("../../models/houseInvestment.model");
 
 const processedRequests = new Set();
 
@@ -664,6 +666,51 @@ exports.getInvestment = async (req, res) => {
     return res.status(200).json({success: true, investment: foundInvestment});
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+exports.investInHousing = async (req, res) => {
+  const user = req.user;
+  const {id} = req.params;
+  const {amount} = req.body;
+
+  try {
+    const house = await House.findById(id);
+    if (!house) {
+      return res.status(404).json({message: "House not found"});
+    }
+    if (house.funded >= house.target) {
+      return res.status(404).json({message: "House already funded"});
+    }
+    const balance = user.balance;
+    if (amount > balance) {
+      return res.status(404).json({message: "Insufficient balance"});
+    }
+
+    const newInvestment = new HouseInvestment({
+      user: user.id,
+      house: house.id,
+      amount,
+    });
+    await newInvestment.save();
+
+    await Promise.all([
+      newInvestment.save(),
+      if (!house.users.includes(user.id)) {
+      house.updateOne({$push: {users: user.id}});
+    }
+    house.updateOne({$inc: {funded: amount}}),
+      user.updateOne({$inc: {balance: -amount}, $push: {investments: newInvestment.id}}),
+    ]);
+
+    return res.status(200).json({success: true, message: "Investment successful"});
+
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

@@ -9,8 +9,8 @@ const realEstateSchema = Joi.object({
   images: Joi.any().required(),
   description: Joi.string().required(),
   state: Joi.string()
-  .required()
-  .valid('Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Abuja', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara')
+    .required()
+    .valid('Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Abuja', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara')
 });
 
 const transportSchema = Joi.object({
@@ -19,6 +19,15 @@ const transportSchema = Joi.object({
   type: Joi.string().required(),
   images: Joi.any().required(),
   description: Joi.string().required(),
-})
+});
 
-module.exports = { realEstateSchema, transportSchema }
+const houseSchema = Joi.object({
+  name: Joi.string(),
+  amount: Joi.number(),
+  category: Joi.string(),
+  address: Joi.string(),
+  images: Joi.any(),
+  description: Joi.string(),
+});
+
+module.exports = {realEstateSchema, transportSchema, houseSchema}

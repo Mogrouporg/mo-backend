@@ -9,12 +9,14 @@ const {
   stopProcessing,
 } = require("../../utils/notifyAllUsers.util");
 const {loanRequest} = require("../../models/loanRequests.model");
-const {realEstateSchema, transportSchema} = require("../../models/validations/data");
+const {realEstateSchema, transportSchema, houseSchema} = require("../../models/validations/data");
 const {Transportation} = require("../../models/transportations.model");
 const {Withdrawals} = require("../../models/withdrawalRequest.model");
 const {pushNotification} = require("../notif/notif.services");
 const Investment = require("../../models/investment");
 const {sendNewPropertyMail, sendNewTransportMail} = require("../../utils/mailTemplates/newProperty.mail");
+const {House} = require("../../models/house.model");
+const {HouseInvestment} = require("../../models/houseInvestment.model");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -841,3 +843,51 @@ exports.totalCounts = async (req, res) => {
     })
   }
 }
+
+exports.createHouse = async (req, res) => {
+  try {
+
+    const {error, value} = houseSchema.validate({
+      ...req.body,
+      images: req.files.images,
+    });
+
+    if (error) {
+      return res.status(400).json({message: "All fields are required!"});
+    }
+
+    const {name, amount, images, category, description} = value;
+
+    const urls = await imageUpload(images, "house");
+
+    const users = await User.find({status: "active"}, "email");
+
+    const house = new House({
+      name,
+      amount,
+      images: urls,
+      category,
+      description,
+    });
+
+    const message = `You can invest in ${name} that has just been added to the platform!`;
+
+    await Promise.all([
+      notifyAllUsers(users, 'New House Listed', message),
+      house.save(),
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      data: house,
+    });
+
+  } catch (e) {
+    console.log(e)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+};
+
+
