@@ -1,5 +1,5 @@
 const {Schema, model} = require('mongoose');
-const Investment = require('./investment.model');
+const Investment = require('./investment');
 
 const houseInvestmentSchema = new Schema({
   user: {

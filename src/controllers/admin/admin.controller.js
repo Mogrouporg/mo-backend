@@ -29,7 +29,7 @@ const {
   editHouse,
   deleteHouse,
   getSingleHouse,
-  getAllHouses
+  getHouses
 } = require("../../services/admin/admin.service");
 const {editUser, deleteUser, getSingleAdmin, getAdmins} = require("../../services/admin/superAdmin.service");
 const {verifyTokenAdmin, verifySuperAdmin} = require("../../utils/updateToken.utils");
@@ -68,7 +68,7 @@ routerAdminTask.post("/real-estate/delete/:id", verifyTokenAdmin, deleteLandInve
 routerAdminTask.post("/house/create", verifyTokenAdmin, createHouse);
 routerAdminTask.post("/house/edit/:id", verifyTokenAdmin, editHouse);
 routerAdminTask.post("/house/delete/:id", verifyTokenAdmin, deleteHouse);
-routerAdminTask.get("/houses", verifyTokenAdmin, getAllHouses);
+routerAdminTask.get("/houses", verifyTokenAdmin, getHouses);
 routerAdminTask.get("/house/:id", verifyTokenAdmin, getSingleHouse);
 
 // Approval
