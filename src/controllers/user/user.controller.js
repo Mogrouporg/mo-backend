@@ -28,6 +28,8 @@ const {
 const {
   getAllRealEstates,
   getAllTransports,
+  getHouses,
+  getSingleHouse
 } = require("../../services/admin/admin.service");
 
 useRouter.get("/user/notifications", verifyToken, findNotifById);
@@ -55,5 +57,7 @@ useRouter.post("/reset-password-profile", verifyToken, updatePassword);
 useRouter.get("/getAllMyInvestments", verifyToken, getAllInvestment);
 useRouter.get("/getSingleInvestment/:id", verifyToken, getInvestment);
 useRouter.post("/housing/:id/invest", verifyToken, checkIsBanned, investInHousing);
+useRouter.get("/houses", getHouses);
+useRouter.get("/house/:id", getSingleHouse);
 
 module.exports = useRouter;
