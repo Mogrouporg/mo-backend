@@ -696,16 +696,18 @@ exports.investInHousing = async (req, res) => {
       user: user.id,
       house: house.id,
       amount,
+      roi: amount * (house.roiPercentage / 100)
     });
     await newInvestment.save();
+    if (!house.users.includes(user.id)) {
+      house.users.push(user.id);
+      await house.save();
+    }
 
     await Promise.all([
       newInvestment.save(),
-      if (!house.users.includes(user.id)) {
-      house.updateOne({$push: {users: user.id}});
-    }
-    house.updateOne({$inc: {funded: amount}}),
-      user.updateOne({$inc: {balance: -amount}, $push: {investments: newInvestment.id}}),
+      house.updateOne({$inc: {funded: amount}}),
+      user.updateOne({$inc: {balance: -amount}, $push: {investments: newInvestment.id}}, {new: true}),
     ]);
 
     return res.status(200).json({success: true, message: "Investment successful"});

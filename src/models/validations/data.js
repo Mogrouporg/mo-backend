@@ -28,6 +28,9 @@ const houseSchema = Joi.object({
   address: Joi.string(),
   images: Joi.any(),
   description: Joi.string(),
+  grossYield: Joi.number(),
+  capitalAppreciation: Joi.number(),
+  roiPercentage: Joi.number()
 });
 
 module.exports = {realEstateSchema, transportSchema, houseSchema}

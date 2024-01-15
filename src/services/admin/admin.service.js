@@ -856,11 +856,12 @@ exports.createHouse = async (req, res) => {
       return res.status(400).json({message: "All fields are required!"});
     }
 
-    const {name, amount, images, category, description} = value;
+    const {name, amount, images, category, description, roiPercentage, grossYield, capitalAppreciation} = value;
 
     const urls = await imageUpload(images, "house");
 
     const users = await User.find({status: "active"}, "email");
+    const totalRoi = amount * roiPercentage / 100;
 
     const house = new House({
       name,
@@ -868,6 +869,11 @@ exports.createHouse = async (req, res) => {
       images: urls,
       category,
       description,
+      roiPercentage,
+      grossYield,
+      capitalAppreciation,
+      totalRoi,
+      roiPercentage
     });
 
     const message = `You can invest in ${name} that has just been added to the platform!`;
@@ -883,6 +889,87 @@ exports.createHouse = async (req, res) => {
     });
 
   } catch (e) {
+    console.log(e)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+};
+
+exports.editHouse = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const house = await House.findById(id);
+    if (!house) {
+      return res.status(404).json({
+        message: "House not found",
+      });
+    }
+    await house.updateOne(...req.body, {new: true});
+    return res.status(200).json({
+      success: true,
+      data: house,
+    });
+  } catch (e) {
+    console.log(e)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+};
+
+exports.deleteHouse = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const house = await House.findById(id);
+    if (!house) {
+      return res.status(404).json({
+        message: "House not found",
+      });
+    }
+    await house.deleteOne();
+    return res.status(200).json({
+      success: true,
+      data: house,
+    });
+  } catch (e) {
+    console.log(e)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+};
+
+exports.getHouses = async (req, res) => {
+  try {
+    const houses = await House.find();
+    return res.status(200).json({
+      success: true,
+      data: houses,
+    });
+  } catch (e) {
+    console.log(e)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+};
+
+exports.getSingleHouse = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const house = await House.findById(id);
+    if (!house) {
+      return res.status(404).json({
+        message: "House not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: house,
+    });
+  }
+  catch (e) {
     console.log(e)
     return res.status(500).json({
       message: "Internal Server Error"

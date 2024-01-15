@@ -25,7 +25,11 @@ const {
   editLandInvestment,
   deleteTransportInvestment,
   deleteLandInvestment,
-  createHouse
+  createHouse,
+  editHouse,
+  deleteHouse,
+  getSingleHouse,
+  getAllHouses
 } = require("../../services/admin/admin.service");
 const {editUser, deleteUser, getSingleAdmin, getAdmins} = require("../../services/admin/superAdmin.service");
 const {verifyTokenAdmin, verifySuperAdmin} = require("../../utils/updateToken.utils");
@@ -62,6 +66,10 @@ routerAdminTask.post("/real-estate/edit/:id", verifyTokenAdmin, editLandInvestme
 routerAdminTask.post("/transport/delete/:id", verifyTokenAdmin, deleteTransportInvestment);
 routerAdminTask.post("/real-estate/delete/:id", verifyTokenAdmin, deleteLandInvestment);
 routerAdminTask.post("/house/create", verifyTokenAdmin, createHouse);
+routerAdminTask.post("/house/edit/:id", verifyTokenAdmin, editHouse);
+routerAdminTask.post("/house/delete/:id", verifyTokenAdmin, deleteHouse);
+routerAdminTask.get("/houses", verifyTokenAdmin, getAllHouses);
+routerAdminTask.get("/house/:id", verifyTokenAdmin, getSingleHouse);
 
 // Approval
 // Loans

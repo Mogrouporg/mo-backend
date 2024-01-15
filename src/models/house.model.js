@@ -42,6 +42,10 @@ const houseSchema = new Schema({
   description: {
     type: String,
   },
+  roiPercentage: {
+    type: Number,
+    default: 0,
+  },
 
 }, {
   timestamps: true,
