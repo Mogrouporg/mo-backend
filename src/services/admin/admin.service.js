@@ -860,7 +860,7 @@ exports.createHouse = async (req, res) => {
 
     const urls = await imageUpload(images, "house");
 
-    const users = await User.find({status: "active"}, "email");
+    const users = await User.find();
     const totalRoi = amount * roiPercentage / 100;
 
     const house = new House({
@@ -877,9 +877,10 @@ exports.createHouse = async (req, res) => {
     });
 
     const message = `You can invest in ${name} that has just been added to the platform!`;
+    const emails = users.map((user) => user.email);
 
     await Promise.all([
-      notifyAllUsers(users, 'New House Listed', message),
+      notifyAllUsers(emails, 'New House Listed', message),
       house.save(),
     ]);
 
