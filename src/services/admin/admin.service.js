@@ -880,7 +880,7 @@ exports.createHouse = async (req, res) => {
     const emails = users.map((user) => user.email);
 
     await Promise.all([
-      notifyAllUsers(emails, 'New House Listed', message),
+      //      notifyAllUsers(emails, 'New House Listed', message),
       house.save(),
     ]);
 
