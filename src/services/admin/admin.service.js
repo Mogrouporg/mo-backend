@@ -856,7 +856,7 @@ exports.createHouse = async (req, res) => {
       return res.status(400).json({message: "All fields are required!"});
     }
 
-    const {name, amount, images, category, description, roiPercentage, grossYield, capitalAppreciation} = value;
+    const {name, amount, images, category, description, roiPercentage, grossYield, capitalAppreciation, address } = value;
 
     const urls = await imageUpload(images, "house");
 
@@ -873,7 +873,8 @@ exports.createHouse = async (req, res) => {
       grossYield,
       capitalAppreciation,
       totalRoi,
-      roiPercentage
+      roiPercentage,
+      address
     });
 
     const message = `You can invest in ${name} that has just been added to the platform!`;
