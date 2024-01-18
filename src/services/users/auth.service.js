@@ -102,17 +102,15 @@ exports.requestOtp = async (req, res) => {
     }
     const otp = genOtp();
     await saveOtp(email, otp);
-    const html = sendOtpMail({otp, firstName: req.user.firstName, lastName: req.user.lastName})
+    const html = await sendOtpMail({otp, firstName: req.user.firstName, lastName: req.user.lastName})
     await sendMail({
       email: email,
       subject: "Account Verification",
       html: html
     });
-    console.log(otp);
     return res.status(200).json({
       success: true,
       message: "Otp sent!",
-      data: otp,
     });
   } catch (e) {
     console.log(e);
