@@ -1,6 +1,8 @@
 const {
   initializePayment,
   verifyPayment,
+  initializePaymentTest,
+  verifyPaymentTest,
 } = require("../../utils/payment.utils");
 const {User} = require("../../models/users.model");
 const {pushNotification} = require("../notif/notif.services");
@@ -31,9 +33,13 @@ exports.deposit = async (req, res) => {
         message: "Can't make a deposit less than NGN 3950",
       });
     }
+    let response;
     const form = {amount, email};
-
-    const response = await initializePayment(form);
+    if (req.body.metadata === 'test') {
+      response = await initializePaymentTest(form);
+    } else {
+      response = await initializePayment(form);
+    }
 
     const newDeposit = new Transaction({
       amount: amount / 100,
@@ -70,7 +76,13 @@ exports.verifyDeposit = async (req, res) => {
     }
 
     processedRequests.add(reference);
-    const response = await verifyPayment(reference);
+    let response;
+    if (req.body.metadata === 'test') {
+      response = await verifyPayment(reference)
+    } else {
+      response = await verifyPayment(reference)
+    }
+
 
     if (response.data.data.status === "failed") {
       await transaction.updateOne(
