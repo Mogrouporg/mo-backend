@@ -17,6 +17,7 @@ const Investment = require("../../models/investment");
 const {sendNewPropertyMail, sendNewTransportMail} = require("../../utils/mailTemplates/newProperty.mail");
 const {House} = require("../../models/house.model");
 const {HouseInvestment} = require("../../models/houseInvestment.model");
+const {sendMail} = require("../../utils/mailer");
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -856,7 +857,7 @@ exports.createHouse = async (req, res) => {
       return res.status(400).json({message: "All fields are required!"});
     }
 
-    const {name, amount, images, category, description, roiPercentage, grossYield, capitalAppreciation, address } = value;
+    const {name, amount, images, category, description, roiPercentage, grossYield, capitalAppreciation, address} = value;
 
     const urls = await imageUpload(images, "house");
 
@@ -907,10 +908,10 @@ exports.editHouse = async (req, res) => {
         message: "House not found",
       });
     }
-    await house.updateOne(...req.body, {new: true});
+    await house.updateOne({$set: req.body}, {new: true});
     return res.status(200).json({
       success: true,
-      data: house,
+      data: house
     });
   } catch (e) {
     console.log(e)
@@ -944,11 +945,30 @@ exports.deleteHouse = async (req, res) => {
 
 exports.getHouses = async (req, res) => {
   try {
-    const houses = await House.find();
+    const page = parseInt(req.query.page) || 1; // Get the requested page number, default to 1
+    const perPage = 10; // Number of items to display per page
+
+    const startIndex = (page - 1) * perPage;
+
+    const totalInvestments = await House.countDocuments().exec();
+
+    const investments = await House.find({onSale: true})
+      .skip(startIndex)
+      .limit(perPage).sort({createdAt: -1});
+
+    const pagination = {
+      currentPage: page,
+      itemsPerPage: perPage,
+      totalItems: totalInvestments,
+      totalPages: Math.ceil(totalInvestments / perPage),
+    };
+
     return res.status(200).json({
       success: true,
-      data: houses,
+      data: investments,
+      pagination: pagination,
     });
+
   } catch (e) {
     console.log(e)
     return res.status(500).json({
