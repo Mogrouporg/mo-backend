@@ -165,6 +165,8 @@ exports.investInRealEstate = async (req, res) => {
       });
     }
 
+    const amount = realEstate.amount;
+
     const newInvestment = {
       user: req.user.id,
       propertyId: id,
@@ -685,6 +687,20 @@ exports.getInvestment = async (req, res) => {
   }
 };
 
+/** 
+  *The logic for this function:
+  * @Param id: house Id
+  * @body amount: amount planning to be invested
+  * @user user details
+  *
+  * fetches the house details
+  * creates a new Investment model
+  * calculate the roi
+  * ??Period explanation and how it will affect the investment
+  * if user is in the house investment before, do not include in the existing investors else, add to the user array
+  * 
+  * */
+
 
 exports.investInHousing = async (req, res) => {
   const user = req.user;
@@ -693,6 +709,7 @@ exports.investInHousing = async (req, res) => {
 
   try {
     const house = await House.findById(id);
+    const data = await User.findById(user.id)
     if (!house) {
       return res.status(404).json({message: "House not found"});
     }
@@ -719,7 +736,7 @@ exports.investInHousing = async (req, res) => {
     await Promise.all([
       newInvestment.save(),
       house.updateOne({$inc: {funded: amount}}),
-      user.updateOne({$inc: {balance: -amount}, $push: {investments: newInvestment.id}}, {new: true}),
+      data.updateOne({$inc: {balance: -amount}, $push: {investments: newInvestment.id}}, {new: true}),
     ]);
 
     return res.status(200).json({success: true, message: "Investment successful"});

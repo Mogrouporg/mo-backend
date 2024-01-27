@@ -850,7 +850,7 @@ exports.createHouse = async (req, res) => {
 
     const {error, value} = houseSchema.validate({
       ...req.body,
-      images: req.files.images,
+      images: req.files.images
     });
 
     if (error) {
@@ -862,7 +862,7 @@ exports.createHouse = async (req, res) => {
     const urls = await imageUpload(images, "house");
 
     const users = await User.find();
-    const totalRoi = amount * roiPercentage / 100;
+    const totalRoi = amount * (roiPercentage / 100);
 
     const house = new House({
       name,
