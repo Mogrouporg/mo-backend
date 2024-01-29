@@ -190,7 +190,7 @@ exports.investInRealEstate = async (req, res) => {
       investment: "RealEstateInvestment",
     })
     await transaction.save()
-    const totalRoi = amount + (amount * (realEstate.roi / 100) * (parseInt(invPeriod) / 12))
+    const totalRoi = amount + (realEstate.roi * (parseInt(invPeriod) / 12));
     await Promise.all([
       User.findByIdAndUpdate(user.id, {
         $push: {
