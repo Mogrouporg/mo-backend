@@ -705,7 +705,7 @@ exports.getInvestment = async (req, res) => {
 exports.investInHousing = async (req, res) => {
   const user = req.user;
   const {id} = req.params;
-  const {amount} = req.body;
+  const {amount, invPeriod} = req.body;
 
   try {
     const house = await House.findById(id);
@@ -725,7 +725,8 @@ exports.investInHousing = async (req, res) => {
       user: user.id,
       house: house.id,
       amount,
-      roi: amount * (house.roiPercentage / 100)
+      roi: amount * (house.roiPercentage / 100),
+      invPeriod,
     });
     await newInvestment.save();
     if (!house.users.includes(user.id)) {

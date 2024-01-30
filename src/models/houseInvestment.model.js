@@ -26,6 +26,9 @@ const houseInvestmentSchema = new Schema({
     type: Number,
     default: 0,
   },
+  invPeriod: {
+    type: Number
+  }
 }, {
   timestamps: true,
 });
