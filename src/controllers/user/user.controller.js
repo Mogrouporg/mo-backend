@@ -24,6 +24,8 @@ const {
   getSingleRealEstate,
   uploadProfilePicture,
   updatePassword,
+  listBanks,
+  getAccountName
 } = require("../../services/users/account.service");
 const {
   getAllRealEstates,
@@ -59,5 +61,7 @@ useRouter.get("/getSingleInvestment/:id", verifyToken, getInvestment);
 useRouter.post("/housing/:id/invest", verifyToken, checkIsBanned, investInHousing);
 useRouter.get("/houses", getHouses);
 useRouter.get("/house/:id", getSingleHouse);
+useRouter.get("/banks", listBanks);
+useRouter.post("/account-name", getAccountName);
 
 module.exports = useRouter;

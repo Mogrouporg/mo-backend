@@ -8,6 +8,7 @@ const {
 const {imageUpload} = require("../../utils/imageUpload.util");
 const {RealEstate} = require("../../models/realEstate.model");
 const {Transportation} = require("../../models/transportations.model");
+const {listBanks, banklookup} = require("../../utils/banklookup");
 const argon2 = require("argon2");
 
 const calculateAllMyDailyROI = async (userId) => {
@@ -101,6 +102,45 @@ exports.editAccount = async (req, res) => {
     });
   }
 };
+
+exports.listBanks = async (req, res) => {
+  try {
+    const banks = await listBanks();
+    return res.status(200).json({
+      success: true,
+      data: banks,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getAccountName = async (req, res) => {
+  try {
+    const {bankCode, accountNumber} = req.body;
+    if (!bankCode || !accountNumber) {
+      return res.status(400).json({
+        message: "Please provide bank code and account number",
+      });
+    }
+    const accountDetails = await banklookup(bankCode, accountNumber);
+    return res.status(200).json({
+      success: true,
+      data: accountDetails,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+
 
 exports.addBankDetails = async (req, res) => {
   try {
