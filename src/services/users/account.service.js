@@ -324,7 +324,7 @@ exports.uploadProfilePicture = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(501).json({
       message: "Internal Server Error",
     });
   }

@@ -39,7 +39,7 @@ useRouter.get("/user/notifications", verifyToken, findNotifById);
 useRouter.post("/account/deposit", verifyToken, checkIsBanned, deposit);
 useRouter.get("/profile", verifyToken, myProfile);
 useRouter.post("/account/edit", verifyToken, editAccount);
-useRouter.get("/paystack/callback", verifyToken, verifyDeposit);
+useRouter.post("/paystack/callback", verifyToken, verifyDeposit);
 useRouter.get("/account/transactions", verifyToken, getMyTransactions);
 useRouter.post("/real-estate/:id/invest", verifyToken, checkIsBanned, investInRealEstate);
 useRouter.post("/real-estate/:id/sell", verifyToken, checkIsBanned, sellRealEstateInvestment);
