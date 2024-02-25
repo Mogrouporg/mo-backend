@@ -78,7 +78,7 @@ exports.verifyDeposit = async (req, res) => {
     processedRequests.add(reference);
     let response;
     if (req.body.metadata === 'test') {
-      response = await verifyPayment(reference)
+      response = await verifyPaymentTest(reference)
     } else {
       response = await verifyPayment(reference)
     }
