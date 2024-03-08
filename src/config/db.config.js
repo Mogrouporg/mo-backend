@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 require('dotenv').config();
 
-exports.db = async()=>{
+exports.db = async(uri)=>{
     try{
-        mongoose.connect(process.env.MONGO_URI, (err)=>{
+        mongoose.connect(uri, (err)=>{
             if(err){
                 console.log(`Error connecting to the database`)
                 process.exit(0)
